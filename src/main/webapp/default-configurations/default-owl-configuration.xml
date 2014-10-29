@@ -280,7 +280,64 @@
 
             </columns>
         </tab>
-
+        
+        <!-- ********************************** -->
+        <!--       XD Tab        -->
+        <!-- ********************************** -->
+		<tab>
+            <name>edu.stanford.bmir.protege.web.client.xd.XdTab</name>
+            <label>eXtreme Design</label>
+            <columns>
+                
+                <!-- Column 1 -->
+                <column>
+                    <width>0.25</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.ontology.individuals.IndividualsListPortlet</name>
+                            <height>240</height>
+                            <width>0</width>
+                        </portlet>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.ontology.classes.ClassTreePortlet</name>
+                            <height>320</height>
+                            <width>200</width>
+                        </portlet>
+                    </portlets>
+                </column>
+                
+                <!-- Column 2 -->
+                <column>
+                    <width>0.55</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.editor.EditorPortlet</name>
+                            <height>570</height>
+                            <width>0</width>
+                        </portlet>
+                    </portlets>
+                </column>
+                
+                <!-- Column 3 -->
+                <column>
+                    <width>0.20</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.projectfeed.ProjectFeedPortlet</name>
+                            <height>170</height>
+                            <width>0</width>
+                        </portlet>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.notes.DiscussionThreadPortlet</name>
+                            <height>390</height>
+                            <width>0</width>
+                        </portlet>
+                    </portlets>
+                </column>
+                
+            </columns>
+            <controllingPortlet reference="../columns/column/portlets/portlet"/>
+        </tab>
     </tabs>
 
 </project>

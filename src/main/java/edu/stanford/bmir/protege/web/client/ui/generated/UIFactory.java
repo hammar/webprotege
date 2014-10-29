@@ -1,6 +1,7 @@
 package edu.stanford.bmir.protege.web.client.ui.generated;
 
 import com.google.gwt.core.client.GWT;
+
 import edu.stanford.bmir.protege.web.client.metrics.MetricsPortlet;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.renderer.EntityDescriptionPortlet;
@@ -36,6 +37,7 @@ import edu.stanford.bmir.protege.web.client.ui.projectfeed.ProjectFeedPortlet;
 import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
 import edu.stanford.bmir.protege.web.client.ui.tab.UserDefinedTab;
 import edu.stanford.bmir.protege.web.client.usage.UsagePortlet;
+import edu.stanford.bmir.protege.web.client.xd.XdTab;
 
 import java.util.*;
 
@@ -80,6 +82,9 @@ public class UIFactory {
         }
         else if (tabJavaClassName.equals(ManageHierarchyTab.class.getName())) {
             return new ManageHierarchyTab(project);
+        }
+        else if (tabJavaClassName.equals(XdTab.class.getName())) {
+        	return new XdTab(project);
         }
         return null;
     }
@@ -206,7 +211,7 @@ public class UIFactory {
          * OtherTerminologiesTab.class.getName(),
          *
          */
-        String[] tabs = {ClassesTab.class.getName(), PropertiesTab.class.getName(), IndividualsTab.class.getName(), MetadataTab.class.getName(), NotesTab.class.getName()};
+        String[] tabs = {ClassesTab.class.getName(), PropertiesTab.class.getName(), IndividualsTab.class.getName(), MetadataTab.class.getName(), NotesTab.class.getName(), XdTab.class.getName()};
         return Arrays.asList(tabs);
     }
 
