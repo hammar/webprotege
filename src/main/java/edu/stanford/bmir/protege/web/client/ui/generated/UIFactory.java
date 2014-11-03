@@ -37,6 +37,8 @@ import edu.stanford.bmir.protege.web.client.ui.projectfeed.ProjectFeedPortlet;
 import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
 import edu.stanford.bmir.protege.web.client.ui.tab.UserDefinedTab;
 import edu.stanford.bmir.protege.web.client.usage.UsagePortlet;
+import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
+import edu.stanford.bmir.protege.web.client.xd.XdPatternInstancesPortlet;
 import edu.stanford.bmir.protege.web.client.xd.XdSearchPortlet;
 import edu.stanford.bmir.protege.web.client.xd.XdTab;
 
@@ -201,6 +203,12 @@ public class UIFactory {
             else if(portletJavaClassName.endsWith(XdSearchPortlet.class.getName())) {
                 return new XdSearchPortlet(project);
             }
+            else if(portletJavaClassName.endsWith(XdPatternInstancesPortlet.class.getName())) {
+                return new XdPatternInstancesPortlet(project);
+            }
+            else if(portletJavaClassName.endsWith(XdPatternDetailsPortlet.class.getName())) {
+                return new XdPatternDetailsPortlet(project);
+            }
         }
         catch (Exception e) {
             GWT.log("Error when creating portlet", e);
@@ -226,7 +234,7 @@ public class UIFactory {
          * ChangeTreePortlet.class.getName(), ChangeSummaryPortlet.class.getName(), ChangeTablePortlet.class.getName(),
          * NotesPortlet.class.getName(),
          */
-        String[] portlets = {OWLEntityDescriptionEditorPortlet.class.getName(), EntityDescriptionPortlet.class.getName(), UsagePortlet.class.getName(), OntologyIdPortlet.class.getName(), OntologyAnnotationsPortlet.class.getName(), EditorPortlet.class.getName(), DiscussionThreadPortlet.class.getName(), ChangeSummaryPortlet.class.getName(), ProjectFeedPortlet.class.getName(), AnnotationsPortlet.class.getName(), AllPropertiesPortlet.class.getName(), PropertiesViewPortlet.class.getName(), ClassTreePortlet.class.getName(), ImportsTreePortlet.class.getName(), IndividualsListPortlet.class.getName(), MetricsPortlet.class.getName(), OntologiesPortlet.class.getName(), PropertiesTreePortlet.class.getName(), BioPortalSearchPortlet.class.getName(), SuperclassesPortlet.class.getName(), ChangesPortlet.class.getName(), WatchedEntitiesPortlet.class.getName(), BioPortalProposalsPortlet.class.getName(), OBOTermCrossProductPortlet.class.getName(), OBOTermRelationshipPortlet.class.getName(), OBOTermSynonymsPortlet.class.getName(), OBOTermMetadataPortlet.class.getName(), OBOTermIdEditorPortlet.class.getName(), OBOTermDefinitionPortlet.class.getName(), OBOTermXRefsEditorPortlet.class.getName(), RevisionsPortlet.class.getName(), XdSearchPortlet.class.getName()};
+        String[] portlets = {OWLEntityDescriptionEditorPortlet.class.getName(), EntityDescriptionPortlet.class.getName(), UsagePortlet.class.getName(), OntologyIdPortlet.class.getName(), OntologyAnnotationsPortlet.class.getName(), EditorPortlet.class.getName(), DiscussionThreadPortlet.class.getName(), ChangeSummaryPortlet.class.getName(), ProjectFeedPortlet.class.getName(), AnnotationsPortlet.class.getName(), AllPropertiesPortlet.class.getName(), PropertiesViewPortlet.class.getName(), ClassTreePortlet.class.getName(), ImportsTreePortlet.class.getName(), IndividualsListPortlet.class.getName(), MetricsPortlet.class.getName(), OntologiesPortlet.class.getName(), PropertiesTreePortlet.class.getName(), BioPortalSearchPortlet.class.getName(), SuperclassesPortlet.class.getName(), ChangesPortlet.class.getName(), WatchedEntitiesPortlet.class.getName(), BioPortalProposalsPortlet.class.getName(), OBOTermCrossProductPortlet.class.getName(), OBOTermRelationshipPortlet.class.getName(), OBOTermSynonymsPortlet.class.getName(), OBOTermMetadataPortlet.class.getName(), OBOTermIdEditorPortlet.class.getName(), OBOTermDefinitionPortlet.class.getName(), OBOTermXRefsEditorPortlet.class.getName(), RevisionsPortlet.class.getName(), XdSearchPortlet.class.getName(), XdPatternInstancesPortlet.class.getName(), XdPatternDetailsPortlet.class.getName()};
 
         List<String> portletsList = Arrays.asList(portlets);
         Collections.sort(portletsList, new Comparator<String>() {

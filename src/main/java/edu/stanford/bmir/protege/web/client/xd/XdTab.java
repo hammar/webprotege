@@ -8,6 +8,7 @@ import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
  *
  * @author Karl Hammar <karl@karlhammar.com>
  */
+@SuppressWarnings("unchecked")
 public class XdTab extends AbstractTab {
 
     public XdTab(Project project) {

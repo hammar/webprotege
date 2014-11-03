@@ -19,6 +19,7 @@ import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
  * @author Karl Hammar
  *
  */
+@SuppressWarnings("unchecked")
 public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 	
 	public XdSearchPortlet(Project project) {

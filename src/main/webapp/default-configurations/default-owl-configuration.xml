@@ -291,27 +291,22 @@
                 
                 <!-- Column 1 -->
                 <column>
-                    <width>0.25</width>
+                    <width>0.20</width>
                     <portlets>
                         <portlet>
-                            <name>edu.stanford.bmir.protege.web.client.ui.ontology.individuals.IndividualsListPortlet</name>
-                            <height>240</height>
+                            <name>edu.stanford.bmir.protege.web.client.xd.XdSearchPortlet</name>
+                            <height>570</height>
                             <width>0</width>
-                        </portlet>
-                        <portlet>
-                            <name>edu.stanford.bmir.protege.web.client.ui.ontology.classes.ClassTreePortlet</name>
-                            <height>320</height>
-                            <width>200</width>
                         </portlet>
                     </portlets>
                 </column>
                 
                 <!-- Column 2 -->
                 <column>
-                    <width>0.55</width>
+                    <width>0.60</width>
                     <portlets>
                         <portlet>
-                            <name>edu.stanford.bmir.protege.web.client.ui.editor.EditorPortlet</name>
+                            <name>edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet</name>
                             <height>570</height>
                             <width>0</width>
                         </portlet>
@@ -323,13 +318,8 @@
                     <width>0.20</width>
                     <portlets>
                         <portlet>
-                            <name>edu.stanford.bmir.protege.web.client.ui.projectfeed.ProjectFeedPortlet</name>
-                            <height>170</height>
-                            <width>0</width>
-                        </portlet>
-                        <portlet>
-                            <name>edu.stanford.bmir.protege.web.client.ui.notes.DiscussionThreadPortlet</name>
-                            <height>390</height>
+                            <name>edu.stanford.bmir.protege.web.client.xd.XdPatternInstancesPortlet</name>
+                            <height>570</height>
                             <width>0</width>
                         </portlet>
                     </portlets>
