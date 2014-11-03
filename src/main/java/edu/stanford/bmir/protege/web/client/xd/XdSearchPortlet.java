@@ -3,10 +3,14 @@ package edu.stanford.bmir.protege.web.client.xd;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 
@@ -26,10 +30,18 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 		super(project);
 	}
 	
+	// Private parameters
+	private boolean isSearchOptionsExpanded;
+	
 	// Portlet UI widget definitions
+	private DockLayoutPanel portletLayout;
+	private DockLayoutPanel header;
+	private HorizontalPanel searchPanel;
 	private TextBox queryTextBox;
 	private Button searchButton;
+	private Button searchOptionsButton;
 	private Label resultLabel;
+	private Grid searchOptions;
 
 	@Override
 	public Collection<EntityData> getSelection() {
@@ -44,12 +56,32 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 	// Initialization method for GUI
 	@Override
 	public void initialize() {
+		isSearchOptionsExpanded = false;
+		
 		setTitle("ODP Search");
 		
 		// Initialize UI widgets
 		queryTextBox = new TextBox();
-		searchButton = new Button("Search");
-		resultLabel = new Label("Results go here..");
+		searchButton = new Button("S");
+		searchOptionsButton = new Button("O");
+		searchOptions = new Grid(5,2);
+		resultLabel = new Label("Results will go here\nand here\nand here..");
+		
+		// Search header
+		header = new DockLayoutPanel(Unit.EM);
+		searchPanel = new HorizontalPanel();
+		searchPanel.add(queryTextBox);
+		searchPanel.add(searchButton);
+		searchPanel.add(searchOptionsButton);
+		header.addNorth(searchPanel, 2);
+		header.addSouth(searchOptions, 15);
+		header.setWidgetHidden(searchOptions, true);
+		
+		// Main portlet layout
+		portletLayout = new DockLayoutPanel(Unit.EM);
+		portletLayout.addNorth(header, 2);
+		portletLayout.add(resultLabel);
+		add(portletLayout);
 		
 		// Search button behavior
         searchButton.addClickHandler(new ClickHandler() {
@@ -74,10 +106,21 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
             	resultLabel.setText("The button was clicked!");
             }
           });
-		
-        // Add UI widgets to portlet canvas
-		add(queryTextBox);
-		add(searchButton);
-		add(resultLabel);
+        
+        // Options button behavior
+        searchOptionsButton.addClickHandler(new ClickHandler(){
+        	public void onClick(ClickEvent event) {
+        		if (!isSearchOptionsExpanded) {
+        			portletLayout.setWidgetSize(header, 17);
+        			header.setWidgetHidden(searchOptions, false);
+        			isSearchOptionsExpanded = true;
+        		}
+        		else {
+        			portletLayout.setWidgetSize(header, 2);
+        			header.setWidgetHidden(searchOptions, true);
+        			isSearchOptionsExpanded = false;
+        		}
+        	}
+        });
 	}
 }
