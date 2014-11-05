@@ -10,46 +10,54 @@ import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 public class OdpInstantiationWidget extends Composite implements ContextMenuHandler {
-	  
-	  // just an example, use a meaningful Widget here...
-	  private Label label = new Label();
-	 
-	  private PopupPanel contextMenu;
-	 
-	  public OdpInstantiationWidget(String caption, String uri) {
-		  label.setText(caption);
-		  label.setTitle(uri);
-		  label.addStyleName("xdUnselectable");
-	    // initialize base widget, etc...
-		  initWidget(this.label);
-		  
-		  Command cmd = new Command() {
-		      public void execute() {
-		        Window.alert("You selected a menu item!");
-		      }
-		    };
-		  
-	    this.contextMenu = new PopupPanel(true);
-	    this.contextMenu.addStyleName("xdInstantiationsPopup");
-	    MenuBar menu = new MenuBar(true);
-	    menu.addItem("Modify", cmd);
-	    menu.addItem("Delete", cmd);
-	    this.contextMenu.setWidget(menu);
-	    
-	    this.contextMenu.hide();
-	 
-	    // of course it would be better if base would implement HasContextMenuHandlers, but the effect is the same
-	    addDomHandler(this, ContextMenuEvent.getType());
-	  }
-	 
-	 
-	  public void onContextMenu(ContextMenuEvent event) {
-	    // stop the browser from opening the context menu
-	    event.preventDefault();
-	    event.stopPropagation();
-	 
-	 
-	    this.contextMenu.setPopupPosition(event.getNativeEvent().getClientX(), event.getNativeEvent().getClientY());
-	    this.contextMenu.show();
-	  }
+
+	// Base widget is label.
+	private Label label = new Label();
+	private PopupPanel contextMenu;
+
+	
+	public OdpInstantiationWidget(String caption, String uri) {
+		// Set up the base label widget
+		label.setText(caption);
+		label.setTitle(uri);
+		label.addStyleName("xdUnselectable");
+		initWidget(this.label);
+
+		/* Commands to delete or bring up modification UI in details tab
+		 * TODO: Inter-portlet communications need to be hooked up via custom
+		 * listeners on XD Tab level for this to work. */
+		Command cmdDelete = new Command() {
+			public void execute() {
+				Window.alert("You will now delete " + label.getTitle());
+			}
+		};
+		Command cmdModify = new Command() {
+			public void execute() {
+				Window.alert("You will now modify " + label.getTitle());
+			}
+		}; 
+
+		// Configure the popup menu
+		this.contextMenu = new PopupPanel(true);
+		this.contextMenu.addStyleName("xdInstantiationsPopup");
+		MenuBar menu = new MenuBar(true);
+		menu.addItem("Modify", cmdModify);
+		menu.addItem("Delete", cmdDelete);
+		this.contextMenu.setWidget(menu);
+		this.contextMenu.hide();
+
+		// of course it would be better if base would implement HasContextMenuHandlers, but the effect is the same
+		addDomHandler(this, ContextMenuEvent.getType());
 	}
+
+
+	public void onContextMenu(ContextMenuEvent event) {
+		// Stop the browser from opening the context menu
+		event.preventDefault();
+		event.stopPropagation();
+
+		// Display the menu
+		this.contextMenu.setPopupPosition(event.getNativeEvent().getClientX(), event.getNativeEvent().getClientY());
+		this.contextMenu.show();
+	}
+}
