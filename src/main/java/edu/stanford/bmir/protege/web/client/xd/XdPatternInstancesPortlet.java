@@ -2,9 +2,7 @@ package edu.stanford.bmir.protege.web.client.xd;
 
 import java.util.Collection;
 
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 
@@ -21,7 +19,6 @@ import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
 public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 	
 	private Label debugLabel;
-	private PopupPanel contextMenu;
 	
 	public XdPatternInstancesPortlet(Project project) {
 		super(project);
@@ -42,10 +39,6 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 	public void initialize() {
 		setTitle("Instantiated ODPs");
 		
-	    contextMenu = new PopupPanel(true);
-	    contextMenu.add(new HTML("My Context menu!"));
-	    contextMenu.hide();
-		
 	    // Create a tree with a few items in it.
 		Label naryLabel = new Label("Nary Participation");
 		naryLabel.setTitle("http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl");
@@ -56,7 +49,7 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 	    nary.setState(true);
 	    
 	    Label infoRLabel = new Label("Information Realization");
-	    infoRLabel.setTitle("http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl ");
+	    infoRLabel.setTitle("http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl");
 	    TreeItem infoR = new TreeItem(infoRLabel);
 	    infoR.addItem(new OdpInstantiationWidget("Instantiation: Books and Printed Copies","http://www.example.com/printedBooksModule.owl"));
 	    infoR.setState(true);

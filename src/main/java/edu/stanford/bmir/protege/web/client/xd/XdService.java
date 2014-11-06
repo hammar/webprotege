@@ -5,6 +5,10 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
+import edu.stanford.bmir.protege.web.shared.project.ProjectId;
+import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
+import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
+
 /***
  * Interface defining eXtreme Design WebProtege tab GWT-RPC services.
  * @author Karl Hammar
@@ -13,5 +17,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface XdService extends RemoteService  {
 
 	List<String> getOdpSearchContent(String queryString);
+	OdpDetails getOdpDetails(String odpUri);	
+	List<OdpInstantiation> getOdpInstantiations(ProjectId projectId);
 	
 }
