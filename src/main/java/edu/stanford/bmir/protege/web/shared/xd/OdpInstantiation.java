@@ -1,11 +1,18 @@
 package edu.stanford.bmir.protege.web.shared.xd;
 
-public class OdpInstantiation {
+import java.io.Serializable;
+
+public class OdpInstantiation implements Serializable {
+	private static final long serialVersionUID = -8164990474684842383L;
 	private String uri;
 	private String name;
-	private String odp;
+	private OdpDetails odp;
 	
-	public OdpInstantiation(String uri, String name, String odp) {
+	public OdpInstantiation() {
+		
+	}
+	
+	public OdpInstantiation(String uri, String name, OdpDetails odp) {
 		this.uri = uri;
 		this.name = name;
 		this.odp = odp;
@@ -19,7 +26,7 @@ public class OdpInstantiation {
 		return name;
 	}
 
-	public String getOdp() {
+	public OdpDetails getOdp() {
 		return odp;
 	}
 }

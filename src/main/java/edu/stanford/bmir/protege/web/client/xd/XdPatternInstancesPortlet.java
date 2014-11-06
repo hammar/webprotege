@@ -1,7 +1,11 @@
 package edu.stanford.bmir.protege.web.client.xd;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -9,6 +13,8 @@ import com.google.gwt.user.client.ui.TreeItem;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
+import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
+import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
 
 /***
  * Portlet listing existing ODP instantiations in ontology.
@@ -18,7 +24,8 @@ import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
 @SuppressWarnings("unchecked")
 public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 	
-	private Label debugLabel;
+	private List<OdpInstantiation> instantiations;
+	private List<OdpDetails> odps;
 	
 	public XdPatternInstancesPortlet(Project project) {
 		super(project);
@@ -35,42 +42,54 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 	}
 
 	// Initialization method for GUI
+	@SuppressWarnings("deprecation")
 	@Override
 	public void initialize() {
 		setTitle("Instantiated ODPs");
 		
-	    // Create a tree with a few items in it.
-		Label naryLabel = new Label("Nary Participation");
-		naryLabel.setTitle("http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl");
-	    TreeItem nary = new TreeItem(naryLabel);
-	    nary.addItem(new OdpInstantiationWidget("Instantiation: Class attendance","http://www.example.com/classAttendanceModule.owl"));
-	    nary.addItem(new OdpInstantiationWidget("Instantiation: Club membership","http://www.example.com/clubMembershipModule.owl"));
-	    nary.addItem(new OdpInstantiationWidget("Instantiation: Meeting attendance","http://www.example.com/meetingAttendanceModule.owl"));
-	    nary.setState(true);
-	    
-	    Label infoRLabel = new Label("Information Realization");
-	    infoRLabel.setTitle("http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl");
-	    TreeItem infoR = new TreeItem(infoRLabel);
-	    infoR.addItem(new OdpInstantiationWidget("Instantiation: Books and Printed Copies","http://www.example.com/printedBooksModule.owl"));
-	    infoR.setState(true);
-	    
-	    Label accLabel = new Label("Accountability");
-	    accLabel.setTitle("http://infoeng.se/~karl/ilog2014/odps/accountability.owl");
-	    TreeItem acc = new TreeItem(accLabel);
-	    acc.addItem(new OdpInstantiationWidget("Instantiation: Patient Consent","http://www.example.com/patientConsentModule.owl"));
-	    acc.addItem(new OdpInstantiationWidget("Instantiation: House-keeping","http://www.example.com/houseKeepingModule.owl"));
-	    acc.setState(true);
-	    
-	    Tree t = new Tree();
-	    t.addItem(nary);
-	    t.addItem(infoR);
-	    t.addItem(acc);
-	    
-	    // Add it to the root panel.
-	    add(t);
-	    
-	    // Debug
-	    debugLabel = new Label("debug label");
-	    add(debugLabel);
+		// Initialize required member variables
+		instantiations = new ArrayList<OdpInstantiation>();
+		odps = new ArrayList<OdpDetails>();
+		
+		// Call XD Service API to populate list of instantiated ODPs
+		XdServiceManager.getInstance().getInstantiatedOdps(getProjectId(), new AsyncCallback<List<OdpInstantiation>>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				Window.alert("ODP instantiations could not be retreived from server. Error message: " + caught.getMessage());
+			}
+
+			@Override
+			public void onSuccess(List<OdpInstantiation> results) {
+				// Populate the member variables form returned data
+				instantiations.addAll(results);
+				for (OdpInstantiation oi: results) {
+					if (!odps.contains(oi.getOdp())) {
+						odps.add(oi.getOdp());
+					}
+				}
+				
+				// Create a tree and populate it from the member variables
+				// Not very efficient to iterate over all OdpInstantiations again below,
+				// but we are not dealing with large amounts of data anyway..
+				Tree t = new Tree();
+				for (OdpDetails od: odps) {
+					Label odpLabel = new Label(od.getName());
+					odpLabel.setTitle(od.getUri());
+					TreeItem odpTI = new TreeItem(odpLabel);
+					// For each ODP used in project, iterate over instantiations and add
+					// child nodes for each.
+					for (OdpInstantiation oi: instantiations) {
+						if (oi.getOdp().getUri() == od.getUri()) {
+							odpTI.addItem(new OdpInstantiationWidget(oi.getName(),oi.getUri()));
+						}
+					}
+					odpTI.setState(true);
+					t.addItem(odpTI);
+				}
+				add(t);
+			}
+		});
 	}
 }

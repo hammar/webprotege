@@ -31,13 +31,16 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 	@Override
 	public List<OdpInstantiation> getOdpInstantiations(ProjectId projectId) {
 		/* TODO: Actually implement this method, fetching imports from project that 
-		 * are in fact ODPs. */
-		OdpInstantiation oi1 = new OdpInstantiation("http://www.example.com/classAttendanceModule.owl","Instantiation: Class attendance","http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl");
-		OdpInstantiation oi2 = new OdpInstantiation("http://www.example.com/clubMembershipModule.owl","Instantiation: Club membership","http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl");
-		OdpInstantiation oi3 = new OdpInstantiation("http://www.example.com/meetingAttendanceModule.owl","Instantiation: Meeting attendance","http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl");
-		OdpInstantiation oi4 = new OdpInstantiation("http://www.example.com/printedBooksModule.owl","Instantiation: Books and Printed Copies","http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl");
-		OdpInstantiation oi5 = new OdpInstantiation("http://www.example.com/patientConsentModule.owl","Instantiation: Patient Consent","http://infoeng.se/~karl/ilog2014/odps/accountability.owl");
-		OdpInstantiation oi6 = new OdpInstantiation("http://www.example.com/houseKeepingModule.owl","Instantiation: House-keeping","http://infoeng.se/~karl/ilog2014/odps/accountability.owl");
+		 * are in fact ODP instantiations, and the corresponding ODPs. */
+		OdpDetails od1 = new OdpDetails("http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl","Nary Participation");
+		OdpDetails od2 = new OdpDetails("http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl","Information Realization");
+		OdpDetails od3 = new OdpDetails("http://infoeng.se/~karl/ilog2014/odps/accountability.owl","Accountability");
+		OdpInstantiation oi1 = new OdpInstantiation("http://www.example.com/classAttendanceModule.owl","Instantiation: Class attendance",od1);
+		OdpInstantiation oi2 = new OdpInstantiation("http://www.example.com/clubMembershipModule.owl","Instantiation: Club membership",od1);
+		OdpInstantiation oi3 = new OdpInstantiation("http://www.example.com/meetingAttendanceModule.owl","Instantiation: Meeting attendance",od1);
+		OdpInstantiation oi4 = new OdpInstantiation("http://www.example.com/printedBooksModule.owl","Instantiation: Books and Printed Copies",od2);
+		OdpInstantiation oi5 = new OdpInstantiation("http://www.example.com/patientConsentModule.owl","Instantiation: Patient Consent",od3);
+		OdpInstantiation oi6 = new OdpInstantiation("http://www.example.com/houseKeepingModule.owl","Instantiation: House-keeping",od3);
 		return Arrays.asList(oi1,oi2,oi3,oi4,oi5,oi6);
 	}
 
@@ -58,5 +61,14 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 			odpName = "ODP name unknown";
 		}
 		return new OdpDetails(odpUri,odpName);
+	}
+
+	@Override
+	public List<OdpDetails> getUsedOdps(ProjectId projectId) {
+		// TODO: Actually implement this method, fetching used ODPs via imported ODP instantiations.
+		OdpDetails od1 = new OdpDetails("http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl","Nary Participation");
+		OdpDetails od2 = new OdpDetails("http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl","Information Realization");
+		OdpDetails od3 = new OdpDetails("http://infoeng.se/~karl/ilog2014/odps/accountability.owl","Accountability");
+		return Arrays.asList(od1,od2,od3);
 	}
 }
