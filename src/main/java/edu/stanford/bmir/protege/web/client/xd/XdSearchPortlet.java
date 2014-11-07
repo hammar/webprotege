@@ -1,9 +1,12 @@
 package edu.stanford.bmir.protege.web.client.xd;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -24,10 +27,11 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
+import edu.stanford.bmir.protege.web.client.ui.selection.SelectionEvent;
 
 /***
  * Portlet providing an ODP search GUI.
- * @author Karl Hammar
+ * @author Karl Hammar <karl@karlhammar.com>
  *
  */
 @SuppressWarnings("unchecked")
@@ -64,7 +68,13 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 
 	@Override
 	public Collection<EntityData> getSelection() {
-		return null;
+		if (resultsList.getSelectedIndex() != -1) {
+			String selectedOdp = resultsList.getItemText(resultsList.getSelectedIndex());
+			return Arrays.asList(new EntityData(selectedOdp));
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -189,8 +199,20 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
         		}
         	}
         });
+        
+        // Behavior when a result from the search is clicked - notifies listeners
+        // that selection changed.
+        resultsList.addChangeHandler(new ChangeHandler(){
+			@SuppressWarnings("deprecation")
+			@Override
+			public void onChange(ChangeEvent event) {
+				notifySelectionListeners(new SelectionEvent(XdSearchPortlet.this));
+			}
+        });
 	}
 	
+	// Runs the ODP search on the server using the query string and populates the results list.
+	// TODO: Plug in the search filters from the GUI form also.
 	private void runOdpSearch() {
 		resultsList.clear();
     	

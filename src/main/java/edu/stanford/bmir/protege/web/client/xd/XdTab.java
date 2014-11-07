@@ -11,12 +11,19 @@ import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
 @SuppressWarnings("unchecked")
 public class XdTab extends AbstractTab {
 
+	private XdSearchPortlet patternSearchPortlet;
+	
     public XdTab(Project project) {
         super(project);
     }
 
-    @Override
+	@Override
     public void setup() {
         super.setup();
+        
+        // Set controlling portlet: this automatically sets other portlets in this tab
+        // as listeners to selection events from patternSearchPortlet.
+        patternSearchPortlet = (XdSearchPortlet) getPortletByClassName(XdSearchPortlet.class.getName());
+        setControllingPortlet(patternSearchPortlet);
     }
 }

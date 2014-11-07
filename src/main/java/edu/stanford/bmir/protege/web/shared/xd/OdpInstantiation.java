@@ -2,6 +2,12 @@ package edu.stanford.bmir.protege.web.shared.xd;
 
 import java.io.Serializable;
 
+/**
+ * Data class used for serializing ODP instantiation module metadata to be
+ * sent over the wire.
+ * @author Karl Hammar <karl@karlhammar.com>
+ *
+ */
 public class OdpInstantiation implements Serializable {
 	private static final long serialVersionUID = -8164990474684842383L;
 	private String uri;

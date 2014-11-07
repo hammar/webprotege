@@ -18,3 +18,15 @@
 .xdInstantiationsPopup .gwt-MenuItem {
 	padding: 3px;
 }
+
+.xdOdpDescriptionTitle {
+	font: bold 13px tahoma,arial,helvetica,sans-serif;
+}
+
+img.xdOdpIllustration {
+	margin: 2em;
+}
+
+.xdOdpDetailsHeader {
+	font-weight: bold;
+}

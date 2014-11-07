@@ -17,8 +17,9 @@ import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
 
 /***
- * Portlet listing existing ODP instantiations in ontology.
- * @author Karl Hammar
+ * Portlet listing existing ODP instantiations in ontology and allows users to
+ * modify or delete those instantiations.
+ * @author Karl Hammar <karl@karlhammar.com>
  *
  */
 @SuppressWarnings("unchecked")
@@ -38,7 +39,7 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 
 	@Override
 	public void reload() {
-		setTitle("Instantiated ODPs Reloaded!");
+		
 	}
 
 	// Initialization method for GUI
@@ -50,7 +51,7 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 		// Initialize required member variables
 		instantiations = new ArrayList<OdpInstantiation>();
 		odps = new ArrayList<OdpDetails>();
-		
+
 		// Call XD Service API to populate list of instantiated ODPs
 		XdServiceManager.getInstance().getInstantiatedOdps(getProjectId(), new AsyncCallback<List<OdpInstantiation>>(){
 
@@ -69,7 +70,7 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 						odps.add(oi.getOdp());
 					}
 				}
-				
+
 				// Create a tree and populate it from the member variables
 				// Not very efficient to iterate over all OdpInstantiations again below,
 				// but we are not dealing with large amounts of data anyway..
