@@ -14,6 +14,8 @@ import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
+import com.gwtext.client.widgets.tree.event.TreePanelListenerAdapter;
+
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
@@ -69,6 +71,23 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
         treePanel.setAnimate(true);
         treePanel.setAutoScroll(true);
         treePanel.setRootVisible(false);
+        // The methods on this listener adapter triggers when users do 
+        // something with the tree view (click on it, drag things, etc.)
+        treePanel.addListener(new TreePanelListenerAdapter() {
+        	// We only want to look for node selections, e.g. clicks.
+            @Override
+            public void onClick(final TreeNode node, EventObject e) {
+                if (node.getChildNodes().length > 0) {
+                	// The selected node has children - i.e. is an ODP - i.e. is not editable.
+                	editButton.setDisabled(true);
+                }
+                else {
+                	// The selected node has no children - e.g. is an ODP instantiations - e.g., 
+                	// is potentially editable (though only if user has edit rights)
+                	editButton.setDisabled(!hasWritePermission());
+                }
+            }
+        });
         final TreeNode root = new TreeNode();
 	    treePanel.setRootNode(root);
 	    add(treePanel);
@@ -141,13 +160,6 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
         editButton.setDisabled(!hasWritePermission());
         toolbar.addElement(editButton.getElement());
     }
-
-	private boolean getEditEnabled() {
-		// TODO Auto-generated method stub
-		// This method checks whether the currently selected element is an ODP (which is non-editable)
-		// or an ODP instantiation (which is editable).
-		return true;
-	}
 
 	private void onEditOdpInstantiation() {
 		// TODO Auto-generated method stub
