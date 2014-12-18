@@ -6,10 +6,14 @@ import java.util.List;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
-
+import com.gwtext.client.core.EventObject;
+import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.Toolbar;
+import com.gwtext.client.widgets.ToolbarButton;
+import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.layout.FitLayout;
+import com.gwtext.client.widgets.tree.TreeNode;
+import com.gwtext.client.widgets.tree.TreePanel;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
@@ -24,6 +28,10 @@ import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
  */
 @SuppressWarnings("unchecked")
 public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
+	
+	private ToolbarButton deleteButton;
+	private ToolbarButton editButton;
+	private TreePanel treePanel;
 	
 	private List<OdpInstantiation> instantiations;
 	private List<OdpDetails> odps;
@@ -46,12 +54,25 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void initialize() {
+		setLayout(new FitLayout());
 		setTitle("Instantiated ODPs");
+		addToolbarButtons();
 		
 		// Initialize required member variables
 		instantiations = new ArrayList<OdpInstantiation>();
 		odps = new ArrayList<OdpDetails>();
 
+		// Tree panel configuration
+		treePanel = new TreePanel();
+        treePanel.setHeight(560);
+        treePanel.setAutoWidth(true);
+        treePanel.setAnimate(true);
+        treePanel.setAutoScroll(true);
+        treePanel.setRootVisible(false);
+        final TreeNode root = new TreeNode();
+	    treePanel.setRootNode(root);
+	    add(treePanel);
+		
 		// Call XD Service API to populate list of instantiated ODPs
 		XdServiceManager.getInstance().getInstantiatedOdps(getProjectId(), new AsyncCallback<List<OdpInstantiation>>(){
 
@@ -71,26 +92,74 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 					}
 				}
 
-				// Create a tree and populate it from the member variables
-				// Not very efficient to iterate over all OdpInstantiations again below,
-				// but we are not dealing with large amounts of data anyway..
-				Tree t = new Tree();
+				// Populate the tree with child nodes from returned data.
+				// Use ODP and ODP Instantiation URIs as node identifiers so
+				// that they can be removed easily later if needed.
 				for (OdpDetails od: odps) {
-					Label odpLabel = new Label(od.getName());
-					odpLabel.setTitle(od.getUri());
-					TreeItem odpTI = new TreeItem(odpLabel);
-					// For each ODP used in project, iterate over instantiations and add
-					// child nodes for each.
+					TreeNode odpNode = new TreeNode(od.getName());
+					odpNode.setId(od.getUri());
 					for (OdpInstantiation oi: instantiations) {
 						if (oi.getOdp().getUri() == od.getUri()) {
-							odpTI.addItem(new OdpInstantiationWidget(oi.getName(),oi.getUri()));
+							TreeNode child = new TreeNode(oi.getName());
+							child.setId(oi.getUri());
+							odpNode.appendChild(child);
 						}
 					}
-					odpTI.setState(true);
-					t.addItem(odpTI);
+					treePanel.getRootNode().appendChild(odpNode);
 				}
-				add(t);
+				
+				// Show all child nodes.
+				treePanel.expandAll();
 			}
 		});
+	}
+	
+    @SuppressWarnings("deprecation")
+	protected void addToolbarButtons() {
+        setTopToolbar(new Toolbar());
+        final Toolbar toolbar = getTopToolbar();
+
+        deleteButton = new ToolbarButton("Delete");
+        deleteButton.setCls("toolbar-button");
+        deleteButton.addListener(new ButtonListenerAdapter() {
+            @Override
+            public void onClick(final Button button, final EventObject e) {
+                onDeleteOdpInstantiation();
+            }
+        });
+        deleteButton.setDisabled(!hasWritePermission());
+        toolbar.addButton(deleteButton);
+        
+        editButton = new ToolbarButton("Edit");
+        editButton.setCls("toolbar-button");
+        editButton.addListener(new ButtonListenerAdapter() {
+            @Override
+            public void onClick(final Button button, final EventObject e) {
+            	onEditOdpInstantiation();
+            }
+        });
+        editButton.setDisabled(!hasWritePermission());
+        toolbar.addElement(editButton.getElement());
+    }
+
+	private boolean getEditEnabled() {
+		// TODO Auto-generated method stub
+		// This method checks whether the currently selected element is an ODP (which is non-editable)
+		// or an ODP instantiation (which is editable).
+		return true;
+	}
+
+	private void onEditOdpInstantiation() {
+		// TODO Auto-generated method stub
+		// This is where we bring up the specialization or edit wizard again, to edit the instantiation.
+		Window.alert("ODP instantiation editing function not yet implemented.");
+	}
+
+	private void onDeleteOdpInstantiation() {
+		// TODO Auto-generated method stub
+		// This is where we bring up some UI to ask for confirmation of deletion of ODP instantiation.
+		// Then delete it.
+		// Note that deleting an ODP that has multiple instantiations deletes ALL child instantiations.
+		Window.alert("ODP instantiation deletion function not yet implemented.");
 	}
 }
