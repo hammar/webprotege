@@ -4,25 +4,26 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.gwtext.client.core.EventObject;
+import com.gwtext.client.data.SimpleStore;
+import com.gwtext.client.data.Store;
+import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.Panel;
+import com.gwtext.client.widgets.TabPanel;
+import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.form.Checkbox;
+import com.gwtext.client.widgets.form.ComboBox;
+import com.gwtext.client.widgets.form.FieldSet;
+import com.gwtext.client.widgets.form.FormPanel;
+import com.gwtext.client.widgets.form.TextField;
+import com.gwtext.client.widgets.form.event.CheckboxListener;
+import com.gwtext.client.widgets.form.event.CheckboxListenerAdapter;
+import com.gwtext.client.widgets.layout.FormLayout;
+import com.gwtext.client.widgets.layout.VerticalLayout;
 
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
@@ -41,26 +42,16 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 		super(project);
 	}
 	
-	// Private parameters
-	private boolean isSearchOptionsExpanded;
-	
-	// Portlet UI widget definitions
-	private DockLayoutPanel portletLayout;
-	private DockLayoutPanel header;
-	private TextBox queryTextBox;
+	private TextField queryField;
 	private Button searchButton;
-	private Button searchOptionsButton;
+	//private Button searchOptionsButton;
 	//private Label resultLabel;
 	
-	// Search options widgets
-	private Grid searchOptions;
-	private ListBox categoryListBox;
-	private ListBox sizeListBox;
-	private ListBox profileListBox;
-	private ListBox strategyListBox;
-	private CheckBox dolceMappingCB;
-	private CheckBox schemaOrgMappingCB;
-	private CheckBox dbpediaMappingCB;
+	// Search mapping filters
+	Checkbox allMappingsCheck;
+	Checkbox dolceMappingCheck;
+	Checkbox schemaOrgMappingCheck;
+	Checkbox dbpediaMappingCheck;
 	
 	// Results widget
 	private ListBox resultsList;
@@ -85,120 +76,188 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 	// Initialization method for GUI
 	@Override
 	public void initialize() {
-		isSearchOptionsExpanded = false;
 		
 		setTitle("ODP Search");
 		
-		// Initialize UI widgets
-		queryTextBox = new TextBox();
-		queryTextBox.setWidth("18em");
-		searchButton = new Button("S");
-		searchOptionsButton = new Button("\u25BC");
-		searchOptions = new Grid(5,2);
+		// TODO: get reasonable sizes in width and height of the widgets. 
+		
+		// Create the search form  
+        FormPanel formPanel = new FormPanel(); 
+        formPanel.setTitle("Search controls");  
+        formPanel.setPaddings(5, 5, 5, 0);  
+        formPanel.setAutoWidth(true);
+        formPanel.setAutoHeight(true);
+        formPanel.setLabelWidth(75);
+        
+        // Add query field
+        queryField = new TextField("CQ");
+        formPanel.add(queryField);
+        
+        // Create filters FieldSet and child tab panel
+        FieldSet filtersFS = new FieldSet("Filters");  
+        filtersFS.setCollapsible(true);  
+        filtersFS.setAutoWidth(true);
+        filtersFS.setCollapsed(true);
+        TabPanel filterTabs = new TabPanel(); 
+        filterTabs.setPlain(true);  
+        filterTabs.setActiveTab(0);  
+        filterTabs.setHeight(235); 
+        
+        // Add first filter tab ("Core", containing selectors)
+        Panel coreTab = new Panel();
+        coreTab.setTitle("Core");
+        coreTab.setLayout(new FormLayout());  
+        coreTab.setPaddings(10);  
+  
+        // Create category selection combobox
+        Store categoryStore = new SimpleStore(new String[]{"name", "uri"}, getODPCategories());  
+        categoryStore.load();  
+        ComboBox categoryCb = new ComboBox();  
+        categoryCb.setFieldLabel("Category");    
+        categoryCb.setStore(categoryStore);  
+        categoryCb.setDisplayField("name");  
+        categoryCb.setMode(ComboBox.LOCAL);    
+        categoryCb.setForceSelection(true);
+        categoryCb.setReadOnly(true);
+        coreTab.add(categoryCb); 
+        
+        // Create size selection combobox
+        Store sizeStore = new SimpleStore(new String[]{"label","abbr"}, new String[][]{
+        		new String[]{"Any","any"},
+        		new String[]{"Small","s"},
+        		new String[]{"Medium","m"},
+        		new String[]{"Large","l"}}
+        		);
+        sizeStore.load();
+        ComboBox sizeCb = new ComboBox();
+        sizeCb.setFieldLabel("Size");
+        sizeCb.setStore(sizeStore);
+        sizeCb.setDisplayField("label");
+        sizeCb.setMode(ComboBox.LOCAL);
+        sizeCb.setForceSelection(true);
+        sizeCb.setReadOnly(true);
+        coreTab.add(sizeCb);
+        
+        // Create profile selection combobox
+        Store profileStore = new SimpleStore(new String[]{"label","abbr"}, new String[][]{
+        		new String[]{"Any","any"},
+        		new String[]{"OWL Horst","horst"},
+        		new String[]{"OWL2 EL","el"},
+        		new String[]{"OWL2 RL","rl"},
+        		new String[]{"OWL2 QL","ql"},
+        		new String[]{"OWL2 DL","dl"}}
+        		);
+        profileStore.load();
+        ComboBox profileCb = new ComboBox();
+        profileCb.setFieldLabel("Profile");
+        profileCb.setStore(profileStore);
+        profileCb.setDisplayField("label");
+        profileCb.setMode(ComboBox.LOCAL);
+        profileCb.setForceSelection(true);
+        profileCb.setReadOnly(true);
+        coreTab.add(profileCb);
+        
+        // Create strategy selection combobox
+        Store strategyStore = new SimpleStore(new String[]{"label","abbr"}, new String[][]{
+        		new String[]{"Any","any"},
+        		new String[]{"Class-oriented","class"},
+        		new String[]{"Property-oriented","property"},
+        		new String[]{"Hybrid","hybrid"}}
+        		);
+        strategyStore.load();
+        ComboBox strategyCb = new ComboBox();
+        strategyCb.setFieldLabel("Strategy");
+        strategyCb.setStore(strategyStore);
+        strategyCb.setDisplayField("label");
+        strategyCb.setMode(ComboBox.LOCAL);
+        strategyCb.setForceSelection(true);
+        strategyCb.setReadOnly(true);
+        coreTab.add(strategyCb);
+        
+        // Add second filter tab (containing alignment filters)
+        Panel mappingsTab = new Panel();
+        mappingsTab.setTitle("Mappings");
+        mappingsTab.setLayout(new FormLayout());  
+        
+        // Listener that ensures that either the "Any" checkbox or one of the specific
+        // mappings checkboxes is ticked.
+        CheckboxListener mappingCheckboxListener = new CheckboxListenerAdapter() {
+        	public void onCheck(Checkbox field, boolean checked)  {
+        		if (dolceMappingCheck.getValue() || 
+        				schemaOrgMappingCheck.getValue() || 
+        				dbpediaMappingCheck.getValue()) {
+        			allMappingsCheck.setChecked(false);
+        		}
+        		else {
+        			allMappingsCheck.setChecked(true);
+        		}
+        	}
+        };
+        
+        // A bunch of mapping checkboxes
+        allMappingsCheck = new Checkbox();
+        allMappingsCheck.setFieldLabel("Any");
+        allMappingsCheck.setChecked(true);
+        mappingsTab.add(allMappingsCheck);
+        
+        dolceMappingCheck = new Checkbox();
+        dolceMappingCheck.setFieldLabel("DOLCE");
+        dolceMappingCheck.addListener(mappingCheckboxListener);
+        mappingsTab.add(dolceMappingCheck);
+        
+        schemaOrgMappingCheck = new Checkbox();
+        schemaOrgMappingCheck.setFieldLabel("Schema.org");
+        schemaOrgMappingCheck.addListener(mappingCheckboxListener);
+        mappingsTab.add(schemaOrgMappingCheck);
+        
+        dbpediaMappingCheck = new Checkbox();
+        dbpediaMappingCheck.setFieldLabel("DBpedia");
+        dbpediaMappingCheck.addListener(mappingCheckboxListener);
+        mappingsTab.add(dbpediaMappingCheck);
+        
+        // Add tabs to tabpanel, tabpanel to filters fieldset, 
+        // and filters fieldset to form.
+        filterTabs.add(coreTab);
+        filterTabs.add(mappingsTab);
+        filtersFS.add(filterTabs);
+        formPanel.add(filtersFS);
+  
+        // Finally, add the search button.
+        searchButton = new Button("Search");
+		searchButton.addListener(new ButtonListenerAdapter() {
+			public void onClick(Button button, EventObject e) {
+				runOdpSearch();
+			}
+		});
+        formPanel.addButton(searchButton);   
+		
+		// Results list
+        // TODO: refactor to use GWT-EXT grid view
+        Panel resultsPanel = new Panel("Results list");
 		resultsList = new ListBox();
 		resultsList.setVisibleItemCount(999);
 		resultsList.setWidth("100%");
+		resultsPanel.add(resultsList);
 		
-		// Search options configuration (labels)
-		Label categoryLabel = new Label("Category");
-		Label sizeLabel = new Label("Size");
-		Label profileLabel = new Label("Profile");
-		Label strategyLabel = new Label("Strategy");
-		Label mappingLabel = new Label("Mapping");
-		searchOptions.setWidget(0, 0, categoryLabel);
-		searchOptions.setWidget(1, 0, sizeLabel);
-		searchOptions.setWidget(2, 0, profileLabel);
-		searchOptions.setWidget(3, 0, strategyLabel);
-		searchOptions.setWidget(4, 0, mappingLabel);
-		
-		// Search options configuration (data)
-		categoryListBox = new ListBox();
-		categoryListBox.addItem("Any");
-		categoryListBox.addItem("Academy", "http://ontologydesignpatterns.org/wiki/Community:Academy");
-		categoryListBox.addItem("Agriculture", "http://ontologydesignpatterns.org/wiki/Community:Agriculture");
-		categoryListBox.addItem("Biology", "http://ontologydesignpatterns.org/wiki/Community:Biology");
-		categoryListBox.addItem("Business", "http://ontologydesignpatterns.org/wiki/Community:Business");
-		searchOptions.setWidget(0, 1, categoryListBox);
-		sizeListBox = new ListBox();
-		sizeListBox.addItem("Any");
-		sizeListBox.addItem("Small");
-		sizeListBox.addItem("Medium");
-		sizeListBox.addItem("Large");
-		searchOptions.setWidget(1, 1, sizeListBox);
-		profileListBox = new ListBox();
-		profileListBox.addItem("Any");
-		profileListBox.addItem("OWL Horst");
-		profileListBox.addItem("OWL2 EL");
-		profileListBox.addItem("OWL2 RL");
-		profileListBox.addItem("OWL2 QL");
-		profileListBox.addItem("OWL2 DL");
-		searchOptions.setWidget(2, 1, profileListBox);
-		strategyListBox = new ListBox();
-		strategyListBox.addItem("Any");
-		strategyListBox.addItem("Class-oriented");
-		strategyListBox.addItem("Property-oriented");
-		strategyListBox.addItem("Hybrid");
-		searchOptions.setWidget(3, 1, strategyListBox);
-		dolceMappingCB = new CheckBox("DOLCE");
-		schemaOrgMappingCB = new CheckBox("Schema.org");
-		dbpediaMappingCB = new CheckBox("DBpedia");
-		VerticalPanel mappingSelectionPanel = new VerticalPanel();
-		mappingSelectionPanel.add(dolceMappingCB);
-		mappingSelectionPanel.add(schemaOrgMappingCB);
-		mappingSelectionPanel.add(dbpediaMappingCB);
-		searchOptions.setWidget(4, 1, mappingSelectionPanel);
-		
-		// Search header
-		header = new DockLayoutPanel(Unit.EM);
-		header.setStylePrimaryName("xdSearchHeader");
-		HorizontalPanel searchPanel = new HorizontalPanel();
-		searchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		searchPanel.add(queryTextBox);
-		searchPanel.add(searchButton);
-		searchPanel.add(searchOptionsButton);
-		header.addNorth(searchPanel, 3);
-		header.addSouth(searchOptions, 13);
-		header.setWidgetHidden(searchOptions, true);
-		
-		// Main portlet layout
-		portletLayout = new DockLayoutPanel(Unit.EM);
-		portletLayout.addNorth(header, 2);
-		portletLayout.add(resultsList);
-		add(portletLayout);
-		
-		// Search button behavior
-        searchButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-            	runOdpSearch();
-            }
-          });
+		// Main portlet layout using a GWT-EXT accordion panel
+		// TODO: Rename below to indicate that it's actually not at
+		// all an accordion panel any more.
+		Panel accordionPanel = new Panel();
+        accordionPanel.setLayout(new VerticalLayout(15));
+        accordionPanel.setAutoWidth(true);
+        accordionPanel.add(formPanel);
+        accordionPanel.add(resultsPanel);
+		add(accordionPanel);
         
         // Enter-press in query field behavior
-        queryTextBox.addKeyUpHandler(new KeyUpHandler() {
+		// TODO: Fix this so it works again.
+        /*queryTextBox.addKeyUpHandler(new KeyUpHandler() {
 			public void onKeyUp(KeyUpEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 					runOdpSearch();
 				}
 			}
-        });
-        
-        // Options button behavior
-        searchOptionsButton.addClickHandler(new ClickHandler(){
-        	public void onClick(ClickEvent event) {
-        		if (!isSearchOptionsExpanded) {
-        			portletLayout.setWidgetSize(header, 15);
-        			header.setWidgetHidden(searchOptions, false);
-        			isSearchOptionsExpanded = true;
-        			searchOptionsButton.setText("\u25B2");
-        		}
-        		else {
-        			portletLayout.setWidgetSize(header, 2);
-        			header.setWidgetHidden(searchOptions, true);
-        			isSearchOptionsExpanded = false;
-        			searchOptionsButton.setText("\u25BC");
-        		}
-        	}
-        });
+        });*/
         
         // Behavior when a result from the search is clicked - notifies listeners
         // that selection changed.
@@ -215,8 +274,8 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 	// TODO: Plug in the search filters from the GUI form also.
 	private void runOdpSearch() {
 		resultsList.clear();
-    	
-		XdServiceManager.getInstance().getOdpSearchContent(queryTextBox.getText(), new AsyncCallback<List<String>>() {
+		
+		XdServiceManager.getInstance().getOdpSearchContent(queryField.getText(), new AsyncCallback<List<String>>() {
 			@Override
 			public void onFailure(Throwable caught) {
 				resultsList.addItem("GWT-RPC call failed: " + caught.getMessage());
@@ -229,5 +288,15 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 				}
 			}
 		});
+	}
+	
+	private String[][] getODPCategories() {
+		return new String[][]{
+				new String[]{"Any", "http://ontologydesignpatterns.orgg/wiki/Community:ANY"},  
+				new String[]{"Academy", "http://ontologydesignpatterns.org/wiki/Community:Academy"},
+				new String[]{"Agriculture", "http://ontologydesignpatterns.org/wiki/Community:Agriculture"},
+				new String[]{"Biology", "http://ontologydesignpatterns.org/wiki/Community:Biology"},
+				new String[]{"Business", "http://ontologydesignpatterns.org/wiki/Community:Business"}
+		};
 	}
 }
