@@ -1,27 +1,39 @@
 package edu.stanford.bmir.protege.web.client.xd;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.ListBox;
 import com.gwtext.client.core.EventObject;
+import com.gwtext.client.data.ArrayReader;
+import com.gwtext.client.data.FieldDef;
+import com.gwtext.client.data.MemoryProxy;
+import com.gwtext.client.data.Record;
+import com.gwtext.client.data.RecordDef;
 import com.gwtext.client.data.SimpleStore;
 import com.gwtext.client.data.Store;
+import com.gwtext.client.data.StringFieldDef;
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.Checkbox;
 import com.gwtext.client.widgets.form.ComboBox;
+import com.gwtext.client.widgets.form.Field;
 import com.gwtext.client.widgets.form.FieldSet;
 import com.gwtext.client.widgets.form.FormPanel;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.event.CheckboxListener;
 import com.gwtext.client.widgets.form.event.CheckboxListenerAdapter;
+import com.gwtext.client.widgets.form.event.TextFieldListenerAdapter;
+import com.gwtext.client.widgets.grid.ColumnConfig;
+import com.gwtext.client.widgets.grid.ColumnModel;
+import com.gwtext.client.widgets.grid.GridPanel;
+import com.gwtext.client.widgets.grid.event.GridRowListenerAdapter;
 import com.gwtext.client.widgets.layout.FormLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
 
@@ -54,13 +66,16 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 	Checkbox dbpediaMappingCheck;
 	
 	// Results widget
-	private ListBox resultsList;
-	//private FlexTable resultsTable;
-
+	Store resultsStore;
+	ArrayReader resultsReader;
+	GridPanel resultsGrid;
+	ColumnModel columnModel;
+	
 	@Override
 	public Collection<EntityData> getSelection() {
-		if (resultsList.getSelectedIndex() != -1) {
-			String selectedOdp = resultsList.getItemText(resultsList.getSelectedIndex());
+		if (resultsGrid.getSelectionModel().hasSelection()) {
+			Record r = resultsGrid.getSelectionModel().getSelected();
+			String selectedOdp = r.getAsString("uri");
 			return Arrays.asList(new EntityData(selectedOdp));
 		}
 		else {
@@ -232,60 +247,75 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
         formPanel.addButton(searchButton);   
 		
 		// Results list
-        // TODO: refactor to use GWT-EXT grid view
+        resultsReader = new ArrayReader(new RecordDef(
+     		   new FieldDef[]{
+     		     new StringFieldDef("uri"),
+     		     new StringFieldDef("title")
+     		     }
+     		   ));
+        resultsStore = new Store(resultsReader);
+        ColumnConfig[] columns = new ColumnConfig[]{  
+                new ColumnConfig("Name", "title"),  
+                new ColumnConfig("URI", "uri"),  
+        };
+        columnModel = new ColumnModel(columns);
+        resultsGrid = new GridPanel(resultsStore,columnModel);
+        resultsGrid.setHeight(300);
         Panel resultsPanel = new Panel("Results list");
-		resultsList = new ListBox();
-		resultsList.setVisibleItemCount(999);
-		resultsList.setWidth("100%");
-		resultsPanel.add(resultsList);
+        resultsPanel.add(resultsGrid);
 		
 		// Main portlet layout using a GWT-EXT accordion panel
-		// TODO: Rename below to indicate that it's actually not at
-		// all an accordion panel any more.
-		Panel accordionPanel = new Panel();
-        accordionPanel.setLayout(new VerticalLayout(15));
-        accordionPanel.setAutoWidth(true);
-        accordionPanel.add(formPanel);
-        accordionPanel.add(resultsPanel);
-		add(accordionPanel);
+		Panel mainPanel = new Panel();
+        mainPanel.setLayout(new VerticalLayout(15));
+        mainPanel.setAutoWidth(true);
+        mainPanel.add(formPanel);
+        mainPanel.add(resultsPanel);
+		add(mainPanel);
         
         // Enter-press in query field behavior
-		// TODO: Fix this so it works again.
-        /*queryTextBox.addKeyUpHandler(new KeyUpHandler() {
-			public void onKeyUp(KeyUpEvent event) {
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+		queryField.addListener(new TextFieldListenerAdapter(){
+			public void onSpecialKey(Field field, EventObject e) {
+				if (e.getKey() == KeyCodes.KEY_ENTER) {
 					runOdpSearch();
 				}
 			}
-        });*/
+		});
         
         // Behavior when a result from the search is clicked - notifies listeners
         // that selection changed.
-        resultsList.addChangeHandler(new ChangeHandler(){
+		resultsGrid.addGridRowListener(new GridRowListenerAdapter(){
 			@SuppressWarnings("deprecation")
-			@Override
-			public void onChange(ChangeEvent event) {
+			public void onRowClick(GridPanel grid, int rowIndex, EventObject e) {
 				notifySelectionListeners(new SelectionEvent(XdSearchPortlet.this));
 			}
-        });
+		});
 	}
 	
 	// Runs the ODP search on the server using the query string and populates the results list.
 	// TODO: Plug in the search filters from the GUI form also.
 	private void runOdpSearch() {
-		resultsList.clear();
 		
 		XdServiceManager.getInstance().getOdpSearchContent(queryField.getText(), new AsyncCallback<List<String>>() {
 			@Override
 			public void onFailure(Throwable caught) {
-				resultsList.addItem("GWT-RPC call failed: " + caught.getMessage());
+				MessageBox.alert("Changes saved successfully");
+				MessageBox.alert("Error", "GWT-RPC call failed: " + caught.getMessage());
 			}
 
 			@Override
 			public void onSuccess(List<String> results) {
+				List<String[]> tempList = new ArrayList<String[]>();
 				for (String odp: results) {
-					resultsList.addItem(odp);
+					tempList.add(new String[]{odp,"Temp title"});
 				}
+				String[][] newData = new String[tempList.size()][]; 
+				newData = tempList.toArray(newData);
+				MemoryProxy tempProxy = new MemoryProxy(newData); 
+				Store tempStore = new Store(tempProxy, resultsReader);
+				tempStore.load();
+				resultsStore.removeAll();
+				resultsStore.add(tempStore.getRecords());
+				resultsStore.commitChanges();
 			}
 		});
 	}
