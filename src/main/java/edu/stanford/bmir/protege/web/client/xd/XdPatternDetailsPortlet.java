@@ -29,10 +29,11 @@ import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 @SuppressWarnings("unchecked")
 public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	
-	// Toolbar support
+	// Core stuff
 	private ToolbarButton useOdpButton;
+	private Panel mainPanel;
 	
-	//private FlowPanel odpDetailsPanel;
+	// ODP description widgets
 	private Image odpIllustration;
 	private Label odpTitleLabel;
 	private Label odpDescriptionLabel;
@@ -70,19 +71,17 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	}
 	
 	public void renderOdpDetails(OdpDetails odp) {
-		useOdpButton.setDisabled(false);
-		
 		odpTitleLabel.setText(odp.getName());
-		odpTitleLabel.setVisible(true);
 		
 		odpDescriptionLabel.setText(odp.getDescription());
 		odpDomainsLabel.setText(odp.getDomains());
 		odpCqsLabel.setText(odp.getCqs());
 		odpUriLabel.setText(odp.getUri());
-		odpDetailsGrid.setVisible(true);
 		
 		odpIllustration.setUrl(odp.getImage());
-		odpIllustration.setVisible(true);
+		
+		useOdpButton.enable();
+		mainPanel.show();
 	}
 
 	// Initialization method for GUI
@@ -91,8 +90,8 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		this.setTitle("ODP Details");
 		addToolbarButtons();
 		
-		//odpDetailsPanel = new FlowPanel();
-		Panel mainPanel = new Panel();  
+		// Set up main panel
+		mainPanel = new Panel();  
 		mainPanel.setPaddings(10);
 		mainPanel.setLayout(new VerticalLayout(15)); 
 		
@@ -105,14 +104,10 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		
 		// Configure widgets
 		odpTitleLabel.addStyleName("xdOdpDescriptionTitle");
-		mainPanel.add(odpTitleLabel);
-		odpTitleLabel.setVisible(false);
 		
 		odpIllustration = new Image();
 		odpIllustration.setWidth("40em");
 		odpIllustration.addStyleName("xdOdpDetailsIllustration");
-		mainPanel.add(odpIllustration);
-		odpIllustration.setVisible(false);
 		
 		odpDetailsGrid = new Grid(4,2);
 		odpDetailsGrid.setWidget(0, 0, new Label("Description:"));
@@ -126,9 +121,13 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		odpDetailsGrid.setWidget(1, 1, odpDomainsLabel);
 		odpDetailsGrid.setWidget(2, 1, odpCqsLabel);
 		odpDetailsGrid.setWidget(3, 1, odpUriLabel);
+		
+		// Add widgets to main panel
+		mainPanel.add(odpTitleLabel);
+		mainPanel.add(odpIllustration);
 		mainPanel.add(odpDetailsGrid);
-		odpDetailsGrid.setVisible(false);
-
+		mainPanel.setVisible(false);
+		
 		add(mainPanel);
 	}
 	
@@ -137,7 +136,7 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
         final Toolbar toolbar = getTopToolbar();
         
         useOdpButton = new ToolbarButton("Use this Pattern");
-        //useOdpButton.setCls("toolbar-button");
+        useOdpButton.setCls("toolbar-button");
         useOdpButton.addListener(new ButtonListenerAdapter() {
             @Override
             public void onClick(final Button button, final EventObject e) {
