@@ -288,7 +288,6 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 		// Main portlet layout using a GWT-EXT accordion panel
 		Panel mainPanel = new Panel();
 		mainPanel.setLayout(new RowLayout());
-        //mainPanel.setAutoHeight(true);
         mainPanel.add(formPanel);
         mainPanel.add(resultsGrid, new RowLayoutData("75%"));
 		add(mainPanel);

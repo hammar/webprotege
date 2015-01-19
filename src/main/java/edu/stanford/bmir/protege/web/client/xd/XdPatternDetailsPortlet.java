@@ -2,11 +2,18 @@ package edu.stanford.bmir.protege.web.client.xd;
 
 import java.util.Collection;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.gwtext.client.core.EventObject;
+import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.Panel;
+import com.gwtext.client.widgets.Toolbar;
+import com.gwtext.client.widgets.ToolbarButton;
+import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.layout.VerticalLayout;
 
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
@@ -22,7 +29,10 @@ import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 @SuppressWarnings("unchecked")
 public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	
-	private FlowPanel odpDetailsPanel;
+	// Toolbar support
+	private ToolbarButton useOdpButton;
+	
+	//private FlowPanel odpDetailsPanel;
 	private Image odpIllustration;
 	private Label odpTitleLabel;
 	private Label odpDescriptionLabel;
@@ -60,6 +70,8 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	}
 	
 	public void renderOdpDetails(OdpDetails odp) {
+		useOdpButton.setDisabled(false);
+		
 		odpTitleLabel.setText(odp.getName());
 		odpTitleLabel.setVisible(true);
 		
@@ -77,8 +89,12 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	@Override
 	public void initialize() {
 		this.setTitle("ODP Details");
+		addToolbarButtons();
 		
-		odpDetailsPanel = new FlowPanel();
+		//odpDetailsPanel = new FlowPanel();
+		Panel mainPanel = new Panel();  
+		mainPanel.setPaddings(10);
+		mainPanel.setLayout(new VerticalLayout(15)); 
 		
 		// Initialize widgets
 		odpTitleLabel = new Label();
@@ -89,13 +105,13 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		
 		// Configure widgets
 		odpTitleLabel.addStyleName("xdOdpDescriptionTitle");
-		odpDetailsPanel.add(odpTitleLabel);
+		mainPanel.add(odpTitleLabel);
 		odpTitleLabel.setVisible(false);
 		
 		odpIllustration = new Image();
-		odpIllustration.setWidth("60em");
+		odpIllustration.setWidth("40em");
 		odpIllustration.addStyleName("xdOdpDetailsIllustration");
-		odpDetailsPanel.add(odpIllustration);
+		mainPanel.add(odpIllustration);
 		odpIllustration.setVisible(false);
 		
 		odpDetailsGrid = new Grid(4,2);
@@ -110,9 +126,25 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		odpDetailsGrid.setWidget(1, 1, odpDomainsLabel);
 		odpDetailsGrid.setWidget(2, 1, odpCqsLabel);
 		odpDetailsGrid.setWidget(3, 1, odpUriLabel);
-		odpDetailsPanel.add(odpDetailsGrid);
+		mainPanel.add(odpDetailsGrid);
 		odpDetailsGrid.setVisible(false);
 
-		this.add(odpDetailsPanel);
+		add(mainPanel);
+	}
+	
+	protected void addToolbarButtons() {
+        setTopToolbar(new Toolbar());
+        final Toolbar toolbar = getTopToolbar();
+        
+        useOdpButton = new ToolbarButton("Use this Pattern");
+        //useOdpButton.setCls("toolbar-button");
+        useOdpButton.addListener(new ButtonListenerAdapter() {
+            @Override
+            public void onClick(final Button button, final EventObject e) {
+            	Window.alert("ODP Specialisation Wizard is not yet developed.");
+            }
+        });
+        useOdpButton.setDisabled(true);
+        toolbar.addButton(useOdpButton);
 	}
 }
