@@ -8,6 +8,8 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
+import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 
 /***
  * Interface defining eXtreme Design WebProtege tab GWT-RPC services.
@@ -16,7 +18,7 @@ import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
 @RemoteServiceRelativePath("xd")
 public interface XdService extends RemoteService  {
 
-	List<String> getOdpSearchContent(String queryString);
+	List<OdpSearchResult> getOdpSearchContent(String queryString, OdpSearchFilterConfiguration filterConfiguration);
 	OdpDetails getOdpDetails(String odpUri);	
 	List<OdpInstantiation> getOdpInstantiations(ProjectId projectId);
 	List<OdpDetails> getUsedOdps(ProjectId projectId);

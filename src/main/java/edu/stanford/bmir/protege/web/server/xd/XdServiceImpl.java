@@ -9,6 +9,8 @@ import edu.stanford.bmir.protege.web.client.xd.XdService;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
+import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 
 /***
  * Implementation of the GWT-RPC methods used by the eXtreme Design WebProtege tab and
@@ -44,9 +46,9 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 	// to be usable for said query.
 	// TODO: Update this (and corresponding interfaces) to also send human-readable name of ODP	
 	@Override
-	public List<String> getOdpSearchContent(String queryString) {
+	public List<OdpSearchResult> getOdpSearchContent(String queryString, OdpSearchFilterConfiguration filterConfiguration) {
 		// TODO: Actually implement this.
-		String[] hits = {od1.getUri(),od2.getUri(),od3.getUri()};
+		OdpSearchResult[] hits = {new OdpSearchResult(od1,0.30), new OdpSearchResult(od2,0.60), new OdpSearchResult(od3,0.90)};
 		return Arrays.asList(hits);
 	}
 

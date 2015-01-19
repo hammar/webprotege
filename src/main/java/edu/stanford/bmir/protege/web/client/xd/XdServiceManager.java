@@ -8,6 +8,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
+import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 
 /***
  * Service manager simplifying XD GWT-RPC usage.
@@ -34,8 +36,8 @@ public class XdServiceManager {
     }
     
     // Queries server for suitable ODPs for a given competency question query string.
-    public void getOdpSearchContent(String queryString, AsyncCallback<List<String>> cb) {
-        proxy.getOdpSearchContent(queryString, cb);
+    public void getOdpSearchContent(String queryString, OdpSearchFilterConfiguration filterConfiguration, AsyncCallback<List<OdpSearchResult>> cb) {
+        proxy.getOdpSearchContent(queryString, filterConfiguration, cb);
     }
     
     // Queries server for ODPs that are instantiated in the project
