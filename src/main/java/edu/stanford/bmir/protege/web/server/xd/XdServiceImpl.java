@@ -82,10 +82,4 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 			return new OdpDetails(odpUri,"NONEXISTANT","NODESCRIPTION","NODOMAIN","NOCQS","NOIMAGE");
 		}
 	}
-
-	@Override
-	public List<OdpDetails> getUsedOdps(ProjectId projectId) {
-		// TODO: Actually implement this method, fetching used ODPs via imported ODP instantiations.
-		return Arrays.asList(od1,od2,od3);
-	}
 }
