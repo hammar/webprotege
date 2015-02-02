@@ -6,7 +6,7 @@
 
     <!-- POM file generated with GWT webAppCreator -->
     <modelVersion>4.0.0</modelVersion>
-    <groupId>edu.stanford.protege</groupId>
+    <groupId>com.karlhammar</groupId>
     <artifactId>webprotege</artifactId>
     <packaging>war</packaging>
     <version>2.5.0</version>
