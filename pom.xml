@@ -329,6 +329,7 @@
                             <filtering>true</filtering>
                         </resource>
                     </webResources>
+                    <attachClasses>true</attachClasses>
                 </configuration>
             </plugin>
 
