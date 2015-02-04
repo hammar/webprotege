@@ -29,6 +29,10 @@ public class OdpDetails implements Serializable {
 		this.image = image;
 	}
 	
+	public OdpDetails(String uri) {
+		this.uri = uri;
+	}
+	
 	// This is a data class, so equals overridden to match state (field) equality rather than
 	// identify (memory address) equality when comparing two instances.
 	// TODO: Compare against all fields, also taking into account that each field can actually be null.
