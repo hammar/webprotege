@@ -13,6 +13,7 @@ import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
+import org.springframework.web.client.RestTemplate;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -57,10 +58,13 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 
 	// Given a competency question query, returns those ODPS most likely to be usable for said query.	
 	@Override
-	public List<OdpSearchResult> getOdpSearchContent(String queryString, OdpSearchFilterConfiguration filterConfiguration) {
-		// TODO: Actually implement this.
-		OdpSearchResult[] hits = {new OdpSearchResult(od1,0.30), new OdpSearchResult(od2,0.60), new OdpSearchResult(od3,0.90)};
-		return Arrays.asList(hits);
+	public List<OdpSearchResult> getOdpSearchContent(String queryString, OdpSearchFilterConfiguration filterConfiguration)  {
+		RestTemplate restTemplate = new RestTemplate();
+		// TODO: Make the ODP index/search engine that is used configurable via properties instead of hardcoded.
+		// TODO: Serialize and send filter configuration also.
+		String queryUri = String.format("http://localhost:8080/odpSearch?queryString=%s", queryString);
+		OdpSearchResult[] results = restTemplate.getForObject(queryUri, OdpSearchResult[].class);
+		return Arrays.asList(results);
 	}
 
 	/**
@@ -136,7 +140,6 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
         		}
         		
         		OdpInstantiation instantiation = new OdpInstantiation(specializationIri,specializationLabel,odpInfo);
-        		System.out.println("Adding instantiation: (" + specializationIri + "," + specializationLabel + ",(" + odpInfo.getUri() + "," + odpInfo.getName() + "))");
         		instantiations.add(instantiation);
         	}
         }

@@ -2,6 +2,8 @@ package edu.stanford.bmir.protege.web.shared.xd;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Data class used for serializing an ODP search result to be sent over the wire.
  * References the ODP and gives a confidence score for that ODP being a suitable
@@ -9,6 +11,7 @@ import java.io.Serializable;
  * @author Karl Hammar <karl@karlhammar.com>
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OdpSearchResult implements Serializable {
 
 	private static final long serialVersionUID = 331396054286739588L;

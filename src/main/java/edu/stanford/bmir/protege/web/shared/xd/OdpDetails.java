@@ -2,11 +2,14 @@ package edu.stanford.bmir.protege.web.shared.xd;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Data class used for serializing ODP metadata to be sent over the wire.
  * @author Karl Hammar <karl@karlhammar.com>
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OdpDetails implements Serializable {
 	private static final long serialVersionUID = 5859893598140995111L;
 	private String uri;
