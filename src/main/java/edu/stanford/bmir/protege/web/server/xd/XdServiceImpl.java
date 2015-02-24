@@ -77,13 +77,14 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 	// Automatically generated serial.
 	private static final long serialVersionUID = 4505349021619302502L;
 
-	// Given a competency question query, returns those ODPS most likely to be usable for said query.	
+	/**
+	 * Given a competency question query, returns those ODPS most likely to be usable for said query.
+	 */
 	@Override
 	public List<OdpSearchResult> getOdpSearchContent(String queryString, OdpSearchFilterConfiguration filterConfiguration)  {
 		RestTemplate restTemplate = new RestTemplate();
-		// TODO: Serialize and send filter configuration also.
 		String queryUri = String.format("%s/odpSearch?queryString=%s", XdpServiceUriBase, queryString);
-		OdpSearchResult[] results = restTemplate.getForObject(queryUri, OdpSearchResult[].class);
+		OdpSearchResult[] results = restTemplate.postForObject(queryUri, filterConfiguration, OdpSearchResult[].class);
 		return Arrays.asList(results);
 	}
 
