@@ -1,9 +1,11 @@
 package edu.stanford.bmir.protege.web.server.xd;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -18,6 +20,8 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import edu.stanford.bmir.protege.web.client.xd.XdService;
+import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
+import edu.stanford.bmir.protege.web.server.logging.WebProtegeLoggerManager;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
@@ -31,7 +35,24 @@ import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
  * @author Karl Hammar
  */
 public class XdServiceImpl extends RemoteServiceServlet implements XdService {
-
+	
+	private String XdpServiceUriBase;
+	private WebProtegeLogger log;
+	
+	public XdServiceImpl() {
+		super();
+		log = WebProtegeLoggerManager.get(getClass());
+		try {
+			Properties XdServiceProperties = new Properties();
+			XdServiceProperties.load(XdServiceImpl.class.getResourceAsStream("xdService.properties"));
+			XdpServiceUriBase = XdServiceProperties.getProperty("XdpServiceUriBase");
+		} 
+		catch (IOException e) {
+			XdpServiceUriBase = "http://localhost:8080";
+			log.info(String.format("Unable to find configuration file %s. Setting XdpServiceUriBase to default value %s.", "xdService.properties", XdpServiceUriBase));
+		}
+	}
+	
 	// Test data used for UI mockup.
 	// TODO: Remove below when no longer needed.
 	private OdpDetails od1 = new OdpDetails("http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl",
@@ -60,9 +81,8 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 	@Override
 	public List<OdpSearchResult> getOdpSearchContent(String queryString, OdpSearchFilterConfiguration filterConfiguration)  {
 		RestTemplate restTemplate = new RestTemplate();
-		// TODO: Make the ODP index/search engine that is used configurable via properties instead of hardcoded.
 		// TODO: Serialize and send filter configuration also.
-		String queryUri = String.format("http://localhost:8080/odpSearch?queryString=%s", queryString);
+		String queryUri = String.format("%s/odpSearch?queryString=%s", XdpServiceUriBase, queryString);
 		OdpSearchResult[] results = restTemplate.getForObject(queryUri, OdpSearchResult[].class);
 		return Arrays.asList(results);
 	}
