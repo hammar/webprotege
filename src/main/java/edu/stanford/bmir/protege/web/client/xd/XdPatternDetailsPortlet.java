@@ -76,11 +76,16 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		odpTitleLabel.setText(odp.getName());
 		
 		odpDescriptionLabel.setText(odp.getDescription());
-		odpDomainsLabel.setText(odp.getDomains());
+		
+		String domains = "";
+		for (String domain: odp.getDomains()) {
+			domains += domain + "\n";
+		}
+		odpDomainsLabel.setText(domains);
 		
 		String cqs = "";
 		for (String cq: odp.getCqs()) {
-			cqs += cq + "<br/>\n";
+			cqs += cq + "\n";
 		}
 		odpCqsLabel.setText(cqs);
 		odpUriLabel.setText(odp.getUri());

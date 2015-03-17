@@ -15,7 +15,7 @@ public class OdpDetails implements Serializable {
 	private String uri;
 	private String name;
 	private String description;
-	private String domains;
+	private String[] domains;
 	private String[] cqs;
 	private String image;
 	private String[] scenarios;
@@ -24,13 +24,14 @@ public class OdpDetails implements Serializable {
 		
 	}
 	
-	public OdpDetails(String uri, String name, String description, String domains, String[] cqs, String image) {
+	public OdpDetails(String uri, String name, String description, String[] domains, String[] cqs, String image, String[] scenarios) {
 		this.uri = uri;
 		this.name = name;
 		this.description = description;
 		this.domains = domains;
 		this.cqs = cqs;
 		this.image = image;
+		this.scenarios = scenarios;
 	}
 	
 	public OdpDetails(String uri) {
@@ -63,7 +64,7 @@ public class OdpDetails implements Serializable {
 		return description;
 	}
 
-	public String getDomains() {
+	public String[] getDomains() {
 		return domains;
 	}
 
