@@ -16,14 +16,15 @@ public class OdpDetails implements Serializable {
 	private String name;
 	private String description;
 	private String domains;
-	private String cqs;
+	private String[] cqs;
 	private String image;
+	private String[] scenarios;
 	
 	public OdpDetails() {
 		
 	}
 	
-	public OdpDetails(String uri, String name, String description, String domains, String cqs, String image) {
+	public OdpDetails(String uri, String name, String description, String domains, String[] cqs, String image) {
 		this.uri = uri;
 		this.name = name;
 		this.description = description;
@@ -66,11 +67,15 @@ public class OdpDetails implements Serializable {
 		return domains;
 	}
 
-	public String getCqs() {
+	public String[] getCqs() {
 		return cqs;
 	}
 	
 	public String getImage() {
 		return image;
+	}
+	
+	public String[] getScenarios() {
+		return scenarios;
 	}
 }
