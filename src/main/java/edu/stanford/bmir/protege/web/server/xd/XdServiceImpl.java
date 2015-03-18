@@ -147,7 +147,7 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
         				break;
         			}
         		}
-        		OdpDetails odpInfo = new OdpDetails(odpIri,odpLabel,null,null,null,null,null);
+        		OdpDetails odpInfo = new OdpDetails(odpIri,odpLabel,null,null,null,null,null,null,null);
         		
         		// Get specialization IRI.
         		String specializationIri = candidateSpecialisation.getOntologyID().getOntologyIRI().toString();
