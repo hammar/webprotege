@@ -43,7 +43,11 @@ public class OdpDetails implements Serializable {
 	}
 	
 	public OdpDetails(String uri) {
-		this.uri = uri;
+		this(uri,null,null,null,null,null,null,null,null);
+	}
+	
+	public OdpDetails(String uri, String name) {
+		this(uri,name,null,null,null,null,null,null,null);
 	}
 	
 	// This is a data class, so equals overridden to match state (field) equality rather than
