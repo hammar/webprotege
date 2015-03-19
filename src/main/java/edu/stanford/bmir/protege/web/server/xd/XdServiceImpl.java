@@ -173,8 +173,14 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 
 	@Override
 	public OdpDetails getOdpDetails(String odpUri) {
+		// TODO: Handle what to do if the given URI is not actually a found ODP. Return null or throw exception?
+		RestTemplate restTemplate = new RestTemplate();
+		String queryUri = String.format("%s/odpDetails?uri=%s", XdpServiceUriBase, odpUri);
+		OdpDetails odp = restTemplate.getForObject(queryUri, OdpDetails.class);
+		return odp;
+		
 		// TODO: Actually implement this method, fetching details from search.xd-protege.com ODP repository service.
-		// TODO: Also handle what to do if the given URI is not actually a found ODP. Return null or throw exception?
+		/*
 		if (odpUri.equalsIgnoreCase("http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl")) {
 			return od1;
 		}
@@ -186,6 +192,6 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 		}
 		else {
 			return new OdpDetails(odpUri,"NONEXISTANT","NODESCRIPTION",new String[]{"NODOMAIN"},new String[]{"NOCQS"},"NOIMAGE",new String[]{"NOSCENARIOS"});
-		}
+		}*/
 	}
 }

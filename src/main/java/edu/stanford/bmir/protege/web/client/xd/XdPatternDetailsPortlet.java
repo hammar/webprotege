@@ -2,8 +2,6 @@ package edu.stanford.bmir.protege.web.client.xd;
 
 import java.util.Collection;
 
-import org.springframework.util.StringUtils;
-
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
@@ -73,24 +71,47 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	}
 	
 	public void renderOdpDetails(OdpDetails odp) {
-		odpTitleLabel.setText(odp.getName());
 		
-		odpDescriptionLabel.setText(odp.getDescription());
+		// TODO: clean up this part: which fields are actually mandatory that we get back from backend?
+		
+		if (odp.getName()!=null) {
+			odpTitleLabel.setText(odp.getName());
+		}
+		else {
+			odpTitleLabel.setText("Name undefined");
+		}
+		
+		if (odp.getDescription() != null) {
+			odpDescriptionLabel.setText(odp.getDescription());
+		}
+		else {
+			odpDescriptionLabel.setText("");
+		}
 		
 		String domains = "";
-		for (String domain: odp.getDomains()) {
-			domains += domain + "\n";
+		if (odp.getDomains()!=null) {
+			for (String domain: odp.getDomains()) {
+				domains += domain + "\n";
+			}
 		}
 		odpDomainsLabel.setText(domains);
 		
 		String cqs = "";
-		for (String cq: odp.getCqs()) {
-			cqs += cq + "\n";
+		if (odp.getCqs()!=null){
+			for (String cq: odp.getCqs()) {
+				cqs += cq + "\n";
+			}
 		}
 		odpCqsLabel.setText(cqs);
+		
 		odpUriLabel.setText(odp.getUri());
 		
-		odpIllustration.setUrl(odp.getImage());
+		if (odp.getImage() != null) {
+			odpIllustration.setUrl(odp.getImage());
+		}
+		else {
+			odpIllustration.setUrl("");
+		}
 		
 		useOdpButton.enable();
 		mainPanel.show();
