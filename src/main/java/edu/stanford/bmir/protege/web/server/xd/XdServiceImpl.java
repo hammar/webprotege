@@ -53,30 +53,6 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 		}
 	}
 	
-	// Test data used for UI mockup.
-	// TODO: Remove below when no longer needed.
-	private OdpDetails od1 = new OdpDetails("http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl",
-			"Nary Participation",
-			"All sorts of relations denoting events with multiple participants, space-time indexing, etc. can be represented with this pattern. When objects participate at the event at different times or with different parts, more elementary nary-participation instances must be created, and made parts of the main one.",
-			new String[]{"General"},
-			new String[]{"What are the participants in that event at this time?", "What events had what participants in that location?"},
-			"http://ontologydesignpatterns.org/wiki/images/e/e2/Naryparticipation.jpg",
-			new String[]{"Scenario A","Scenario B"});
-	private OdpDetails od2 = new OdpDetails("http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl",
-			"Information Realization",
-			"This is a basic patterns, representing the difference between abstract and realized (manifested, concrete, etc.) information.",
-			new String[]{"Semiotics"},
-			new String[]{"what are the physical realizations of this information object?","what information objects are realized by this physical object?"},
-			"http://ontologydesignpatterns.org/wiki/images/7/7b/Informationrealization.jpg",
-			new String[]{"Scenario C","Scenario D"});
-	private OdpDetails od3 = new OdpDetails("http://infoeng.se/~karl/ilog2014/odps/accountability.owl",
-			"Accountability",
-			"This pattern captures time-limited relations or responsibilities that people and organisations can have to one another and that allows for certain actions to be taken.",
-			new String[]{"Business modelling"},
-			new String[]{"Who can drive the Duff Blimp?","Has Homer signed patient consent for Dr Nick to do a hysterectomy?","How many people does Moe housewatch for in the summer of 2011?"},
-			"http://www.infoeng.se/~karl/temp/accountability.png",
-			new String[]{"Scenario E","Scenario F"});
-	
 	// Automatically generated serial.
 	private static final long serialVersionUID = 4505349021619302502L;
 
@@ -178,20 +154,5 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 		String queryUri = String.format("%s/odpDetails?uri=%s", XdpServiceUriBase, odpUri);
 		OdpDetails odp = restTemplate.getForObject(queryUri, OdpDetails.class);
 		return odp;
-		
-		// TODO: Actually implement this method, fetching details from search.xd-protege.com ODP repository service.
-		/*
-		if (odpUri.equalsIgnoreCase("http://www.ontologydesignpatterns.org/cp/owl/naryparticipation.owl")) {
-			return od1;
-		}
-		else if (odpUri.equalsIgnoreCase("http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl")) {
-			return od2;
-		}
-		else if (odpUri.equalsIgnoreCase("http://infoeng.se/~karl/ilog2014/odps/accountability.owl")) {
-			return od3;
-		}
-		else {
-			return new OdpDetails(odpUri,"NONEXISTANT","NODESCRIPTION",new String[]{"NODOMAIN"},new String[]{"NOCQS"},"NOIMAGE",new String[]{"NOSCENARIOS"});
-		}*/
 	}
 }
