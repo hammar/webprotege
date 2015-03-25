@@ -2,9 +2,12 @@ package edu.stanford.bmir.protege.web.client.xd;
 
 import java.util.Collection;
 
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
@@ -36,10 +39,11 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	// ODP description widgets
 	private Image odpIllustration;
 	private Label odpTitleLabel;
-	private Label odpDescriptionLabel;
-	private Label odpDomainsLabel;
-	private Label odpCqsLabel;
-	private Label odpUriLabel;
+	private HTML odpDescription;
+	private HTML odpDomainsList;
+	private HTML odpCqsList;
+	private Anchor odpUriLink;
+	private HTML odpScenariosList;
 	private Grid odpDetailsGrid;
 	
 	public XdPatternDetailsPortlet(Project project) {
@@ -82,29 +86,30 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		}
 		
 		if (odp.getDescription() != null) {
-			odpDescriptionLabel.setText(odp.getDescription());
+			odpDescription.setHTML(new SafeHtmlBuilder().appendEscapedLines(odp.getDescription()).toSafeHtml());
 		}
 		else {
-			odpDescriptionLabel.setText("");
+			odpDescription.setText("");
 		}
 		
 		String domains = "";
 		if (odp.getDomains()!=null) {
 			for (String domain: odp.getDomains()) {
-				domains += domain + "\n";
+				domains += "<li>" + domain + "</li>\n";
 			}
 		}
-		odpDomainsLabel.setText(domains);
+		odpDomainsList.setHTML("<ul>" + domains + "</ul>");
 		
 		String cqs = "";
 		if (odp.getCqs()!=null){
 			for (String cq: odp.getCqs()) {
-				cqs += cq + "\n";
+				cqs += "<li>" + cq + "</li>\n";
 			}
 		}
-		odpCqsLabel.setText(cqs);
+		odpCqsList.setHTML(cqs);
 		
-		odpUriLabel.setText(odp.getUri());
+		odpUriLink.setHref(odp.getUri());
+		odpUriLink.setText(odp.getUri());
 		
 		if (odp.getImage() != null) {
 			odpIllustration.setUrl(odp.getImage());
@@ -112,6 +117,14 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		else {
 			odpIllustration.setUrl("");
 		}
+		
+		String scenarios = "";
+		if (odp.getScenarios() != null) {
+			for (String scenario: odp.getScenarios()) {
+				scenarios += "<li>" + scenario + "</li>\n";
+			}
+		}
+		odpScenariosList.setHTML("<ul>" + scenarios + "</ul>");
 		
 		useOdpButton.enable();
 		mainPanel.show();
@@ -127,13 +140,15 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		mainPanel = new Panel();  
 		mainPanel.setPaddings(10);
 		mainPanel.setLayout(new VerticalLayout(15)); 
+		mainPanel.setAutoScroll(true);
 		
 		// Initialize widgets
 		odpTitleLabel = new Label();
-		odpDescriptionLabel = new Label();
-		odpDomainsLabel = new Label();
-		odpCqsLabel = new Label();
-		odpUriLabel = new Label();
+		odpDescription = new HTML();
+		odpDomainsList = new HTML();
+		odpCqsList = new HTML();
+		odpUriLink = new Anchor();
+		odpScenariosList = new HTML();
 		
 		// Configure widgets
 		odpTitleLabel.addStyleName("xdOdpDescriptionTitle");
@@ -142,18 +157,20 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		odpIllustration.setWidth("40em");
 		odpIllustration.addStyleName("xdOdpDetailsIllustration");
 		
-		odpDetailsGrid = new Grid(4,2);
+		odpDetailsGrid = new Grid(5,2);
 		odpDetailsGrid.setWidget(0, 0, new Label("Description:"));
 		odpDetailsGrid.setWidget(1, 0, new Label("Domains:"));
 		odpDetailsGrid.setWidget(2, 0, new Label("Competency questions:"));
-		odpDetailsGrid.setWidget(3, 0, new Label("URL:"));
-		for (int i = 0; i<4; i++) {
+		odpDetailsGrid.setWidget(3, 0, new Label("Scenarios:"));
+		odpDetailsGrid.setWidget(4, 0, new Label("URL:"));
+		for (int i = 0; i<5; i++) {
 			odpDetailsGrid.getWidget(i, 0).addStyleName("xdOdpDetailsHeader");
 		}
-		odpDetailsGrid.setWidget(0, 1, odpDescriptionLabel);
-		odpDetailsGrid.setWidget(1, 1, odpDomainsLabel);
-		odpDetailsGrid.setWidget(2, 1, odpCqsLabel);
-		odpDetailsGrid.setWidget(3, 1, odpUriLabel);
+		odpDetailsGrid.setWidget(0, 1, odpDescription);
+		odpDetailsGrid.setWidget(1, 1, odpDomainsList);
+		odpDetailsGrid.setWidget(2, 1, odpCqsList);
+		odpDetailsGrid.setWidget(3, 1, odpScenariosList);
+		odpDetailsGrid.setWidget(4, 1, odpUriLink);
 		
 		// Add widgets to main panel
 		mainPanel.add(odpTitleLabel);
