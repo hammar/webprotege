@@ -336,7 +336,6 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 		XdServiceManager.getInstance().getOdpSearchContent(queryField.getText(), filterConfiguration, new AsyncCallback<List<OdpSearchResult>>() {
 			@Override
 			public void onFailure(Throwable caught) {
-				MessageBox.alert("Changes saved successfully");
 				MessageBox.alert("Error", "GWT-RPC call failed: " + caught.getMessage());
 			}
 

@@ -21,4 +21,5 @@ public interface XdService extends RemoteService  {
 	List<OdpSearchResult> getOdpSearchContent(String queryString, OdpSearchFilterConfiguration filterConfiguration);
 	OdpDetails getOdpDetails(String odpUri);	
 	List<OdpInstantiation> getOdpInstantiations(ProjectId projectId);
+	List<OdpDetails> getOdpsByCategory(String category);
 }

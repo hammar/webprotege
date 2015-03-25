@@ -50,4 +50,9 @@ public class XdServiceManager {
     	proxy.getOdpDetails(odpUri, cb);
     }
     
+    // Queries server for a list of all ODPs of a particular category
+    public void getOdpsByCategory(String category, AsyncCallback<List<OdpDetails>> cb) {
+    	proxy.getOdpsByCategory(category, cb);
+    }
+    
 }

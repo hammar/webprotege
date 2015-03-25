@@ -155,4 +155,12 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 		OdpDetails odp = restTemplate.getForObject(queryUri, OdpDetails.class);
 		return odp;
 	}
+
+	@Override
+	public List<OdpDetails> getOdpsByCategory(String category) {
+		RestTemplate restTemplate = new RestTemplate();
+		String queryUri = String.format("%s/odpsByCategory?category=%s", XdpServiceUriBase, category);
+		OdpDetails[] results = restTemplate.getForObject(queryUri, OdpDetails[].class); 
+		return Arrays.asList(results);
+	}
 }
