@@ -3,13 +3,13 @@ package edu.stanford.bmir.protege.web.client.xd;
 import java.util.Collection;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Panel;
@@ -45,6 +45,10 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	private Anchor odpUriLink;
 	private HTML odpScenariosList;
 	private Grid odpDetailsGrid;
+	
+	// Referencwes to specialisation wizard and its popup
+	private XdSpecializationWizard wizard;
+	private PopupPanel wizardPopup;
 	
 	public XdPatternDetailsPortlet(Project project) {
 		super(project);
@@ -180,6 +184,7 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		
 		add(mainPanel);
 	}
+
 	
 	protected void addToolbarButtons() {
         setTopToolbar(new Toolbar());
@@ -187,10 +192,23 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
         
         useOdpButton = new ToolbarButton("Use this Pattern");
         useOdpButton.setCls("toolbar-button");
+        
+        
         useOdpButton.addListener(new ButtonListenerAdapter() {
             @Override
             public void onClick(final Button button, final EventObject e) {
-            	Window.alert("ODP Specialisation Wizard is not yet developed.");
+            	wizardPopup = new PopupPanel(false, true); // Create a modal dialog box that will not auto-hide
+            	wizard = new XdSpecializationWizard(); // Instantiate a new wizard
+            	wizard.getFinishButton().addListener(new ButtonListenerAdapter(){ // Wire up so that the wizard can close the popup when done
+            		@Override
+            		public void onClick(Button button, EventObject e) {
+            			wizard.reset();
+            			wizardPopup.hide();
+            		}
+            	});
+            	wizardPopup.add(wizard);
+            	wizardPopup.setGlassEnabled(true); // Enable the glass panel, e.g., modal window
+            	wizardPopup.center(); // go!
             }
         });
         useOdpButton.setDisabled(true);
