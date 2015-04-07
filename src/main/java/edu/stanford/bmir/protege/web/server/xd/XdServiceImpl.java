@@ -9,11 +9,23 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.AddAxiom;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataRange;
+import org.semanticweb.owlapi.model.OWLDatatype;
+import org.semanticweb.owlapi.model.OWLFunctionalDataPropertyAxiom;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
+import org.semanticweb.owlapi.vocab.OWLFacet;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import org.springframework.web.client.RestTemplate;
 
@@ -162,5 +174,36 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 		String queryUri = String.format("%s/odpsByCategory?category=%s", XdpServiceUriBase, category);
 		OdpDetails[] results = restTemplate.getForObject(queryUri, OdpDetails[].class); 
 		return Arrays.asList(results);
+	}
+
+	// This is a junk implementation, just to test out how WebProtege deals with sending OWL-API objects
+	// over the wire and picking them up client-side.
+	// TODO: Actually implement this properly.
+	@Override
+	public OWLClass getOdpImplementation(String uri) {
+		try {
+		OWLOntologyManager man = OWLManager.createOWLOntologyManager();
+        String base = "http://org.semanticweb.datarangeexample";
+        OWLOntology ont = man.createOntology(IRI.create(base));
+        OWLDataFactory factory = man.getOWLDataFactory();
+        
+        OWLDataProperty hasAge = factory.getOWLDataProperty(IRI.create(base + "hasAge"));
+        OWLFunctionalDataPropertyAxiom funcAx = factory.getOWLFunctionalDataPropertyAxiom(hasAge);
+        man.applyChange(new AddAxiom(ont, funcAx));
+        
+        OWLDatatype intDatatype = factory.getIntegerOWLDatatype();
+        OWLLiteral eighteenConstant = factory.getOWLLiteral(18);
+        OWLFacet facet = OWLFacet.MIN_INCLUSIVE;
+        OWLDataRange intGreaterThan18 = factory.getOWLDatatypeRestriction(intDatatype, facet, eighteenConstant);
+        OWLClassExpression thingsWithAgeGreaterOrEqualTo18 = factory.getOWLDataSomeValuesFrom(hasAge, intGreaterThan18);
+        OWLClass adult = factory.getOWLClass(IRI.create(base + "#Adult"));
+        OWLSubClassOfAxiom ax = factory.getOWLSubClassOfAxiom(adult, thingsWithAgeGreaterOrEqualTo18);
+        man.applyChange(new AddAxiom(ont, ax));
+        return adult;
+		} catch (OWLOntologyCreationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
