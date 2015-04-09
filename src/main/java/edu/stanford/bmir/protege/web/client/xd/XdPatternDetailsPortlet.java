@@ -26,6 +26,7 @@ import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.VerticalLayout;
 
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.dispatch.RenderableGetObjectResult;
 import edu.stanford.bmir.protege.web.client.dispatch.actions.GetOntologyAnnotationsAction;
@@ -35,6 +36,7 @@ import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
+import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 
 /***
@@ -79,9 +81,10 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		return null;
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public void reload() {
+	protected void handleAfterSetEntity(Optional<OWLEntityData> entityData) {
+		if (entityData.isPresent()) {
+			entityData.get();
+		}
 		if (getEntity() != null) {
 			String odpUri = getEntity().getName();
 			XdServiceManager.getInstance().getOdpDetails(odpUri, new AsyncCallback<OdpDetails>() {
@@ -206,18 +209,12 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		add(mainPanel);
 		
 		// TODO : below is debug code, remove when done
-        DispatchServiceManager.get().execute(new GetOntologyAnnotationsAction(getProjectId()), new AsyncCallback<RenderableGetObjectResult<Set<OWLAnnotation>>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                MessageBox.alert("There was a problem retrieving the annotation for this project.");
-            }
-
-            @Override
-            public void onSuccess(RenderableGetObjectResult<Set<OWLAnnotation>> result) {
-                final Set<OWLAnnotation> object = result.getObject();
-                    lastSet = Optional.of(object);
-            }
-        });
+		DispatchServiceManager.get().execute(new GetOntologyAnnotationsAction(getProjectId()), new DispatchServiceCallback<RenderableGetObjectResult<Set<OWLAnnotation>>>() {
+			public void handleSuccess(RenderableGetObjectResult<Set<OWLAnnotation>> result) {
+				final Set<OWLAnnotation> object = result.getObject();
+                lastSet = Optional.of(object);
+		    }
+		});
 	}
 
 	
@@ -249,16 +246,9 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
         		Set<OWLAnnotation> newSet = new HashSet<OWLAnnotation>();
         		newSet.addAll(oldSet);
         		newSet.add(importsAnnotation);
-        		DispatchServiceManager.get().execute(new SetOntologyAnnotationsAction(getProjectId(), oldSet, newSet), new AsyncCallback<SetOntologyAnnotationsResult>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        MessageBox.alert("There was a problem setting the ontology annotations for this project.");
-                        GWT.log("Problem setting ontology annotations", caught);
-                    }
-
-                    @Override
-                    public void onSuccess(SetOntologyAnnotationsResult result) {
-                    	MessageBox.alert("Import annotations were added properly. Now attempting to cache imports..");
+        		DispatchServiceManager.get().execute(new SetOntologyAnnotationsAction(getProjectId(), oldSet, newSet), new DispatchServiceCallback<SetOntologyAnnotationsResult>() {
+        			public void handleSuccess(SetOntologyAnnotationsResult result) {
+        				MessageBox.alert("Import annotations were added properly. Now attempting to cache imports..");
                     	XdServiceManager.getInstance().cacheImports(getProjectId(), new AsyncCallback<Void>() {
 
 							@Override
@@ -273,8 +263,7 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 								// TODO Auto-generated method stub
 							}
                     	});
-                    	
-                    }
+        			}
                 });
         	}
         });

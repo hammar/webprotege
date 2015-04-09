@@ -34,8 +34,8 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import edu.stanford.bmir.protege.web.client.xd.XdService;
+import edu.stanford.bmir.protege.web.server.inject.WebProtegeInjector;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
-import edu.stanford.bmir.protege.web.server.logging.WebProtegeLoggerManager;
 import edu.stanford.bmir.protege.web.server.owlapi.ImportsCacheManager;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
 import edu.stanford.bmir.protege.web.server.owlapi.manager.WebProtegeOWLManager;
@@ -54,11 +54,13 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 	
 	private String XdpServiceUriBase;
 	private WebProtegeLogger log;
-	private static final WebProtegeLogger LOGGER = WebProtegeLoggerManager.get(XdServiceImpl.class);
+	private final WebProtegeLogger logger;
+	private OWLAPIProjectManager projectManager;
 	
 	public XdServiceImpl() {
 		super();
-		log = WebProtegeLoggerManager.get(getClass());
+		this.logger = WebProtegeInjector.get().getInstance(WebProtegeLogger.class);
+		this.projectManager = WebProtegeInjector.get().getInstance(OWLAPIProjectManager.class);
 		try {
 			Properties XdServiceProperties = new Properties();
 			XdServiceProperties.load(XdServiceImpl.class.getResourceAsStream("xdService.properties"));
@@ -94,10 +96,9 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 		
 		// General OWLAPI infrastructure stuff
 		String cpAnnotationSchemaUri = "http://www.ontologydesignpatterns.org/schemas/cpannotationschema.owl";
-        OWLAPIProjectManager pm = OWLAPIProjectManager.getProjectManager();
         OWLDataFactory df = OWLManager.getOWLDataFactory();
         OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
-        OWLOntology rootOntology = pm.getProject(projectId).getRootOntology();
+        OWLOntology rootOntology = projectManager.getProject(projectId).getRootOntology();
 
         // Check for all imports by the root ontology
         Set<OWLOntology> directImports = rootOntology.getDirectImports();
@@ -217,14 +218,13 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 			List<OWLSubClassOfAxiom> subClassOfAxioms) {
 		// TODO Auto-generated method stub
 		String cpAnnotationSchemaUri = "http://www.ontologydesignpatterns.org/schemas/cpannotationschema.owl";
-        OWLAPIProjectManager pm = OWLAPIProjectManager.getProjectManager();
         OWLDataFactory df = OWLManager.getOWLDataFactory();
         OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
         //pm.getProject(projectId).applyChanges(userId, changes, changeDescription).
         //WebProtegeOWLManager.createOWLOntologyManager().
         //pm.getProject(projectId)
-        OWLOntology rootOntology = pm.getProject(projectId).getRootOntology();
-        OWLOntologyManager man = pm.getProject(projectId).getRootOntology().getOWLOntologyManager();
+        OWLOntology rootOntology = projectManager.getProject(projectId).getRootOntology();
+        OWLOntologyManager man = projectManager.getProject(projectId).getRootOntology().getOWLOntologyManager();
         try {
 			OWLOntology newOnt = man.createOntology(IRI.create("http://example.import/"));
 			man.addAxiom(newOnt, df.getOWLAnnotationAssertionAxiom(newOnt.getOntologyID().getOntologyIRI(), df.getOWLAnnotation(df.getRDFSLabel(), df.getOWLLiteral("Test import"))));
@@ -241,13 +241,12 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 		ImportsCacheManager importsCacheManager = new ImportsCacheManager(projectId);
 		OWLOntologyIRIMapper mapper = importsCacheManager.getIRIMapper();
 		
-		OWLAPIProjectManager pm = OWLAPIProjectManager.getProjectManager();
-		OWLOntology rootOntology = pm.getProject(projectId).getRootOntology();
+		OWLOntology rootOntology = projectManager.getProject(projectId).getRootOntology();
 		
 		OWLOntologyManager manager = rootOntology.getOWLOntologyManager();
 		manager.addIRIMapper(mapper);
 		
-		LOGGER.info("Attempting to cache imports for " + rootOntology.getOntologyID().getOntologyIRI().toString());
+		logger.info("Attempting to cache imports for " + rootOntology.getOntologyID().getOntologyIRI().toString());
 		importsCacheManager.cacheImports(rootOntology);
 		// TODO Auto-generated method stub
 	}
