@@ -1,0 +1,32 @@
+.xdSearchHeader {
+	padding: 1em;
+	font: normal 11px tahoma,arial,helvetica,sans-serif;
+} 
+
+.xdUnselectable {
+   -o-user-select: none;
+   -webkit-user-select: none;
+   -moz-user-select: none;
+   -khtml-user-select: none;
+   -ms-user-select: none;
+}
+
+.xdInstantiationsPopup .gwt-MenuBar-vertical {
+	padding: 0;
+}
+
+.xdInstantiationsPopup .gwt-MenuItem {
+	padding: 3px;
+}
+
+.xdOdpDescriptionTitle {
+	font: bold 13px tahoma,arial,helvetica,sans-serif;
+}
+
+img.xdOdpIllustration {
+	margin: 2em;
+}
+
+.xdOdpDetailsHeader {
+	font-weight: bold;
+}
