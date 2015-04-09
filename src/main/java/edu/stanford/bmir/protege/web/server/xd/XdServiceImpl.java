@@ -23,10 +23,12 @@ import org.semanticweb.owlapi.model.OWLFunctionalDataPropertyAxiom;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyIRIMapper;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.vocab.OWLFacet;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
+import org.springframework.beans.factory.support.ManagedArray;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -34,7 +36,9 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import edu.stanford.bmir.protege.web.client.xd.XdService;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLoggerManager;
+import edu.stanford.bmir.protege.web.server.owlapi.ImportsCacheManager;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
+import edu.stanford.bmir.protege.web.server.owlapi.manager.WebProtegeOWLManager;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
@@ -50,6 +54,7 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 	
 	private String XdpServiceUriBase;
 	private WebProtegeLogger log;
+	private static final WebProtegeLogger LOGGER = WebProtegeLoggerManager.get(XdServiceImpl.class);
 	
 	public XdServiceImpl() {
 		super();
@@ -205,5 +210,45 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	@Override
+	public void applyOdpSpecialization(ProjectId projectId, OdpDetails odp, List<OWLClass> classes,
+			List<OWLSubClassOfAxiom> subClassOfAxioms) {
+		// TODO Auto-generated method stub
+		String cpAnnotationSchemaUri = "http://www.ontologydesignpatterns.org/schemas/cpannotationschema.owl";
+        OWLAPIProjectManager pm = OWLAPIProjectManager.getProjectManager();
+        OWLDataFactory df = OWLManager.getOWLDataFactory();
+        OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
+        //pm.getProject(projectId).applyChanges(userId, changes, changeDescription).
+        //WebProtegeOWLManager.createOWLOntologyManager().
+        //pm.getProject(projectId)
+        OWLOntology rootOntology = pm.getProject(projectId).getRootOntology();
+        OWLOntologyManager man = pm.getProject(projectId).getRootOntology().getOWLOntologyManager();
+        try {
+			OWLOntology newOnt = man.createOntology(IRI.create("http://example.import/"));
+			man.addAxiom(newOnt, df.getOWLAnnotationAssertionAxiom(newOnt.getOntologyID().getOntologyIRI(), df.getOWLAnnotation(df.getRDFSLabel(), df.getOWLLiteral("Test import"))));
+			
+			// TODO: HOW DO WE SAVE the ontology to disk??
+		} catch (OWLOntologyCreationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void cacheImports(ProjectId projectId) {
+		ImportsCacheManager importsCacheManager = new ImportsCacheManager(projectId);
+		OWLOntologyIRIMapper mapper = importsCacheManager.getIRIMapper();
+		
+		OWLAPIProjectManager pm = OWLAPIProjectManager.getProjectManager();
+		OWLOntology rootOntology = pm.getProject(projectId).getRootOntology();
+		
+		OWLOntologyManager manager = rootOntology.getOWLOntologyManager();
+		manager.addIRIMapper(mapper);
+		
+		LOGGER.info("Attempting to cache imports for " + rootOntology.getOntologyID().getOntologyIRI().toString());
+		importsCacheManager.cacheImports(rootOntology);
+		// TODO Auto-generated method stub
 	}
 }

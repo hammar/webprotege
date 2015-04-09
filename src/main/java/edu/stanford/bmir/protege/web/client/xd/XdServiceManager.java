@@ -3,7 +3,6 @@ package edu.stanford.bmir.protege.web.client.xd;
 import java.util.List;
 
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLOntology;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -61,6 +60,11 @@ public class XdServiceManager {
     // Queries server to return the implementation of a particular ODP 
     public void getOdpImplementation(String uri, AsyncCallback<OWLClass> cb) {
     	proxy.getOdpImplementation(uri, cb);
+    }
+    
+    // Force server to update imports closure cache for project
+    public void cacheImports(ProjectId projectId, AsyncCallback<Void> cb) {
+    	proxy.cacheImports(projectId, cb);
     }
     
 }

@@ -1,7 +1,15 @@
 package edu.stanford.bmir.protege.web.client.xd;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+
+import com.google.common.base.Optional;
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
@@ -9,18 +17,24 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.VerticalLayout;
 
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
+import edu.stanford.bmir.protege.web.client.dispatch.RenderableGetObjectResult;
+import edu.stanford.bmir.protege.web.client.dispatch.actions.GetOntologyAnnotationsAction;
+import edu.stanford.bmir.protege.web.client.dispatch.actions.SetOntologyAnnotationsAction;
+import edu.stanford.bmir.protege.web.client.dispatch.actions.SetOntologyAnnotationsResult;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
+import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 
 /***
@@ -35,6 +49,7 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	// Core stuff
 	private ToolbarButton useOdpButton;
 	private Panel mainPanel;
+	private OdpDetails odp;
 	
 	// ODP description widgets
 	private Image odpIllustration;
@@ -46,12 +61,17 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	private HTML odpScenariosList;
 	private Grid odpDetailsGrid;
 	
-	// Referencwes to specialisation wizard and its popup
+	// TODO : Debug code below remove when done
+	private Optional<Set<OWLAnnotation>> lastSet = Optional.absent();
+	
+	// References to specialisation wizard and its popup
+	//private XdSpecializationWizard wizard;
+	//private PopupPanel wizardPopup;
 	private XdSpecializationWizard wizard;
-	private PopupPanel wizardPopup;
 	
 	public XdPatternDetailsPortlet(Project project) {
 		super(project);
+		wizard = new XdSpecializationWizard();
 	}
 
 	@Override
@@ -72,6 +92,7 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	
 				@Override
 				public void onSuccess(OdpDetails result) {
+					odp = result;
 					renderOdpDetails(result);
 				}
 			});
@@ -183,6 +204,20 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		mainPanel.setVisible(false);
 		
 		add(mainPanel);
+		
+		// TODO : below is debug code, remove when done
+        DispatchServiceManager.get().execute(new GetOntologyAnnotationsAction(getProjectId()), new AsyncCallback<RenderableGetObjectResult<Set<OWLAnnotation>>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                MessageBox.alert("There was a problem retrieving the annotation for this project.");
+            }
+
+            @Override
+            public void onSuccess(RenderableGetObjectResult<Set<OWLAnnotation>> result) {
+                final Set<OWLAnnotation> object = result.getObject();
+                    lastSet = Optional.of(object);
+            }
+        });
 	}
 
 	
@@ -193,25 +228,56 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
         useOdpButton = new ToolbarButton("Use this Pattern");
         useOdpButton.setCls("toolbar-button");
         
-        
         useOdpButton.addListener(new ButtonListenerAdapter() {
             @Override
             public void onClick(final Button button, final EventObject e) {
-            	wizardPopup = new PopupPanel(false, true); // Create a modal dialog box that will not auto-hide
-            	wizard = new XdSpecializationWizard(); // Instantiate a new wizard
-            	wizard.getFinishButton().addListener(new ButtonListenerAdapter(){ // Wire up so that the wizard can close the popup when done
-            		@Override
-            		public void onClick(Button button, EventObject e) {
-            			wizard.reset();
-            			wizardPopup.hide();
-            		}
-            	});
-            	wizardPopup.add(wizard);
-            	wizardPopup.setGlassEnabled(true); // Enable the glass panel, e.g., modal window
-            	wizardPopup.center(); // go!
+            	wizard.show();
+            	wizard.loadOdp(odp.getUri());
             }
         });
+        
         useOdpButton.setDisabled(true);
         toolbar.addButton(useOdpButton);
+        
+        ToolbarButton testImportsButton = new ToolbarButton("Imports test");
+        testImportsButton.addListener(new ButtonListenerAdapter() {
+        	@Override
+            public void onClick(final Button button, final EventObject e) {
+        		OWLDataFactory df = DataFactory.get();
+        		OWLAnnotation importsAnnotation = DataFactory.get().getOWLAnnotation(df.getOWLAnnotationProperty(IRI.create("http://www.w3.org/2002/07/owl#imports")),IRI.create("http://www.ontologydesignpatterns.org/cp/owl/agentrole.owl"));
+        		Set<OWLAnnotation> oldSet = lastSet.get();
+        		Set<OWLAnnotation> newSet = new HashSet<OWLAnnotation>();
+        		newSet.addAll(oldSet);
+        		newSet.add(importsAnnotation);
+        		DispatchServiceManager.get().execute(new SetOntologyAnnotationsAction(getProjectId(), oldSet, newSet), new AsyncCallback<SetOntologyAnnotationsResult>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        MessageBox.alert("There was a problem setting the ontology annotations for this project.");
+                        GWT.log("Problem setting ontology annotations", caught);
+                    }
+
+                    @Override
+                    public void onSuccess(SetOntologyAnnotationsResult result) {
+                    	MessageBox.alert("Import annotations were added properly. Now attempting to cache imports..");
+                    	XdServiceManager.getInstance().cacheImports(getProjectId(), new AsyncCallback<Void>() {
+
+							@Override
+							public void onFailure(Throwable caught) {
+								MessageBox.alert("There was a problem updating the project imports closure cache serverside.");
+								// TODO Auto-generated method stub
+							}
+
+							@Override
+							public void onSuccess(Void result) {
+								MessageBox.alert("Imports closure succesfully cached!");
+								// TODO Auto-generated method stub
+							}
+                    	});
+                    	
+                    }
+                });
+        	}
+        });
+        toolbar.addButton(testImportsButton);
 	}
 }
