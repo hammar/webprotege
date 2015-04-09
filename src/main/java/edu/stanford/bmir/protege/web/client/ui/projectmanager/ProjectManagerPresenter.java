@@ -3,9 +3,8 @@ package edu.stanford.bmir.protege.web.client.ui.projectmanager;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.gwtext.client.widgets.MessageBox;
 import edu.stanford.bmir.protege.web.client.Application;
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.events.UserLoggedInEvent;
 import edu.stanford.bmir.protege.web.client.events.UserLoggedInHandler;
@@ -16,6 +15,8 @@ import edu.stanford.bmir.protege.web.shared.project.GetAvailableProjectsAction;
 import edu.stanford.bmir.protege.web.shared.project.GetAvailableProjectsResult;
 import edu.stanford.bmir.protege.web.shared.project.ProjectDetails;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
+import edu.stanford.bmir.protege.web.shared.projectsettings.ProjectSettingsChangedEvent;
+import edu.stanford.bmir.protege.web.shared.projectsettings.ProjectSettingsChangedHandler;
 
 import java.util.*;
 
@@ -128,6 +129,14 @@ public class ProjectManagerPresenter {
                 }
             }
         });
+
+        EventBusManager.getManager().registerHandler(ProjectSettingsChangedEvent.getType(), new ProjectSettingsChangedHandler() {
+            @Override
+            public void handleProjectSettingsChanged(ProjectSettingsChangedEvent event) {
+                reloadFromServer();
+            }
+        });
+
         handleUserChange();
         reloadFromServer();
     }
@@ -157,15 +166,9 @@ public class ProjectManagerPresenter {
         GWT.log("Reloading project view");
 
         GetAvailableProjectsAction action = new GetAvailableProjectsAction();
-        DispatchServiceManager.get().execute(action, new AsyncCallback<GetAvailableProjectsResult>() {
+        DispatchServiceManager.get().execute(action, new DispatchServiceCallback<GetAvailableProjectsResult>() {
             @Override
-            public void onFailure(Throwable caught) {
-                GWT.log(caught.getMessage());
-                MessageBox.alert("There was a problem retrieving the list of projects from the server.  Please refresh your browser to try again.");
-            }
-
-            @Override
-            public void onSuccess(GetAvailableProjectsResult result) {
+            public void handleSuccess(GetAvailableProjectsResult result) {
                 projectDetailsCache.setProjectDetails(result.getDetails());
                 displayProjectDetails();
                 if(selectId.isPresent()) {

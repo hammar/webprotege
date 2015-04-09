@@ -7,9 +7,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
-import edu.stanford.bmir.protege.web.client.ui.ontology.accesspolicy.InvitationConstants;
-import edu.stanford.bmir.protege.web.client.ui.ontology.accesspolicy.InviteUserUtil;
 import edu.stanford.bmir.protege.web.client.workspace.WorkspaceViewImpl;
+import edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle;
 import edu.stanford.bmir.protege.web.shared.app.WebProtegePropertyName;
 
 
@@ -35,28 +34,11 @@ public class WebProtege implements EntryPoint {
     }
 
     private void handleUIInitialization() {
-        // This doesn't feel like it belongs here
-        if (isInvitation()) {
-            InviteUserUtil inviteUserUtil = new InviteUserUtil();
-            inviteUserUtil.ProcessInvitation();
-        }
-
         buildUI();
     }
 
-    /**
-     * Checks whether the URL is an invitation URL, by analyzing the parameter
-     * <code>InvitationConstants.INVITATION_URL_PARAMETER_IS_INVITATION</code>
-     * in URL.
-     * @return
-     */
-    private boolean isInvitation() {
-        String isInvitationURL = Window.Location.getParameter(InvitationConstants.INVITATION_URL_PARAMETER_IS_INVITATION);
-        return isInvitationURL != null && isInvitationURL.trim().contains("true");
-    }
-
-
     protected void buildUI() {
+        WebProtegeClientBundle.BUNDLE.style().ensureInjected();
         RootPanel.get().add(new WorkspaceViewImpl());
 
         final Optional<String> appName = Application.get().getClientApplicationProperty(WebProtegePropertyName.APPLICATION_NAME);

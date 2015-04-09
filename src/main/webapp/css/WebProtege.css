@@ -1,852 +1,1620 @@
-/*
- * Cascading Style Sheet for WebProtege - contains global styles and 
- * styles used in application entry point WebProtege.java.
- *
- * Note: try to use GWT naming conventions of projectname-component when possible
- */ /* 
- * Specifying a default font family for the body. This will help to make 
- * fonts look consistent across the application. This can be overridden in 
- *	individual styles. 
- */
-body {
-    font-family: tahoma, sans-serif;
+body
+{
+    font-family:tahoma, sans-serif;
 }
 
-/******************************************************************
- Non-specific Global styles
- *****************************************************************/
 .centeredImage
 {
+    margin-bottom:0;
+    margin-top:0;
+    padding:0;
     text-align:center;
-    margin-top:0px;
-    margin-bottom:0px;
-    padding:0px;
 }
 
-/******************************************************************
- Global styles for hyperlinks
- *****************************************************************/
-a {
-    text-decoration: none;
+a
+{
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
 }
 
-a:link {
-    color: #327BAA;
-}  /* medium blue */
-a:visited {
-    color: #6F1488;
-}  /* purple */
-a:hover {
-    color: #DC7317;
-}  /* bright orange */
-
-/******************************************************************
- Style for panels
- *****************************************************************/
-
-.x-panel {
-    border: none;
+.x-panel
+{
+    border:none;
 }
 
-.x-panel .x-portlet {
-    border: 1px solid #99BBE8;
+.x-panel .x-portlet
+{
+    border:1px solid #99BBE8;
 }
 
-.x-panel-mr {
-    background: none;
-    padding: 0px;
+.x-panel-mr
+{
+    background:none;
+    padding:0;
 }
 
-.x-panel-ml {
-    background: none;
-    padding: 0px;
+.x-panel-ml
+{
+    background:none;
+    padding:0;
 }
 
-.x-panel-mc {
-    background: none;
-    padding: 0px;
+.x-panel-mc
+{
+    background:none;
+    padding:0;
 }
 
-.x-panel-br {
-    background: none;
-    padding: 0px;
+.x-panel-br
+{
+    background:none;
+    padding:0;
 }
 
-.x-panel-bl {
-    background: none;
-    padding: 0px;
+.x-panel-bl
+{
+    background:none;
+    padding:0;
 }
 
-.x-panel-bc {
-    background: none;
-    padding: 0px;
+.x-panel-bc
+{
+    background:none;
+    padding:0;
 }
 
-/* .x-panel-nofooter .x-panel-bc {
-	height:0px;
-} */
-
-.x-panel-tr {
-    background: none;
-    padding: 0px;
+.x-panel-tr
+{
+    background:none;
+    padding:0;
 }
 
-.x-panel-tl {
-    background: none;
-    padding: 0px;
+.x-panel-tl
+{
+    background:none;
+    padding:0;
 }
 
-.x-panel-tc {
-    background: #ECF4FD;
-    padding-left: 6px;
+.x-panel-tc
+{
+    background:#ECF4FD;
+    padding-left:6px;
 }
 
-.x-toolbar {
-    background: #DBEBF0;
+.x-toolbar
+{
+    background:#DBEBF0;
 }
 
-
-/*Tabs*/
-
-ul.x-tab-strip li {
-    background: #C5DAF0;
-    margin-bottom: 2px;
+ul.x-tab-strip li
+{
+    background:#BDCAD8;
+    margin-bottom:2px;
 }
 
-.x-tab-strip-top .x-tab-right {
-    background: none;
+.x-tab-strip-top .x-tab-right
+{
+    background:none;
 }
 
-.x-tab-strip-top .x-tab-left {
-    background: none;
+.x-tab-strip-top .x-tab-left
+{
+    background:none;
 }
 
-.x-tab-strip-active span.x-tab-strip-text {
-    color:#0000FF;
+.x-tab-strip-active span.x-tab-strip-text
+{
+    color:#00F;
     cursor:default;
-    font-weight:bold;
+    font-weight:700;
     text-decoration:underline;
 }
 
-.x-tab-strip-top .x-tab-strip-inner {
-    background: none;
+.x-tab-strip-top .x-tab-strip-inner
+{
+    background:none;
 }
 
-.x-tab-strip span.x-tab-strip-text {
-    color: #224499;
+.x-tab-strip span.x-tab-strip-text
+{
+    color:#249;
 }
 
-ul.x-tab-strip li {
-    background: #BDCAD8;
+.x-tab-panel-header,.x-tab-panel-footer
+{
+    background:none;
+    border:none;
 }
 
-.x-tab-panel-header,.x-tab-panel-footer {
-    background: none;
-    border: none;
+.x-tab-panel-header .x-unselectable
+{
+    border:none;
 }
 
-.x-tab-panel-header .x-unselectable {
-    border: none;
+.tabpanel-onerow ul.x-tab-strip
+{
+    width:10000px!important;
 }
 
-/*
-* Examples for special tab header styles
-*/
-
-.spec-tab-header-green {
-    background-color:#D7DEBD !important;
-}
-.spec-tab-header-green span.x-tab-strip-text {
-    color: #4A4A00;
+.tabpanel-multirow ul.x-tab-strip
+{
+    width:auto!important;
 }
 
-.spec-tab-header-orange {
-    background-color:#EED8C1 !important;
-}
-.spec-tab-header-orange span.x-tab-strip-text {
-    color: #EB5321;
+.x-panel-body-noheader,.x-panel-mc .x-panel-body
+{
+    border:none;
 }
 
-/*
-* Multi row and single row support for the tab panel
-*/
-
-.tabpanel-onerow ul.x-tab-strip {
-    width: 10000px !important;
+.toolbar-button .x-btn-text
+{
+    background: no-repeat 0 2px;
+    color:#15428B;
+    font-size:90%;
+    padding:3px 0 2px 18px;
 }
 
-.tabpanel-multirow ul.x-tab-strip {
-    width: auto !important;
+.toolbar-button .x-btn-text-icon .x-btn-center .x-btn-text
+{
+    background: no-repeat 0 2px;
+    color:#15428B;
+    font-size:90%;
+    padding:3px 0 2px 18px;
 }
 
-/* Border*/
-
-.x-panel-body-noheader,.x-panel-mc .x-panel-body {
-    border: none;
+.x-tree-node-icon {
+    background: inherit;
 }
 
-/******************************************************************
- Global styles for buttons
- *****************************************************************/
-.toolbar-button .x-btn-text {
-    font-size: 90%;
-    color: #15428B;
-    background-position: 0 2px;
-    background-repeat: no-repeat;
-    padding: 3px 0 2px 18px;
+.x-tree .x-panel-body
+{
+    background-color:#FFF;
 }
 
-.toolbar-button .x-btn-text-icon .x-btn-center .x-btn-text {
-    font-size: 90%;
-    color: #15428B;
-    background-position: 0 2px;
-    background-repeat: no-repeat;
-    padding: 3px 0 2px 18px;
+.white-bg
+{
+    background-color:#FFF;
 }
 
-/******************************************************************
- Global styles checkboxes
- *****************************************************************/
-/* .checkbox {
-	text-align: center;
-	padding: 0px 10px 0px 10px;
-} */
-
-/******************************************************************
- Global styles for TreePanel objects
- *****************************************************************/
-.x-tree .x-panel-body {
-    background-color: #FFFFFF;
+ul.x-tab-strip-top
+{
+    background: #FFF none;
 }
 
-/******************************************************************
-General white background
- *****************************************************************/
-.white-bg {
-    background-color: #FFFFFF;
+.footer
+{
+    color:#AE5B12;
+    font-size:70%;
+    text-align:center;
 }
 
-ul.x-tab-strip-top {
-    background-color: #FFFFFF;
-    background-image: none;
+.login-welcome-msg
+{
+    color:#686D78;
+    font-size:11px;
+    font-weight:700;
 }
 
-/******************************************************************
- Style for WebProtege.java - the application entry point.
- *****************************************************************/
-.footer {
-    color: #AE5B12; /* burnt orange */
-    font-size: 70%; ! important;
-    text-align: center;
+.userName
+{
+    font-size:70%;
+    font-weight:700;
+    right:5px;
+    text-align:right;
+    top:5px;
+    vertical-align:top;
 }
 
-/******************************************************************
- Style for TopPanel.java - the header portion in the main layout
- *****************************************************************/
-.top-panel {
-    height: 50px;
-    border: 1px solid cyan;
+#annotations-grid .x-grid3-cell-inner
+{
+    overflow:visible;
+    white-space:normal!important;
 }
 
-.header-right {
-    right: 5px;
-    top: 5px;
-    font-size: 70%; ! important;
-    vertical-align: top;
-    text-align: right;
+.html-portlet
+{
+    font-size:larger;
 }
 
-.header-left {
-    right: 5px;
-    top: 5px;
-    font-size: 70%; ! important;
-    vertical-align: top;
-    text-align: left;
+.html-portlet .x-panel-body
+{
+    overflow:auto;
 }
 
-/****************************************************************
-Styles for the ontology container
-*****************************************************************/
-
-
-/******************************************************************
- Style for LoginFormPanel.java - the login screen and welcome page
- *****************************************************************/
-.login-welcome-msg {
-    color: #686D78;
-    font-size: 11px;
-    font-weight: bold;
+.restriction_table
+{
+    background-color:#FFF;
+    font-family:arial, tahoma, helvetica, sans-serif;
 }
 
-.userName {
-    right: 5px;
-    top: 5px;
-    font-size: 70%; ! important;
-    vertical-align: top;
-    text-align: right;
-    font-weight: bold;
+.x-grid3-header-offset
+{
+    width:auto;
 }
 
-/******************************************************************
- Styles for components that make up Metadata tab
- *****************************************************************/
-#annotations-grid .x-grid3-cell-inner {
-    overflow: visible;
-    white-space: normal !important;
+.gwt-ListBox
+{
+    font-family:tahoma, sans-serif;
 }
 
-/******************************************************************
- Styles for components that make up MyWebProtege tab
- *****************************************************************/
-#ontologies-grid .x-grid3-cell-inner {
-    overflow: visible;
-    white-space: normal !important;
+ul.disc
+{
+    list-style-type:disc;
+    padding:15px;
 }
 
-.jnlpPanel {
-    background-color: #ECF4FD;
-    padding: 5px;
-    border: 1px solid #99BBE8;
-    margin: 5px;
+.x-form-item-label,.form_label
+{
+    clear:left;
+    color:#1542bb;
+    display:block;
+    float:left;
+    font-family:tahoma, sans-serif;
+    font-size:11px;
+    font-size-adjust:none;
+    font-style:normal;
+    font-variant:normal;
+    font-weight:700;
+    line-height:normal;
+    padding:3px 3px 3px 0;
+    position:relative;
+    width:100px;
+    z-index:2;
 }
 
-.html-portlet {
-    font-size: larger;
+.x-form-item-label,.action_link
+{
+    width:100px;
 }
 
-.html-portlet .x-panel-body{
-    overflow: auto;
+.form_grid
+{
+    padding:1px 3px;
 }
 
-/******************************************************************
-Styles for HTML restrictions table
-*****************************************************************/
-.restriction_panel {
-    background-color: #FFFFFF;
+.form_html_panel
+{
+    font-family:tahoma, sans-serif;
+    font-size:12px;
+    height:150px;
 }
 
-.restriction_table {
-    font-family: arial, tahoma, helvetica, sans-serif;
-    background-color: #FFFFFF; !
-	important padding: 5px 5px 5px 5px;
-}
-
-.restiction_title {
-    font-weight: bold;
-    color: #1542bb;
-}
-
-.restriction_delim {
-    color: maroon;
-    font-style: italic;
-}
-
-.restriction_separator {
-    color: gray;
-    font-style: italic;
-    font-size: 90%;
-}
-
-/******************************************************************
- Styles for Ontologies grid
- *****************************************************************/
-.x-grid3-header-offset {
-    width: auto;
-}
-
-.gwt-ListBox {
-    font-family: tahoma, sans-serif;
-}
-
-/******************************************************************
- Styles for Form widgets
- *****************************************************************/
-ul.disc {
-    list-style-type: disc;
-    padding: 15px;
-}
-
-.x-form-item-label, .form_label {
-    clear: left;
-    display: block;
-    float: left;
-    padding: 3px 3px 3px 0;
-    position: relative;
-    width: 100px;
-    z-index: 2;
-    color: #1542bb;
-    font-family: tahoma, sans-serif;
-    font-size: 11px;
-    font-size-adjust: none;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: bold;
-    line-height: normal;
-}
-
-.x-form-item-label, .action_link {
-    width: 100px;
-}
-/* use these styles to increase label width for regular fields. 
-   Warning: Left end of field will be unfortunatelly cut! 
-   * /
-.x-form-item label {
-	width: 105px !important;
-}
-
-.x-form-element {
-	padding-left: 110px !important;
-}
-/ * */
-
-.note_message,.stats_message {
-    clear: left;
-    display: block;
-    float: left;
-    padding: 3px 3px 6px;
-    position: relative;
-    /*	color: #1542bb;*/
-    font-family: tahoma, sans-serif;
-    font-size: 11px;
-    font-size-adjust: none;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: bold;
-    line-height: normal;
-}
-
-.form_grid {
-    padding: 1px 3px;
-}
-
-.form_html_panel {
-    height: 150px;
-    font-family: tahoma, sans-serif;
-    font-size: 12px;
-}
-
-.instance-checkbox input {
-    width: 13px;
-    height: 13px;
-    padding: 0;
+.instance-checkbox input
+{
+    height:13px;
     margin:0;
-    vertical-align: bottom;
-    position: relative;
-    /*top: -1px;*/
-    *overflow: hidden;
-
+    overflow:hidden;
+    padding:0;
+    position:relative;
+    vertical-align:bottom;
+    width:13px;
 }
 
-.instance-checkbox label {
-    /*display: block;*/
-    padding-left: 10px;
-    text-indent: -10px;
-
+.instance-checkbox label
+{
+    padding-left:10px;
+    text-indent:-10px;
 }
 
-/******************************************************************
- Styles for ChangeSummaryPortlet.java
- *****************************************************************/
-#changes-grid .x-grid3-cell-inner {
-    overflow: visible;
-    white-space: normal !important;
+#changes-grid .x-grid3-cell-inner
+{
+    overflow:visible;
+    white-space:normal!important;
 }
 
-.manage-button {
-    color: #15428B;
-    cursor: pointer;
-    font-size: 100%;
-    font-weight: bold;
-    text-decoration: underline;
-    padding: 7px;
+.manage-button
+{
+    color:#15428B;
+    cursor:pointer;
+    font-size:100%;
+    font-weight:700;
+    padding:7px;
+    text-decoration:underline;
 }
 
-/*****************
-Styles for the hierarchy management tab
-********************/
-.hierarchy-title {
-    font-size: 120%;
-    font-weight: bold;
-    padding: 5px;
-    background-color: #BDCAD8;
-    color: #15428B;
-    margin-bottom: 5px;
+.hierarchy-title
+{
+    background-color:#BDCAD8;
+    color:#15428B;
+    font-size:120%;
+    font-weight:700;
+    margin-bottom:5px;
+    padding:5px;
 }
 
-.select-link {
-    background-image: url(../images/add.png) !important;
-    border-style: none !important;
-    border-width: 0px;
-    margin-left: 5px;
-    margin-top: 5px;
-    border-width: 0px;
-    background-position: 0px 0 !important;
+.select-link
+{
+    background: url(../images/add.png) 0 0 !important;
+    border-style:none!important;
+    border-width:0;
+    margin-left:5px;
+    margin-top:5px;
 }
 
-.explanation {
-    background-color: #faf59b;
-    border: 1px solid #15428B;
-    margin-bottom: 10px;
-    margin-top: 10px;
-    margin-right: 10px;
-    padding: 5px 5px 5px 8px;
+.explanation
+{
+    background-color:#faf59b;
+    border:1px solid #15428B;
+    margin-bottom:10px;
+    margin-right:10px;
+    margin-top:10px;
+    padding:5px 5px 5px 8px;
 }
 
-.parents {
-    background: #FFFFFF url(../images/default/form/text-bg.gif) repeat-x scroll 0 0;
-    border: 1px solid #B5B8C8;
-    padding: 2px 3px;
-    overflow: auto;
-    margin: 0px !important;
+.parents-label
+{
+    clear:left;
+    color:#1542BB;
+    display:block;
+    float:left;
+    font-family:tahoma, sans-serif;
+    font-size:11px;
+    font-size-adjust:none;
+    font-style:normal;
+    font-variant:normal;
+    font-weight:700;
+    line-height:normal;
+    margin-right:6px;
+    padding:3px 0;
+    position:relative;
+    width:100px;
+    z-index:2;
 }
 
-.parents-no-border {
-    background: #FFFFFF url(../images/default/form/text-bg.gif) repeat-x scroll 0 0;
-    padding: 2px 3px;
+.parent-column-right
+{
+    background-color:#FFF;
+    font-family:tahoma, sans-serif;
+    text-align:right;
 }
 
-.parents-label {
-    width: 100px;
-    clear: left;
-    display: block;
-    float: left;
-    padding: 3px 0px 3px 0px;
-    margin-right: 6px;
-    position: relative;
-    z-index: 2;
-    color: #1542BB;
-    font-family: tahoma, sans-serif;
-    font-size: 11px;
-    font-size-adjust: none;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: bold;
-    line-height: normal;
+.ext-gecko .x-window-body .x-form-item
+{
+    overflow:hidden;
 }
 
-.parent-column-right {
-    font-family: tahoma, sans-serif;
-    background-color: #FFFFFF; !
-	important padding: 5px 5px 5px 5px;
-    text-align: right;
-}
-
-/* hack - should fix */
-.ext-gecko .x-window-body .x-form-item {
-    overflow: hidden;
-}
-.menuBar {
-    cursor: pointer;
-    padding: 0px;
-    margin-top: -2px;
+.menuBar
+{
+    cursor:pointer;
+    margin-top:-2px;
+    padding:0;
 }
 
 .menuBar .gwt-MenuItem
 {
-    cursor: pointer;
-    padding: 0px;
-    margin-top: -2px;
+    cursor:pointer;
+    margin-top:-2px;
+    padding:0;
 }
 
 .menuBar .gwt-MenuItem-selected
 {
-    color : #DC7317;
+    color:#DC7317;
 }
 
 .menuBar .gwt-MenuItem-visited
 {
-    cursor: pointer;
-    padding: 0px;
-    margin-top: -2px;
-}
-
-.subMenuBar {
-    color: #327BAA;
-    font-size:75%;
-    text-decoration:underline;
-    cursor: pointer;
-    background-color: #FFFFFF;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #AAAAAA;
+    cursor:pointer;
+    margin-top:-2px;
+    padding:0;
 }
 
 .subMenuBar
 {
-    color: #327BAA;
+    background-color:#FFF;
+    border: 1px solid #AAA;
+    color:#327BAA;
+    cursor:pointer;
     font-size:75%;
+    margin:3px;
+    padding:6px;
     text-decoration:underline;
-    cursor: pointer;
-    margin: 3px;
-    padding: 6px;
 }
-.subMenuBar .gwt-MenuItem
-{
 
-}
 .subMenuBar .gwt-MenuItem-selected
 {
-    background-color : #327BAA;
-    color: white;
+    background-color:#327BAA;
+    color:#FFF;
 }
 
-.label {
-    color: #003399;
-    font-size: 11px;
-    font-weight: bold;
+.label
+{
+    color:#039;
+    font-size:11px;
+    font-weight:700;
 }
 
-.gwt-PopupPanel {
-    border: 3px thin #C3D9FF;
-    padding: 3px;
-
-    border-color:#329ab3;
-    border-width:20px;
-    background-color : #CEDBEC;
-    z-index: 20;
+.gwt-PopupPanel
+{
+    background-color:#CEDBEC;
+    border: 20px #329ab3;
+    padding:3px;
+    z-index:20;
 }
 
-.gwt-PopupPanel .popupContent {
-    background-color : #DFE8F6;
+.gwt-PopupPanel .popupContent
+{
+    background-color:#DFE8F6;
 }
 
-.loginpanel {
+.loginpanel .x-panel-body
+{
+    background-color:#DFE8F7;
 }
 
-.loginpanel .x-panel-body {
-    background-color: #DFE8F7;
+.links-blue
+{
+    color:#039;
+    cursor:pointer;
+    font-size:11px;
+    font-weight:700;
+    margin-top:-2px;
+    padding:0;
 }
 
-.links-blue {
-    color: #003399;
-    font-size: 11px;
-    font-weight: bold;
-
-    cursor: pointer;
-    padding: 0px;
-    margin-top: -2px;
+.loading-img
+{
+    margin-left:3px;
 }
 
-.loading-img {
-    margin-left: 3px;
+.bp-search-rec-type
+{
+    color:gray;
+    font-size:90%;
 }
 
-.bp-search-rec-type {
-    font-size: 90%;
-    color: gray;
+.bp-search-pref-name
+{
+    font-weight:700;
 }
 
-.bp-search-pref-name {
-    font-weight: bold;
+.bp-search-contents
+{
+    color:gray;
 }
 
-.bp-search-contents {
-    color: gray;
+.instance-radio
+{
+    padding:5px;
 }
 
-/*****************
-Radio box widget
-********************/
-
-.instance-radio {
-    padding: 5px;
-}
-
-/*********************
-Export/Import portlet
-***********************/
-
-.export_import_anchor {
-    font-weight: bold;
-    font-size: 120%;
+.export_import_anchor
+{
+    font-size:120%;
+    font-weight:700;
     text-decoration:underline;
 }
 
-.export-import-separator {
+.export-import-separator
+{
     padding:10px 15px;
 }
 
-/********************
-Restriction editing
-*********************/
-.condition_editor {
-    font-size: 11px;
+.condition_editor
+{
+    font-size:11px;
 }
 
-.hint_color_red {
-    background-color: #EFB4B2;
+.ctrl_portlet
+{
+    background-image:url(../images/transmit_blue.png)!important;
 }
 
-.hint_color_green {
-    background-color: #B7FFB7;
+.html-editor
+{
+    font:11px tahoma, sans-serif;
 }
 
-/********************
-Portlets
-*********************/
-.ctrl_portlet {
-    background-image: url(../images/transmit_blue.png) !important;
+.x-grid3-cell-inner
+{
+    overflow:visible;
+    white-space:normal!important;
 }
 
-
-/**********************
-GWT popup list
-************************/
-
-/*.gwt-DropDown {*/
-    /*margin-top: -4px;*/
-    /*border: 3px solid #e7e7e7;*/
-    /*background: white;*/
-    /*font: 11px tahoma,arial,helvetica,sans-serif;*/
-    /*color: #15428B;*/
-    /*font-weight: bold;*/
-/*}*/
-
-.html-editor {
-    font: 11px tahoma, sans-serif;
+.webprotege-revision-summary-style
+{
+    border-bottom: 1px dotted silver;
+    margin-bottom:5px;
+    padding:4px;
 }
 
-.x-grid3-cell-inner {
-    overflow: visible;
-    white-space: normal !important;
+.webprotege-revision-summary-revision-number-style
+{
+    font-weight:700;
 }
 
-.webprotege-revision-summary-style {
-    border-bottom: dotted;
-    border-bottom-color: silver;
-    border-bottom-width: 1px;
-    margin-bottom: 5px;
-    padding: 4px;
+.webprotege-revision-summary-userid-style
+{
+    font-weight:400;
 }
 
-.webprotege-revision-summary-revision-number-style {
-    font-weight: bold;
+ul.x-menu-list
+{
+    height:expression(this.scrollHeight>350?"350px":"auto");
+    max-height:350px;
+    overflow-y:auto;
 }
 
-.webprotege-revision-summary-userid-style {
-    font-weight: normal;
+.x-grid3-td-topic b
+{
+    display:block;
+    font-family:tahoma, verdana,serif;
 }
 
-
-
-/*Scrollbar for vertical menues*/
-ul.x-menu-list {
-    height: expression( this.scrollHeight > 350 ? "350px" : "auto" ); /* sets max-height for IE */
-    max-height: 350px;
-    overflow-y: auto;
+.x-grid3-td-topic b i
+{
+    color:#000;
+    font-style:normal;
+    font-weight:400;
 }
 
-
-.protege-class-icon {
-    background-image: url(../images/tree/class.png) !important;
+.x-grid3-td-topic .x-grid3-cell-inner
+{
+    white-space:normal;
 }
 
-.protege-deprecated-class-icon {
-    background-image: url("../images/tree/class.png") !important;
-    opacity: 0.5;
+.x-grid3-td-topic a
+{
+    color:#385F95;
+    text-decoration:none;
 }
 
-.protege-class-create-icon {
-    background-image: url(../images/tree/class.create.gif) !important;
+.x-grid3-td-topic a:hover
+{
+    text-decoration:underline;
 }
 
-.protege-class-delete-icon {
-    background-image: url(../images/tree/class.delete.gif) !important;
+.individualsView-Banner
+{
+    background-color:#606;
+    color:#FFF;
+    font-size:11px;
+    font-weight:700;
+    margin:0 0 10px;
+    padding:5px 0 5px 5px;
+    width:100%;
 }
 
-/* Styles for NotesPortlet */
-.x-grid3-td-topic b {
-    font-family: tahoma, verdana;
-    display: block;
+.propertiesView-Banner
+{
+    background-color:#369;
+    color:#FFF;
+    font-size:11px;
+    font-weight:700;
+    margin:0 0 10px;
+    padding:5px 0 5px 5px;
+    width:100%;
 }
 
-.x-grid3-td-topic b i {
-    font-weight: normal;
-    font-style: normal;
+::-webkit-input-placeholder {
+    color: rgba(200, 200, 200, 1.0);
+}
+
+::-moz-placeholder {
+    color: rgba(200, 200, 200, 1.0);
+}
+
+:-moz-placeholder {
+    color: rgba(200, 200, 200, 1.0);
+}
+
+*.web-protege-laf *:after, *:before {
+    box-sizing: border-box;
+}
+
+.web-protege-laf {
+    font-size: 12px;
+    font-family: tahoma, sans-serif;
+}
+
+.web-protege-100-percent-width {
+    width: 100%;
+}
+
+*.web-protege-laf * .gwt-TextArea, .gwt-TextArea-readonly {
+    border: 1px solid rgb(198, 198, 198);
+    font-size: 12px;
+    font-family: tahoma, sans-serif;
+    padding: 2px;
+    /*box-shadow: 0 0 3px 1px rgba(240, 240, 240, 1.0) inset;*/
+    line-height: 15px;
     color: #000000;
 }
 
-.x-grid3-td-topic .x-grid3-cell-inner {
-    white-space: normal;
+*.web-protege-laf .gwt-TextBox, .gwt-TextBox-readonly, .gwt-PasswordTextBox {
+    border: 1px solid #F0F0F0;
+    font-size: 12px;
+    font-family: tahoma, sans-serif;
+    padding: 2px;
+    /*box-shadow: 0 0 3px 1px rgba(240, 240, 240, 1.0) inset;*/
+    line-height: 15px;
 }
 
-.x-grid3-td-topic a {
-    color: #385F95;
-    text-decoration: none;
+[contenteditable=true] {
+    border: 1px solid silver;
+    font-size: 12px;
+    padding: 2px;
+    font-family: tahoma, sans-serif;
+    box-shadow: 0 0 3px 1px rgba(240, 240, 240, 1.0) inset;
+    height: 100%
 }
 
-.x-grid3-td-topic a:hover {
+*.web-protege-laf :focus {
+    border: 1px solid #4779be;
+    outline: none;
+}
+
+*.web-protege-no-focus :focus {
+    border: none;
+}
+
+.web-protege-form-label {
+    color: #000000;
+    font-weight: bold;
+    font-size: 12px;
+    padding-bottom: 2px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.web-protege-form-horizontal-padding {
+    padding-left: 2px;
+}
+
+.web-protege-form-vertical-padding {
+    padding-top: 2px;
+}
+
+.web-protege-form-horizontal-component-spacing {
+    padding-left: 10px;
+}
+
+.web-protege-component-group-left-padding {
+    padding-left: 10px;
+}
+
+.web-protege-component-group-top-padding {
+    padding-top: 10px;
+}
+
+.web-protege-component-group-right-padding {
+    padding-right: 10px;
+}
+
+.web-protege-component-group-bottom-padding {
+    padding-bottom: 10px;
+}
+
+.web-protege-component-group-padding {
+    padding: 10px;
+}
+
+.gwt-SuggestBox, .gwt-SuggestBox [disabled] {
+    border: 1px solid rgb(198, 198, 198);
+    font-size: 12px;
+    padding: 2px;
+    /*box-shadow: 0 0 3px 1px rgba(240, 240, 240, 1.0) inset;*/
+    line-height: 16px;
+    font-family: tahoma, sans-serif;
+    color: #000000;
+    background: #ffffff;
+}
+
+.gwt-SuggestBoxPopup {
+    font-size: 12px;
+    font-family: tahoma, sans-serif;
+    background: white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .2);
+    border: 1px solid #acacac;
+    line-height: 15px;
+    z-index: 10;
+}
+
+.gwt-SuggestBoxPopup .item {
+    background: white;
+    color: #000000;
+    font-family: tahoma, sans-serif;
+}
+
+.gwt-SuggestBoxPopup .item-selected {
+    color: #ffffff;
+    background: #4779be;
+    font-family: tahoma, sans-serif;
+}
+
+.gwt-SuggestBoxPopup .item .new-keyword {
+    color: #0669eb;
+    background: #ffffff;
+    font-weight: bold;
+    font-family: tahoma, sans-serif;
+}
+
+.gwt-SuggestBoxPopup .item-selected .new-keyword {
+    color: white;
+    background: #4779be;
+    font-weight: bold;
+    font-family: tahoma, sans-serif;
+}
+
+.web-protege-entity-match-substring {
+    font-weight: bold;
+}
+
+.web-protege-vertical-spacer {
+    height: 1.5em;
+}
+
+.web-protege-button-red {
+    border-radius: 3px 3px 3px 3px;
+    cursor: default;
+    font-size: 11px;
+    font-weight: bold;
+    height: 30px;
+    line-height: 27px;
+    margin-left: 16px;
+    min-width: 54px;
+    outline: 0 none;
+    padding: 0 8px;
+    text-align: center;
+    color: white;
+
+    border: 1px solid #dd4b39;
+    background-image: linear-gradient(top, #dd4b39, #d14836);
+}
+
+.web-protege-button-red:hover {
+    border: 1px solid rgba(150, 150, 150, 1.0);
+    box-shadow: 0 0 2px 1px rgba(20, 20, 20, 0.2);
+}
+
+.web-protege-button-red:active {
+    box-shadow: 0 0 2px 3px rgba(150, 50, 50, 0.5) inset;
+}
+
+.web-protege-button-margin-left {
+    margin-left: 16px;
+}
+
+.web-protege-error-background {
+    background: #edb3b1;
+}
+
+.web-protege-red-foreground {
+    color: red;
+}
+
+.web-protege-error-label {
+    background: #edc7c4;
+    border-left: solid 1px #ff0000;
+    border-right: solid 1px #ff0000;
+    border-bottom: solid 1px #ff0000;
+    padding: 2px;
+    font-family: tahoma, sans-serif;
+}
+
+* .web-protege-error-label > * a:link {
+    text-decoration: underline;
+    color: #0055aa;
+    padding: 2px;
+}
+
+.empty-icon-inset {
+    padding-left: 22px !important;
+    background-color: inherit;
+}
+
+.gwt-ToggleButton {
+    display: inline-block;
+}
+
+.gwt-ToggleButton-up {
+    border: #e6e6e6 solid 1px;
+    background: #fafafa;
+}
+
+.gwt-ToggleButton-down {
+    background: none repeat scroll 0 0 #f1f1f1;
+    border: 1px solid #a8a8a8;
+    box-shadow: 0 0 2px 2px #dfdfdf inset;
+}
+
+.gwt-ToggleButton-up-hovering {
+    border: #e6e6e6 solid 1px;
+    box-shadow: 0 0 5px 2px #676767;
+}
+
+.gwt-ToggleButton-down-hovering {
+    background: none repeat scroll 0 0 #f1f1f1;
+    border: 1px solid #bdbdbd;
+    box-shadow: 0 0 2px 2px #dfdfdf inset;
+}
+
+.gwt-ToggleButton-up-disabled {
+
+}
+
+.gwt-ToggleButton-down-disabled {
+
+}
+
+*.web-protege-laf * .gwt-RichTextArea, .gwt-RichTextArea-readonly {
+    border: 1px solid silver;
+    font-size: 12px;
+    font-family: tahoma, sans-serif;
+    padding: 2px;
+    box-shadow: 0 0 3px 1px rgba(240, 240, 240, 1.0) inset;
+    line-height: 15px;
+    color: #000000;
+    margin: 0;
+}
+
+*.note-content * ul {
+    margin-left: 5px;
+    list-style: disc inside;
+}
+
+*.note-content * ol {
+    margin-left: 5px;
+    list-style: decimal inside;
+}
+
+select {
+    border: 1px solid silver;
+    box-shadow: 0 0 3px 1px #f0f0f0 inset;
+    font-size: 12px;
+    line-height: 16px;
+    padding: 1px;
+    font-family: tahoma, arial, sans-serif;
+}
+
+.web-protege-highlighted-table-column {
+    background: #f3f3ff
+}
+
+.web-protege-mapped-table-column {
+    font-weight: bold !important;
+    background: #efffef;
+}
+
+.gwt-MenuBar-vertical {
+    background: white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .2);
+    border: 1px solid #acacac;
+    padding: 20px;
+}
+
+.gwt-MenuItem-selected {
+    color: #ffffff;
+    background: #0055aa;
+}
+
+.gwt-PopupPanel {
+    background: white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .2);
+    border: 1px solid #acacac;
+}
+
+.glass {
+    background: #808080;
+    opacity: 0.5;
+}
+
+.glass-popup-shadow {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .5) !important;
+}
+
+.progress-popup {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+
+.web-protege-popup-menu {
+    background: white;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, .2);
+    border: 1px solid #acacac;
+    margin-top: 5px;
+    border-radius: 3px;
+}
+
+.web-protege-popup-menu-inner {
+    background: #ffffff;
+}
+
+.web-protege-popup-menu-item {
+    background: none repeat scroll 0 0 #ffffff;
+    cursor: pointer;
+    font-family: Helvetica, Arial, Tahoma, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 5px 15px;
+    color: #555555;
+    vertical-align: middle;
+    line-height: 20px;
+    border-radius: 3px;
+}
+
+.web-protege-popup-menu-item:hover {
+    background: #3875f1;
+    color: #ffffff;
+}
+
+.button-style {
+    background: linear-gradient(#fafafa, #eaeaea) repeat scroll 0 0 #cecece;
+    border: 1px solid #dddddd;
+    border-radius: 3px 3px 3px 3px;
+    color: #555555;
+    cursor: pointer;
+    font-family: "Helvetica Neue", Helvetica, Arial, Tahoma, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 1px;
+    padding: 5px 8px;
+    line-height: 16px;
+}
+
+.button-style:hover {
+    color: #444444;
+    box-shadow: 0 0 2px 1px rgba(150, 150, 150, 0.20);
+    border-color: #a7a7a7;
+}
+
+.button-style:active {
+    color: #444444;
+    box-shadow: 0 0 4px 2px rgba(50, 50, 50, 0.2) inset;
+    border-color: #a7a7a7;
+}
+
+.button-style:disabled {
+    box-shadow: none;
+    color: #b0b0b0;
+    background: #cecece;
+    border-color: #dddddd;
+}
+
+.delete-button {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+}
+
+.button-style-red {
+    background: linear-gradient(#dd4545, #c80202) repeat scroll 0 0 #b72130;
+    border: 1px solid #b2151e;
+    border-radius: 3px 3px 3px 3px;
+    color: #ffffff;
+    cursor: pointer;
+    font-family: "Helvetica Neue", Helvetica, Arial, Tahoma, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 1px;
+    padding: 5px 8px;
+    line-height: 16px;
+}
+
+.button-style-red:hover {
+    box-shadow: 0 0 2px 1px rgba(150, 150, 150, 0.20);
+    border-color: #851418;
+}
+
+.button-style-red:active {
+    box-shadow: 0 0 4px 2px rgba(50, 50, 50, 0.2) inset;
+    border-color: #a7a7a7;
+}
+
+[asserted=false] textarea {
+    color: #9d3600;
+
+}
+
+.derived-property-value input {
+}
+
+.derived-property-value textarea {
+}
+
+[disabled] {
+    background-color: #f1eded !important;
+}
+
+.error {
+    border-bottom: solid #ff0000 2px;
+    box-sizing: border-box;
+    color: red !important;
+}
+
+.non-empty-metric {
+}
+
+.empty-metric {
+    color: #dadada;
+}
+
+.web-protege-table-cell {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid silver;
+}
+
+.web-protege-table-row {
+    padding: 5px;
+    font-size: 12px;
+}
+
+.postit {
+    background: #fefcde;
+    padding: 15px;
+    font-family: tahoma, sans-serif;
+    font-size: 12px;
+    color: #000000;
+    width: 170px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 2px 2px 2px 2px;
+}
+
+.gwt-DialogBox {
+    background: white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .2);
+    border: 1px solid #acacac;
+    padding: 20px;
+    z-index: 10;
+}
+
+.gwt-DialogBox .Caption {
+    background-color: white;
+    color: black;
+    cursor: default;
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 24px;
+    margin: 0 0 16px;
+}
+
+.web-protege-dialog-main-panel {
+    font-size: 12px;
+}
+
+.web-protege-dialog-label {
+    color: #4779be;
+    text-align: right;
+    font-size: 12px;
+}
+
+.web-protege-dialog-button-bar {
+    float: right;
+    padding-top: 10px;
+}
+
+.web-protege-dialog-button-compact {
+    border-radius: 2px 2px 2px 2px;
+    cursor: default;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0;
+    text-align: center;
+    color: rgba(50, 50, 50, 1.0);
+    border: 1px solid rgba(200, 200, 200, 1.0);
+    background-image: linear-gradient(top, #f5f5f5, #cccccc);
+}
+
+.web-protege-dialog-button-compact:hover {
+    border: 1px solid rgba(150, 150, 150, 1.0);
+    box-shadow: 0 0 2px 1px rgba(20, 20, 20, 0.2);
+}
+
+.web-protege-dialog-button-compact:active {
+    box-shadow: 0 0 1px 2px rgba(220, 220, 220, 1.0) inset;
+}
+
+.web-protege-label-description {
+    color: #b3b3b3;
+    font-size: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.gwt-RadioButton {
+    display: block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.gwt-RadioButton label > div {
+    padding-top: 5px;
+}
+
+.gwt-RadioButton > label {
+    padding-left: 5px;
+}
+
+.web-protege-form-layout-editor-group {
+    display: block;
+}
+
+.web-protege-term-editor {
+    border-top: 1px dotted silver;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    clear: both;
+}
+
+.web-protege-form-layout-editor-group-form {
+    display: inline-block;
+    vertical-align: top;
+    width: 69%;
+    overflow: visible;
+}
+
+.web-protege-form-layout-editor-group-sidebar {
+    display: inline-block;
+    vertical-align: top;
+    width: 30%;
+    float: right;
+}
+
+.web-protege-form-layout-labelled-editor {
+    display: block;
+    padding-top: 5px;
+    overflow: visible;
+}
+
+.web-protege-form-layout-label {
+    display: inline-block;
+    padding-right: 10px;
+    text-align: right;
+    vertical-align: top;
+    width: 15%;
+}
+
+.web-protege-form-layout-editor-input {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.web-protege-form-layout-editor {
+    display: inline-block;
+    width: 80%;
+    overflow: visible;
+}
+
+.web-protege-form-layout-editor table {
+    width: 100%;
+}
+
+.web-protege-form-layout-editor * table td + td {
+    padding-left: 1px;
+    padding-top: 1px;
+}
+
+.web-protege-term-editor * table td + td {
+    padding-left: 1px;
+    padding-top: 1px;
+}
+
+.web-protege-term-editor * table td {
+    padding-left: 1px;
+    padding-top: 1px;
+}
+
+.web-protege-form-layout-margin {
+    margin: 1px;
+}
+
+.web-protege-drop-down {
+    display: inline;
+    color: #4779be;
+}
+
+.web-protege-drop-down-item {
+    background: white;
+}
+
+.web-protege-drop-down-item:hover {
+    background: #ecf4fd;
+}
+
+.web-protege-drop-down-item-selected {
+    background: #4779be;
+    color: white;
+}
+
+.web-protege-drop-down-item-selected:hover {
+    background: #4779be;
+    color: white;
+}
+
+.web-protege-drop-down-item-deselected {
+
+}
+
+.web-protege-drop-down-popup {
+    background: white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .2);
+    border: 1px solid #acacac;
+    font-size: 12px;
+}
+
+.web-protege-drop-down-content-holder {
+    display: inline;
+}
+
+.web-protege-drop-down-button-holder {
+    display: inline;
+}
+
+.web-protege-sidebar {
+    border-top: 1px solid #f1f1f1;
+    border-right-width: 8px;
+    border-bottom: 1px solid #f1f1f1;
+    border-left-width: 8px;
+
+}
+
+.web-protege-sidebar-item-base {
+    height: 40px;
+    cursor: pointer;
+}
+
+.web-protege-sidebar-item-base:hover {
+    background: #e8e8e8;
+    border-radius: 2px;
+}
+
+.web-protege-sidebar-item-selected {
+    color: #757575;
+    background: #d7e6fa;
+    border-radius: 2px;
+}
+
+.web-protege-sidebar-item-deselected {
+    color: #808080;
+    background: #ffffff;
+}
+
+.web-protege-sidebar-item-label {
+    width: 100%;
+    padding-left: 20px;
+    vertical-align: middle;
+    height: 34px;
+    line-height: 34px;
+    font-size: 14px;
+    position: relative;
+}
+
+.web-protege-annotated-radio-button-label {
+
+}
+
+.web-protege-annotated-radio-button-main-label {
+
+}
+
+.web-protege-annotated-radio-button-description-label {
+    font-size: 10px;
+    color: silver;
+}
+
+.web-protege-sharing-settings-visibility-selector-panel {
+
+}
+
+.web-protege-sharing-settings-visibility-summary-box {
+    padding-top: 12px;
+    padding-bottom: 15px;
+    color: #737373;
+}
+
+.web-protege-sharing-add-people {
+    background: rgba(245, 245, 245, 1.0);
+    border: 1px solid rgba(230, 230, 230, 1.0);
+    padding: 10px;
+}
+
+.web-protege-sharing-settings-list {
+    padding: 10px;
+}
+
+*.web-protege-property-grid table {
+    width: 100%;
+}
+
+*.web-protege-property-grid td {
+    vertical-align: top;
+}
+
+*.web-protege-property-grid * tr {
+    border-bottom: solid silver 1px;
+}
+
+.web-protege-property-grid-editor {
+    min-height: 1.3em;
+    width: 100%;
+}
+
+.web-protege-value-list {
+
+}
+
+.web-protege-value-list > table > tbody > tr > td {
+    border-bottom: 1px solid rgb(240, 240, 240);
+}
+
+.web-protege-value-list .gwt-SuggestBox {
+    border: 1px solid transparent;
+}
+
+.web-protege-value-list .gwt-SuggestBox {
+    border: 1px solid transparent;
+}
+
+.web-protege-value-list .gwt-TextBox {
+    border: 1px solid transparent;
+}
+.web-protege-value-list .gwt-TextArea {
+    border: 1px solid transparent;
+}
+
+
+
+
+.cm-s-manchester-syntax span.cm-quantifier {
+    color: #c528eb;
+    font-family: verdana,arial,helvetica,sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.cm-s-manchester-syntax span.cm-boolean-connective {
+    color: #0669eb;
+    font-family: verdana,arial,helvetica,sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.cm-s-manchester-syntax span.cm-string {
+    font-family: verdana,arial,helvetica,sans-serif;
+    font-size: 12px;
+}
+
+
+/*.CodeMirror pre {*/
+/*font-size: 12px;*/
+/*line-height: 12px;*/
+/*height: 14px;*/
+/*}*/
+
+.CodeMirror pre {
+    line-height: 16px;
+}
+
+.ms-axiom-kw {
+    font-weight: bold;
+    color: #0A5EA8;
+}
+
+
+.section-kw {
+    font-weight: bold;
+    color: #0A5EA8;
+}
+
+.quantifier-kw {
+    font-weight: bold;
+    color: #B200B2;
+}
+
+.connective-kw {
+    font-weight: bold;
+    color: #00B2B2;
+}
+
+.deprecated {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.highlight {
+    font-weight: bold;
+    background: #FFEB7F;
+}
+
+.iri {
+    color: #0000ff;
     text-decoration: underline;
 }
 
-.details .x-btn-text {
-    background-image: url(images/details.gif);
+.literal {
+    color: #a0522d;
 }
 
-.discussion-link {
-    color: #0000FF !important;
-    font-weight: bold;
-    padding-top: 5px;
+.l-par {
+    padding-right: 2px;
+    color: #a9a9a9;
+}
+
+.r-par {
+    padding-left: 2px;
+    color: #a9a9a9;
+}
+
+.exp-block {
+    display: inline-block;
+    vertical-align: top;
+}
+
+
+
+body {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 12px;
+}
+
+td {
+    font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 12px;
+    vertical-align: top;
+}
+
+.ms-frame {
+    margin-bottom: 30px;
+    /*border-bottom: 1px solid #f3f3f3;*/
     padding-bottom: 5px;
-    padding-left: 3px;
+    font-size: 12px;
+
 }
 
-.discussion-link-inactive a {
-    color: #BBBBBB !important;
+.ms-frame ul {
+    list-style: disc;
+    list-style-position: inside;
+    padding-left: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
-.p-button {
-    font-size: 70%;
-    color: #15428B;
-}
-
-
-.individualsView-Banner {
-    background-color: #660066; /* Web safe version of Protege's "instance" color */
-    color: #FFFFFF;
+.ms-frame-subject {
     font-weight: bold;
-    font-size: 11px;
-    margin: 0 0 10px 0;
-    padding: 5px 0px 5px 5px;
-    width: 100%;
 }
 
-/* Styles for Individuals List */
-.protege-individuals-icon {
-    background-image: url(../images/tree/individual.png) !important;
-}
-
-.propertiesView-Banner {
-    background-color: #336699; /* Web safe version of Protege's "slot" color */
-    color: #FFFFFF;
+.ms-frame-kw {
+    color: #02178E;
     font-weight: bold;
-    font-size: 11px;
-    margin: 0 0 10px 0;
-    padding: 5px 0px 5px 5px;
-    width: 100%;
 }
 
-/* Styles for PropertyTreePortlet */
-.protege-slot-icon {
-    background-image: url(../images/tree/slot.gif) !important;
+.ms-frame-block {
+    margin-left: 30px;
 }
 
-.protege-slot-create-icon {
-    background-image: url(../images/tree/slot.create.gif) !important;
+.ms-section {
+    margin-top: 10px;
 }
 
-.protege-slot-delete-icon {
-    background-image: url(../images/tree/slot.delete.gif) !important;
+.ms-section-block {
+    margin-top: 10px;
+    margin-left: 30px;
 }
 
-.protege-object-property-icon {
-    background-image: url(../images/tree/property.png) !important;
+.ms-section-item {
+    line-height: 1.3em;
+    padding-bottom: 3px;
+    padding-top:3px;
+    border-bottom: 1px solid #f4f4f4;
 }
 
-.protege-datatype-property-icon {
-    background-image: url(../images/tree/property.png) !important;
+.ms-section-item:hover {
+    background: #ededed;
 }
 
-.protege-annotation-property-icon {
-    background-image: url(../images/tree/annotation-property.png) !important;
+.ms-section-kw {
+    color: #02178E;
+    font-weight: bold;
+}
+
+.ms-quantifier-kw {
+    color: #c600c6;
+    font-weight: bold;
+}
+
+.cm-quantifier {
+    color: #c600c6;
+    font-weight: bold;
+}
+
+.ms-connective-kw {
+    color: cornflowerblue;
+    font-weight: bold;
+}
+
+.ms-literal {
+    color: #bb7200;
+}
+
+.ms-expr-block {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.ms-lang-tag {
+    color: #a9a9a9;
+}
+
+.ms-literal-datatype {
+    color: #a9a9a9;
+}
+
+.ms-sep {
+    color: #a9a9a9;
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.ms-l-par {
+    color: #a9a9a9;
+}
+
+.ms-r-par {
+    color: #a9a9a9;
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.ms-img {
+    display: inline-block;
+    vertical-align: top;
+    border: 1px solid #f5f5f5;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    margin-top: 5px;
+}
+
+.ms-img img {
+    max-width: 150px;
+}
+
+.ms-ont-id {
+    color: #bca7a8;
+}
+
+.ms-item-ce {
+    /*background: url("../../java/edu/stanford/bmir/protege/web/resources/class.png") no-repeat 0 -1px;*/
+    padding-left: 20px;
+}
+
+.ms-item-ind {
+    /*background: url("../images/tree/individual.png") no-repeat 0 -1px;*/
+    padding-left: 20px;
+}
+
+.ms-item-anno {
+    /*background: url("../images/tree/annotation-property.png") no-repeat 0 -1px;*/
+    padding-left: 20px;
+}
+
+.ms-item-prop {
+    /*background: url("../images/tree/property.png") no-repeat 0 -1px;*/
+    padding-left: 20px;
+}
+
+.ms-item-dr {
+    /*background: url("../images/tree/datatype.png") no-repeat 0 -1px;*/
+    padding-left: 20px;
+}
+
+.ms-literal p:only-child {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.ms-annotations {
+    border-left: solid 4px #f1f1f1;
+    margin-bottom: 4px;
+    margin-left: 22px;
+    padding-left: 5px;
+    margin-top: 4px;
+}
+
+.ms-annotations-block {
+    padding-left: 20px;
+}
+
+.ms-nested-annotation {
+    /*	border-top: 1px dotted #f4f4f4;*/
 }

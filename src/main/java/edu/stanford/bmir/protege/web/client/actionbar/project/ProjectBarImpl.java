@@ -42,6 +42,13 @@ public class ProjectBarImpl extends Composite implements ProjectActionBar {
         }
     };
 
+    private UploadAndMergeHandler uploadAndMergeHandler = new UploadAndMergeHandler() {
+        @Override
+        public void handleUploadAndMerge() {
+
+        }
+    };
+
 
     interface ProjectBarImplUiBinder extends UiBinder<HTMLPanel, ProjectBarImpl> {
 
@@ -61,7 +68,6 @@ public class ProjectBarImpl extends Composite implements ProjectActionBar {
     protected ButtonBase projectSettingsItem;
 
 
-
     @UiHandler("shareProjectItem")
     protected void handleShareProjectItemClicked(ClickEvent clickEvent) {
         showShareSettingsHandler.handleShowShareSettings();
@@ -70,7 +76,7 @@ public class ProjectBarImpl extends Composite implements ProjectActionBar {
     @UiHandler("projectSettingsItem")
     protected void handleProjectSettingsItemClicked(ClickEvent clickEvent) {
         PopupMenu popupMenu = new PopupMenu();
-        popupMenu.addItem("Project details...", new ClickHandler() {
+        popupMenu.addItem("Project settings...", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 showProjectDetailsHandler.handleShowProjectDetails();
@@ -83,6 +89,13 @@ public class ProjectBarImpl extends Composite implements ProjectActionBar {
                 showFreshEntitySettingsHandler.handleShowFreshEntitySettings();
             }
         });
+        popupMenu.addItem("Upload and merge...", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                uploadAndMergeHandler.handleUploadAndMerge();
+            }
+        });
+
         popupMenu.showRelativeTo(projectSettingsItem);
     }
 
@@ -108,5 +121,10 @@ public class ProjectBarImpl extends Composite implements ProjectActionBar {
     @Override
     public void setShowShareSettingsHandler(ShowShareSettingsHandler showShareSettingsHandler) {
         this.showShareSettingsHandler = checkNotNull(showShareSettingsHandler);
+    }
+
+    @Override
+    public void setUploadAndMergeHandler(UploadAndMergeHandler uploadAndMergeHandler) {
+        this.uploadAndMergeHandler = checkNotNull(uploadAndMergeHandler);
     }
 }

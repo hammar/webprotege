@@ -47,6 +47,8 @@ public class ExpandingTextBoxImpl extends SimplePanel implements Focusable, HasA
 
     private String lastSelection = "";
 
+    private String placeholder = "";
+
 
     interface ExpandingTextBoxImplUiBinder extends UiBinder<HTMLPanel, ExpandingTextBoxImpl> {
 
@@ -72,6 +74,7 @@ public class ExpandingTextBoxImpl extends SimplePanel implements Focusable, HasA
         final TextArea textArea = new TextArea();
         SuggestOracle proxyOracle = createProxySuggestOracle();
         this.suggestBox = new SuggestBox(proxyOracle, textArea);
+        this.suggestBox.setAutoSelectEnabled(false);
 
         HTMLPanel rootElement = ourUiBinder.createAndBindUi(this);
         setWidget(rootElement);
@@ -146,6 +149,10 @@ public class ExpandingTextBoxImpl extends SimplePanel implements Focusable, HasA
         };
     }
 
+    public void setAutoSelectSuggestions(boolean autoSelect) {
+        suggestBox.setAutoSelectEnabled(autoSelect);
+    }
+
     /**
      * Returns true if the widget is enabled, false if not.
      */
@@ -162,6 +169,12 @@ public class ExpandingTextBoxImpl extends SimplePanel implements Focusable, HasA
     @Override
     public void setEnabled(boolean enabled) {
         suggestBox.getTextBox().setEnabled(enabled);
+        if(enabled) {
+            setPlaceholderInternal(placeholder);
+        }
+        else {
+            setPlaceholderInternal("");
+        }
     }
 
     private SuggestOracle getDelegateSuggestOracle() {
@@ -219,6 +232,11 @@ public class ExpandingTextBoxImpl extends SimplePanel implements Focusable, HasA
 
     @Override
     public void setPlaceholder(String placeholder) {
+        this.placeholder = placeholder;
+        setPlaceholderInternal(placeholder);
+    }
+
+    private void setPlaceholderInternal(String placeholder) {
         suggestBox.getTextBox().getElement().setAttribute("placeholder", placeholder);
         doPreElements(false);
     }
