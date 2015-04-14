@@ -2,14 +2,25 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:primitive="urn:import:edu.stanford.bmir.protege.web.client.primitive">
     <ui:style>
+        .main {
+
+        }
+        .main table {
+            border: none;
+            border-collapse: collapse;
+            padding: 0;
+        }
+        .main td {
+            border: none;
+            border-collapse: collapse;
+            padding: 0;
+        }
         .property-field {
-            /*width: 200px;*/
             min-width: 200px;
             max-width: 200px;
             box-sizing: border-box;
         }
         .value-field {
-            /*width: 100%;*/
             box-sizing: border-box;
         }
         .language-field {
@@ -18,7 +29,7 @@
         }
     </ui:style>
 
-    <g:HTMLPanel>
+    <g:HTMLPanel addStyleNames="{style.main}">
         <table>
             <tr>
                 <td width="200px">

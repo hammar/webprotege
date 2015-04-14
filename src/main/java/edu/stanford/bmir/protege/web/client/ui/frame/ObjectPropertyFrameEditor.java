@@ -1,6 +1,9 @@
 package edu.stanford.bmir.protege.web.client.ui.frame;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -8,17 +11,16 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasEnabled;
 import com.google.gwt.user.client.ui.TextBox;
 import edu.stanford.bmir.protege.web.client.primitive.PrimitiveDataListEditor;
-import edu.stanford.bmir.protege.web.client.rpc.GetRendering;
-import edu.stanford.bmir.protege.web.client.rpc.GetRenderingResponse;
-import edu.stanford.bmir.protege.web.client.rpc.RenderingServiceManager;
+import edu.stanford.bmir.protege.web.client.rpc.AbstractWebProtegeAsyncCallback;
+import edu.stanford.bmir.protege.web.client.renderer.RenderingManager;
 import edu.stanford.bmir.protege.web.client.ui.editor.EditorView;
 import edu.stanford.bmir.protege.web.client.ui.editor.ValueEditor;
+import edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedEvent;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedHandler;
 import edu.stanford.bmir.protege.web.shared.PrimitiveType;
@@ -26,8 +28,11 @@ import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import edu.stanford.bmir.protege.web.shared.entity.OWLPrimitiveData;
 import edu.stanford.bmir.protege.web.shared.frame.*;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
+import edu.stanford.bmir.protege.web.shared.renderer.GetEntityDataAction;
+import edu.stanford.bmir.protege.web.shared.renderer.GetEntityDataResult;
 import org.semanticweb.owlapi.model.EntityType;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 
 import java.util.*;
@@ -67,13 +72,16 @@ public class ObjectPropertyFrameEditor extends FlowPanel implements EntityFrameE
 
     private ProjectId projectId;
 
+    private Set<ObjectPropertyCharacteristic> characteristics = Sets.newHashSet();
+
     public ObjectPropertyFrameEditor(ProjectId projectId) {
+        WebProtegeClientBundle.BUNDLE.style().ensureInjected();
         this.projectId = projectId;
         annotations = new PropertyValueListEditor(projectId);
         annotations.setGrammar(PropertyValueGridGrammar.getAnnotationsGrammar());
-        domains = new PrimitiveDataListEditor(projectId, PrimitiveType.CLASS);
+        domains = new PrimitiveDataListEditor(PrimitiveType.CLASS);
         domains.setPlaceholder("Enter class name");
-        ranges = new PrimitiveDataListEditor(projectId, PrimitiveType.CLASS);
+        ranges = new PrimitiveDataListEditor(PrimitiveType.CLASS);
         ranges.setPlaceholder("Enter class name");
         HTMLPanel rootElement = ourUiBinder.createAndBindUi(this);
         add(rootElement);
@@ -106,19 +114,14 @@ public class ObjectPropertyFrameEditor extends FlowPanel implements EntityFrameE
     }
 
     @UiHandler("domains")
-    protected void handleDomainsChanged(ValueChangeEvent<Optional<OWLPrimitiveDataList>> event) {
+    protected void handleDomainsChanged(ValueChangeEvent<Optional<List<OWLPrimitiveData>>> event) {
         fireEventIfWellFormed();
     }
 
     @UiHandler("ranges")
-    protected void handleRangesChanged(ValueChangeEvent<Optional<OWLPrimitiveDataList>> event) {
+    protected void handleRangesChanged(ValueChangeEvent<Optional<List<OWLPrimitiveData>>> event) {
         fireEventIfWellFormed();
     }
-
-
-
-
-
 
     /**
      * Returns true if the widget is enabled, false if not.
@@ -159,38 +162,32 @@ public class ObjectPropertyFrameEditor extends FlowPanel implements EntityFrameE
         final ObjectPropertyFrame frame = object.getFrame();
         iriField.setValue(frame.getSubject().getIRI().toString());
         annotations.setValue(new PropertyValueList(Collections.<PropertyValue>unmodifiableSet(frame.getAnnotationPropertyValues())));
-        RenderingServiceManager.getManager().execute(new GetRendering(projectId, frame.getDomains()), new AsyncCallback<GetRenderingResponse>() {
+        characteristics.clear();
+        characteristics.addAll(object.getFrame().getCharacteristics());
+        RenderingManager.getManager().execute(new GetEntityDataAction(projectId, ImmutableSet.<OWLEntity>copyOf(frame.getDomains())), new AbstractWebProtegeAsyncCallback<GetEntityDataResult>() {
             @Override
-            public void onFailure(Throwable caught) {
-            }
-
-            @Override
-            public void onSuccess(GetRenderingResponse result) {
+            public void onSuccess(GetEntityDataResult result) {
                 List<OWLPrimitiveData> primitiveDatas = new ArrayList<OWLPrimitiveData>();
                 for (OWLClass cls : frame.getDomains()) {
-                    final Optional<OWLEntityData> entityData = result.getEntityData(cls);
+                    final Optional<OWLEntityData> entityData = Optional.fromNullable(result.getEntityDataMap().get(cls));
                     if (entityData.isPresent()) {
                         primitiveDatas.add(entityData.get());
                     }
                 }
-                domains.setValue(new OWLPrimitiveDataList(primitiveDatas));
+                domains.setValue(primitiveDatas);
             }
         });
-        RenderingServiceManager.getManager().execute(new GetRendering(projectId, frame.getRanges()), new AsyncCallback<GetRenderingResponse>() {
+        RenderingManager.getManager().execute(new GetEntityDataAction(projectId, ImmutableSet.<OWLEntity>copyOf(frame.getRanges())), new AbstractWebProtegeAsyncCallback<GetEntityDataResult>() {
             @Override
-            public void onFailure(Throwable caught) {
-            }
-
-            @Override
-            public void onSuccess(GetRenderingResponse result) {
+            public void onSuccess(GetEntityDataResult result) {
                 List<OWLPrimitiveData> primitiveDatas = new ArrayList<OWLPrimitiveData>();
                 for (OWLClass cls : frame.getRanges()) {
-                    final Optional<OWLEntityData> entityData = result.getEntityData(cls);
+                    final Optional<OWLEntityData> entityData = Optional.fromNullable(result.getEntityDataMap().get(cls));
                     if (entityData.isPresent()) {
                         primitiveDatas.add(entityData.get());
                     }
                 }
-                ranges.setValue(new OWLPrimitiveDataList(primitiveDatas));
+                ranges.setValue(primitiveDatas);
             }
         });
         previouslySetValue = Optional.of(object);
@@ -215,10 +212,20 @@ public class ObjectPropertyFrameEditor extends FlowPanel implements EntityFrameE
         annotationValueSet.addAll(annotations.getValue().get().getAnnotationPropertyValues());
         final ObjectPropertyFrame previousFrame = previouslySetValue.get().getFrame();
         OWLObjectProperty subject = previousFrame.getSubject();
-        List<OWLClass> editedDomains = domains.getValue().get().getEntitiesOfType(EntityType.CLASS);
-        List<OWLClass> editedRanges = ranges.getValue().get().getEntitiesOfType(EntityType.CLASS);
-        ObjectPropertyFrame frame = new ObjectPropertyFrame(subject, annotationValueSet, new HashSet<OWLClass>(editedDomains), new HashSet<OWLClass>(editedRanges), Collections.<OWLObjectProperty>emptySet());
-        return Optional.of(new LabelledFrame<ObjectPropertyFrame>(displayName, frame));
+        List<OWLClass> editedDomains = Lists.newArrayList();
+        for(OWLPrimitiveData data : domains.getValue().get()) {
+            editedDomains.add((OWLClass) data.getObject());
+        }
+        List<OWLClass> editedRanges = Lists.newArrayList();
+        for(OWLPrimitiveData data : ranges.getValue().get()) {
+            editedRanges.add((OWLClass) data.getObject());
+        }
+        ObjectPropertyFrame frame = new ObjectPropertyFrame(subject, annotationValueSet,
+                new HashSet<>(editedDomains),
+                new HashSet<>(editedRanges),
+                Collections.<OWLObjectProperty>emptySet(),
+                characteristics);
+        return Optional.of(new LabelledFrame<>(displayName, frame));
     }
 
     private String getDisplayName() {

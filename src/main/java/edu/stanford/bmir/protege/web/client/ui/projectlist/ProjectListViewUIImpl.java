@@ -24,6 +24,7 @@ import edu.stanford.bmir.protege.web.client.Application;
 import edu.stanford.bmir.protege.web.client.ui.projectmanager.DownloadProjectRequestHandler;
 import edu.stanford.bmir.protege.web.client.ui.projectmanager.LoadProjectRequestHandler;
 import edu.stanford.bmir.protege.web.client.ui.projectmanager.TrashManagerRequestHandler;
+import edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle;
 import edu.stanford.bmir.protege.web.shared.project.ProjectDetails;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 
@@ -299,7 +300,7 @@ public class ProjectListViewUIImpl extends Composite implements ProjectListView 
 
         @Override
         public void render(Cell.Context context, ProjectListEntry object, SafeHtmlBuilder sb) {
-            sb.appendHtmlConstant("<div style=\"width: 100%; height: 100%; cursor: pointer;\" title=\"Download latest version of project\"><img style=\"padding-top: 1px; \" src=\"images/download.png\"/></div>");
+            sb.appendHtmlConstant("<div style=\"width: 100%; height: 100%; cursor: pointer;\" title=\"Download latest version of project\"><img style=\"padding-top: 1px; \" src=\"" + WebProtegeClientBundle.BUNDLE.downloadIcon().getSafeUri().asString() + "\"/></div>");
         }
     }
 
@@ -338,7 +339,8 @@ public class ProjectListViewUIImpl extends Composite implements ProjectListView 
         public void render(Cell.Context context, ProjectListEntry object, SafeHtmlBuilder sb) {
             if (isOwnerOfProjectEntry(object)) {
                 final String title = object.getProjectDetails().isInTrash() ? "Remove project from trash" : "Move project to trash";
-                sb.appendHtmlConstant("<div style=\"width: 100%; cursor: pointer;\" title=\"" + title + "\"><img style=\"padding-top: 2px; \" src=\"images/trash.png\"/></div>");
+                String trashIconURI = WebProtegeClientBundle.BUNDLE.trashIcon().getSafeUri().asString();
+                sb.appendHtmlConstant("<div style=\"width: 100%; cursor: pointer;\" title=\"" + title + "\"><img style=\"padding-top: 2px; \" src=\"" + trashIconURI + "\"/></div>");
             }
         }
 

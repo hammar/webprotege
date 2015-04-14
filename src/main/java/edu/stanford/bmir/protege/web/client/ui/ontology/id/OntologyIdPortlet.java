@@ -1,15 +1,11 @@
 package edu.stanford.bmir.protege.web.client.ui.ontology.id;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.gwtext.client.widgets.MessageBox;
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.dispatch.actions.GetRootOntologyIdAction;
 import edu.stanford.bmir.protege.web.client.dispatch.actions.GetRootOntologyIdResult;
 import edu.stanford.bmir.protege.web.client.project.Project;
-import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
-
-import java.util.Collection;
 
 /**
  * Author: Matthew Horridge<br>
@@ -37,38 +33,16 @@ public class OntologyIdPortlet extends AbstractOWLEntityPortlet {
         add(editor.asWidget());
         setTitle("Ontology Id");
         editor.setEnabled(false);
+        updateDisplay();
     }
 
-    @Override
-    public void onPermissionsChanged() {
-//        editor.setEnabled(hasWritePermission());
-    }
-
-    @Override
-    protected void onRefresh() {
-        DispatchServiceManager.get().execute(new GetRootOntologyIdAction(getProjectId()), new AsyncCallback<GetRootOntologyIdResult>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                MessageBox.alert("There was a problem retrieving the current ontology Id from the server.");
-            }
+    private void updateDisplay() {
+        DispatchServiceManager.get().execute(new GetRootOntologyIdAction(getProjectId()), new DispatchServiceCallback<GetRootOntologyIdResult>() {
 
             @Override
-            public void onSuccess(GetRootOntologyIdResult result) {
+            public void handleSuccess(GetRootOntologyIdResult result) {
                 editor.setValue(result.getObject());
             }
         });
-    }
-
-    @Override
-    public void reload() {
-        if(!loaded) {
-            loaded = true;
-            onRefresh();
-        }
-    }
-
-    @Override
-    public Collection<EntityData> getSelection() {
-        return null;
     }
 }

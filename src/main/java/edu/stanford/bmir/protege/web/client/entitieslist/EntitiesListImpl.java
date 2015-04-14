@@ -3,6 +3,8 @@ package edu.stanford.bmir.protege.web.client.entitieslist;
 import com.google.common.base.Optional;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -17,7 +19,8 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import edu.stanford.bmir.protege.web.client.ui.res.WebProtegeCellListResources;
+import edu.stanford.bmir.protege.web.resources.WebProtegeCellListResources;
+import edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle;
 import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import org.semanticweb.owlapi.model.*;
 
@@ -25,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle.BUNDLE;
 
 
 /**
@@ -38,32 +43,32 @@ public class EntitiesListImpl<E extends OWLEntityData> extends Composite impleme
     public static final OWLEntityVisitorEx<String> CSS_CLASS_NAME_VISITOR = new OWLEntityVisitorEx<String>() {
         @Override
         public String visit(OWLClass cls) {
-            return "class-icon-inset";
+            return BUNDLE.style().classIconInset();
         }
 
         @Override
         public String visit(OWLObjectProperty property) {
-            return "object-property-icon-inset";
+            return BUNDLE.style().objectPropertyIconInset();
         }
 
         @Override
         public String visit(OWLDataProperty property) {
-            return "data-property-icon-inset";
+            return BUNDLE.style().dataPropertyIconInset();
         }
 
         @Override
         public String visit(OWLNamedIndividual individual) {
-            return "individual-icon-inset";
+            return BUNDLE.style().individualIconInset();
         }
 
         @Override
         public String visit(OWLDatatype datatype) {
-            return "datatype-icon-inset";
+            return BUNDLE.style().datatypeIconInset();
         }
 
         @Override
         public String visit(OWLAnnotationProperty property) {
-            return "annotation-property-icon-inset";
+            return BUNDLE.style().annotationPropertyIconInset();
         }
     };
 
@@ -93,6 +98,12 @@ public class EntitiesListImpl<E extends OWLEntityData> extends Composite impleme
                 SelectionEvent.fire(EntitiesListImpl.this, selectionModel.getSelectedObject());
             }
         });
+        cellList.addDomHandler(new MouseUpHandler() {
+            @Override
+            public void onMouseUp(MouseUpEvent mouseUpEvent) {
+                SelectionEvent.fire(EntitiesListImpl.this, selectionModel.getSelectedObject());
+            }
+        }, MouseUpEvent.getType());
         HTMLPanel rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
     }
@@ -138,7 +149,7 @@ public class EntitiesListImpl<E extends OWLEntityData> extends Composite impleme
     @Override
     public Optional<E> getSelectedEntity() {
         E sel = getSingleSelectionModel().getSelectedObject();
-        return Optional.<E>fromNullable(sel);
+        return Optional.fromNullable(sel);
     }
 
     @SuppressWarnings("unchecked")

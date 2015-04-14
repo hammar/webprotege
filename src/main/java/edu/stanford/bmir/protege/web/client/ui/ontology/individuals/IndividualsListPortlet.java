@@ -123,34 +123,44 @@ public class IndividualsListPortlet extends AbstractOWLEntityPortlet implements 
             preconfiguredClass = Optional.of(DataFactory.getOWLClass(preconfiguredClassName));
         }
         else {
-            preconfiguredClass = Optional.<OWLClass>absent();
+            preconfiguredClass = Optional.absent();
         }
     }
 
     @Override
-    public void reload() {
-        if (_currentEntity != null) {
-            setTitle("Individuals for " + _currentEntity.getBrowserText());
-        }
-        setEntity(_currentEntity);
+    protected void handleBeforeSetEntity(Optional<OWLEntityData> entityData) {
+        super.handleBeforeSetEntity(entityData);
     }
 
     @Override
-    public void setEntity(EntityData newEntity) {
-        setTitle(newEntity == null ? "Individuals (nothing selected)" : " Individuals for " + newEntity.getBrowserText());
-        _currentEntity = newEntity;
+    protected void handleAfterSetEntity(Optional<OWLEntityData> entityData) {
+        updateTitle(entityData);
         Optional<OWLClass> selectedClass;
         if(preconfiguredClass.isPresent()) {
             selectedClass = preconfiguredClass;
         }
         else {
-            selectedClass = toOWLClass(_currentEntity);
+            if(entityData.isPresent() && entityData.get().getEntity() instanceof OWLClass) {
+                selectedClass = Optional.of(entityData.get().getEntity().asOWLClass());
+            }
+            else {
+                selectedClass = Optional.absent();
+            }
         }
         if(selectedClass.isPresent()) {
             presenter.setType(selectedClass.get());
         }
         else {
             presenter.clearType();
+        }
+    }
+
+    private void updateTitle(Optional<OWLEntityData> entityData) {
+        if(entityData.isPresent()) {
+            setTitle("Individuals for " + entityData.get().getBrowserText());
+        }
+        else {
+            setTitle("Individuals (nothing selected)");
         }
     }
 

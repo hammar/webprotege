@@ -5,13 +5,12 @@ import edu.stanford.bmir.protege.web.client.ui.frame.LabelledFrame;
 import edu.stanford.bmir.protege.web.server.change.FixedChangeListGenerator;
 import edu.stanford.bmir.protege.web.server.change.FixedMessageChangeDescriptionGenerator;
 import edu.stanford.bmir.protege.web.server.change.OntologyChangeList;
-import edu.stanford.bmir.protege.web.server.crud.EntityCrudContext;
+import edu.stanford.bmir.protege.web.server.crud.ChangeSetEntityCrudSession;
 import edu.stanford.bmir.protege.web.server.crud.EntityCrudKitHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.*;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.UserHasProjectWritePermissionValidator;
-import edu.stanford.bmir.protege.web.server.frame.FrameChangeGenerator;
-import edu.stanford.bmir.protege.web.server.frame.FrameTranslator;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
+import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
 import edu.stanford.bmir.protege.web.shared.crud.EntityShortForm;
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
 import edu.stanford.bmir.protege.web.shared.event.ProjectEvent;
@@ -21,6 +20,8 @@ import edu.stanford.bmir.protege.web.shared.frame.EntityFrame;
 import edu.stanford.bmir.protege.web.shared.user.UserId;
 import org.semanticweb.owlapi.model.OWLEntity;
 
+import javax.inject.Inject;
+
 /**
  * Author: Matthew Horridge<br>
  * Stanford University<br>
@@ -29,6 +30,10 @@ import org.semanticweb.owlapi.model.OWLEntity;
  */
 public abstract class AbstractUpdateFrameHandler<A extends UpdateFrameAction<F, S>, F extends EntityFrame<S>,  S extends OWLEntity> extends AbstractHasProjectActionHandler<A, Result> implements ActionHandler<A, Result> {
 
+    @Inject
+    public AbstractUpdateFrameHandler(OWLAPIProjectManager projectManager) {
+        super(projectManager);
+    }
 
     /**
      * Gets an additional validator that is specific to the implementing handler.  This is returned as part of a
@@ -75,9 +80,14 @@ public abstract class AbstractUpdateFrameHandler<A extends UpdateFrameAction<F, 
         project.applyChanges(userId, changeGenerator, descGenerator);
         if(!from.getDisplayName().equals(to.getDisplayName())) {
             // Set changes
-            EntityCrudKitHandler<?> entityEditorKit = project.getEntityCrudKitHandler();
+
+            EntityCrudKitHandler<?, ChangeSetEntityCrudSession> entityEditorKit = project.getEntityCrudKitHandler();
+            ChangeSetEntityCrudSession session = entityEditorKit.createChangeSetSession();
             OntologyChangeList.Builder<S> changeListBuilder = new OntologyChangeList.Builder<S>();
-            entityEditorKit.update(to.getFrame().getSubject(), EntityShortForm.get(to.getDisplayName()), project.getEntityCrudContext(), changeListBuilder);
+            entityEditorKit.update(session, to.getFrame().getSubject(),
+                                     EntityShortForm.get(to.getDisplayName()),
+                                     project.getEntityCrudContext(executionContext.getUserId()),
+                                     changeListBuilder);
             FixedChangeListGenerator<S> changeListGenerator = FixedChangeListGenerator.get(changeListBuilder.build().getChanges());
             FixedMessageChangeDescriptionGenerator<S> changeDescriptionGenerator = FixedMessageChangeDescriptionGenerator.get("Renamed entity");
             project.applyChanges(userId, changeListGenerator, changeDescriptionGenerator);
@@ -91,6 +101,4 @@ public abstract class AbstractUpdateFrameHandler<A extends UpdateFrameAction<F, 
     protected abstract FrameTranslator<F, S> createTranslator();
 
     protected abstract String getChangeDescription(LabelledFrame<F> from, LabelledFrame<F> to);
-
-
 }

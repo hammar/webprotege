@@ -7,6 +7,8 @@ import org.semanticweb.owlapi.model.*;
 import java.io.Serializable;
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Author: Matthew Horridge<br>
  * Stanford University<br>
@@ -33,9 +35,9 @@ public class ClassFrame implements EntityFrame<OWLClass>, HasSignature, Serializ
     }
 
     public ClassFrame(OWLClass subject, Set<OWLClass> classes, Set<PropertyValue> propertyValues) {
-        this.subject = subject;
-        this.classEntries = classes;
-        this.propertyValues = propertyValues;
+        this.subject = checkNotNull(subject);
+        this.classEntries = checkNotNull(classes);
+        this.propertyValues = checkNotNull(propertyValues);
     }
 
     /**
@@ -109,7 +111,7 @@ public class ClassFrame implements EntityFrame<OWLClass>, HasSignature, Serializ
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("SimpleClassFrame");
+        sb.append("ClassFrame");
         sb.append("(");
         sb.append(subject);
         sb.append(" Classes(");
@@ -156,33 +158,6 @@ public class ClassFrame implements EntityFrame<OWLClass>, HasSignature, Serializ
     public static Builder builder(OWLClass subject) {
         return new Builder(subject);
     }
-
-    public List<ClassFrameChange> getChangesFrom(ClassFrame classFrame) {
-        if(subject.equals(classFrame.getSubject())) {
-            throw new RuntimeException("subject of classFrame must be equal to the subject of caller class frame");
-        }
-
-        List<ClassFrameChange> result = new ArrayList<ClassFrameChange>();
-
-        Set<PropertyValue> addedPropertyValues = new HashSet<PropertyValue>(propertyValues);
-        addedPropertyValues.removeAll(classFrame.getPropertyValues());
-
-        for(PropertyValue addedPropertyValue : addedPropertyValues) {
-            result.add(new AddPropertyValueChange(subject, addedPropertyValue));
-        }
-
-        Set<PropertyValue> removedPropertyValues = new HashSet<PropertyValue>(classFrame.getPropertyValues());
-        removedPropertyValues.removeAll(propertyValues);
-
-        for(PropertyValue removedPropertyValue : removedPropertyValues) {
-            result.add(new RemovePropertyValueChange(subject, removedPropertyValue));
-        }
-
-        return result;
-
-
-    }
-
 
     /**
      * A Builder for SimpleClassFrames.  A builder may be obtained by instantiating one directly (in which case it will

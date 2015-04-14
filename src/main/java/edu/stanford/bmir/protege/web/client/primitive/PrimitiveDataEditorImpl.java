@@ -18,6 +18,7 @@ import edu.stanford.bmir.protege.web.client.ui.anchor.AnchorClickedEvent;
 import edu.stanford.bmir.protege.web.client.ui.anchor.AnchorClickedHandler;
 import edu.stanford.bmir.protege.web.client.ui.library.common.EventStrategy;
 import edu.stanford.bmir.protege.web.client.ui.library.suggest.EntitySuggestion;
+import edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedEvent;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedHandler;
@@ -30,6 +31,7 @@ import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle.BUNDLE;
 
 /**
  * Author: Matthew Horridge<br>
@@ -155,6 +157,11 @@ public class PrimitiveDataEditorImpl extends Composite implements PrimitiveDataE
     public void setFreshEntitiesHandler(FreshEntitiesHandler handler) {
         checkNotNull(handler);
         this.freshEntitiesHandler = handler;
+    }
+
+    @Override
+    public void setAutoSelectSuggestions(boolean autoSelectSuggestions) {
+        this.view.setAutoSelectSuggestions(autoSelectSuggestions);
     }
 
     @Override
@@ -371,7 +378,7 @@ public class PrimitiveDataEditorImpl extends Composite implements PrimitiveDataE
 
     @Override
     public boolean isWellFormed() {
-        return currentData.isPresent();
+        return getTrimmedText().isEmpty() || currentData.isPresent();
     }
 
     /**
@@ -553,37 +560,37 @@ public class PrimitiveDataEditorImpl extends Composite implements PrimitiveDataE
             @Override
             public String visit(OWLClassData data) throws RuntimeException {
                 setTooltip(data, "owl:Class");
-                return "class-icon-inset";
+                return BUNDLE.style().classIconInset();
             }
 
             @Override
             public String visit(OWLObjectPropertyData data) throws RuntimeException {
                 setTooltip(data, "owl:ObjectProperty");
-                return "object-property-icon-inset";
+                return BUNDLE.style().objectPropertyIconInset();
             }
 
             @Override
             public String visit(OWLDataPropertyData data) throws RuntimeException {
                 setTooltip(data, "owl:DataProperty");
-                return "data-property-icon-inset";
+                return BUNDLE.style().dataPropertyIconInset();
             }
 
             @Override
             public String visit(OWLAnnotationPropertyData data) throws RuntimeException {
                 setTooltip(data, "owl:AnnotationProperty");
-                return "annotation-property-icon-inset";
+                return BUNDLE.style().annotationPropertyIconInset();
             }
 
             @Override
             public String visit(OWLNamedIndividualData data) throws RuntimeException {
                 setTooltip(data, "owl:NamedIndividual");
-                return "individual-icon-inset";
+                return BUNDLE.style().individualIconInset();
             }
 
             @Override
             public String visit(OWLDatatypeData data) throws RuntimeException {
                 setTooltip(data, "owl:Datatype");
-                return "datatype-icon-inset";
+                return BUNDLE.style().datatypeIconInset();
             }
 
             private void setTooltip(OWLEntityData data, String typeName) {
@@ -604,14 +611,14 @@ public class PrimitiveDataEditorImpl extends Composite implements PrimitiveDataE
 
             @Override
             public String visit(OWLLiteralData data) throws RuntimeException {
-                String styleName = "literal-icon-inset";
+                String styleName = BUNDLE.style().literalIconInset();
                 OWLDatatype datatype = data.getLiteral().getDatatype();
                 if (datatype.isBuiltIn()) {
                     OWL2Datatype owl2Datatype = datatype.getBuiltInDatatype();
                     if (owl2Datatype.isNumeric()) {
-                        styleName = "numeric-literal-icon-inset";
+                        styleName = BUNDLE.style().numberIconInset();
                     } else if (owl2Datatype.equals(OWL2Datatype.XSD_DATE_TIME)) {
-                        styleName = "date-time-icon-inset";
+                        styleName = BUNDLE.style().dateTimeIconInset();
                     }
                 }
                 String datatypeName = datatype.getIRI().getFragment();
@@ -634,13 +641,13 @@ public class PrimitiveDataEditorImpl extends Composite implements PrimitiveDataE
             @Override
             public String visit(IRIData data) throws RuntimeException {
                 if (data.isHTTPLink()) {
-                    return "link-icon-inset";
+                    return BUNDLE.style().linkIconInset();
                 } else {
-                    return "iri-icon-inset";
+                    return BUNDLE.style().iriIconInset();
                 }
             }
         });
-        setIconInsetStyleName(Optional.<String>of(styleName));
+        setIconInsetStyleName(Optional.of(styleName));
     }
 
     /**
@@ -668,8 +675,7 @@ public class PrimitiveDataEditorImpl extends Composite implements PrimitiveDataE
     }
 
     private void updateOracle() {
-        Set<EntityType<?>> types = getMatchTypes();
-        entitySuggestOracle.setEntityTypes(types);
+        entitySuggestOracle.setAllowedPrimitiveTypes(allowedTypes);
     }
 
     private Set<EntityType<?>> getMatchTypes() {

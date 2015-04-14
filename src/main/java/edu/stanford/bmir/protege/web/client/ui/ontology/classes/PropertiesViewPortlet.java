@@ -1,18 +1,21 @@
 package edu.stanford.bmir.protege.web.client.ui.ontology.classes;
 
+import com.google.common.base.Optional;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.gwtext.client.data.*;
 import com.gwtext.client.widgets.grid.ColumnConfig;
 import com.gwtext.client.widgets.grid.ColumnModel;
 import com.gwtext.client.widgets.grid.GridPanel;
 import com.gwtext.client.widgets.grid.GridView;
 import edu.stanford.bmir.protege.web.client.project.Project;
-import edu.stanford.bmir.protege.web.client.rpc.AbstractAsyncHandler;
+
 import edu.stanford.bmir.protege.web.client.rpc.OntologyServiceManager;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.rpc.data.Triple;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
 import edu.stanford.bmir.protege.web.client.ui.util.UIUtil;
+import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 
 import java.util.Collection;
 import java.util.List;
@@ -90,40 +93,29 @@ public class PropertiesViewPortlet extends AbstractOWLEntityPortlet {
     }
 
     @Override
-    public void reload() {
-        setTitle("Related properties" + (_currentEntity == null ? " (nothing selected)" : " for " + _currentEntity.getBrowserText()));
+    protected void handleAfterSetEntity(Optional<OWLEntityData> entityData) {
+        setTitle("Related properties" + (getEntity() == null ? " (nothing selected)" : " for " + getEntity().getBrowserText()));
 
         store.removeAll();
-        if (_currentEntity != null) {
-            OntologyServiceManager.getInstance().getRelatedProperties(getProject().getProjectId(), _currentEntity.getName(),
-                new GetTriplesHandler());
+        if (getEntity() != null) {
+            OntologyServiceManager.getInstance().getRelatedProperties(getProject().getProjectId(), getEntity().getName(),
+                                                                      new GetTriplesHandler());
         }
     }
-
-    public Collection<EntityData> getSelection() {
-        Record selRec = propGrid.getSelectionModel().getSelected();
-        return selRec != null ? UIUtil.createCollection(((EntityData)selRec.getAsObject("prop"))) : null;
-    }
-
-    @Override
-    protected void onRefresh() {
-        reload();
-    }
-
-    /*
+/*
      * Remote calls
      */
 
-    class GetTriplesHandler extends AbstractAsyncHandler<List<Triple>> {
+    class GetTriplesHandler implements AsyncCallback<List<Triple>> {
 
         @Override
-        public void handleFailure(Throwable caught) {
-           GWT.log("Error at retrieving props in domain for " + _currentEntity, caught);
-           propGrid.setTitle("Error at retrieving the related properties for " + _currentEntity.getBrowserText());
+        public void onFailure(Throwable caught) {
+           GWT.log("Error at retrieving props in domain for " + getEntity(), caught);
+           propGrid.setTitle("Error at retrieving the related properties for " + getEntity().getBrowserText());
         }
 
         @Override
-        public void handleSuccess(List<Triple> triples) {
+        public void onSuccess(List<Triple> triples) {
             for (Triple triple : triples) {
                 int maxCardinality  = triple.getProperty().getMaxCardinality();
                 Record rec = recordDef.createRecord(new Object[] {triple.getProperty(), triple.getValue(),

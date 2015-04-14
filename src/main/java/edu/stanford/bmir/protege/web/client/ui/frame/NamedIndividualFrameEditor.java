@@ -16,6 +16,7 @@ import edu.stanford.bmir.protege.web.client.primitive.PrimitiveDataListEditor;
 import edu.stanford.bmir.protege.web.client.ui.editor.EditorView;
 import edu.stanford.bmir.protege.web.client.ui.editor.ValueEditor;
 import edu.stanford.bmir.protege.web.client.ui.library.common.EventStrategy;
+import edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedEvent;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedHandler;
 import edu.stanford.bmir.protege.web.shared.HasEntityDataProvider;
@@ -23,10 +24,8 @@ import edu.stanford.bmir.protege.web.shared.PrimitiveType;
 import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import edu.stanford.bmir.protege.web.shared.entity.OWLPrimitiveData;
 import edu.stanford.bmir.protege.web.shared.frame.NamedIndividualFrame;
-import edu.stanford.bmir.protege.web.shared.frame.OWLPrimitiveDataList;
 import edu.stanford.bmir.protege.web.shared.frame.PropertyValueList;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
-import org.semanticweb.owlapi.model.EntityType;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 
@@ -72,19 +71,13 @@ public class NamedIndividualFrameEditor extends AbstractFrameEditor<LabelledFram
 
     public NamedIndividualFrameEditor(ProjectId projectId) {
         super(projectId);
-//        PropertyValueGridGrammar grammar = new PropertyValueGridGrammar();
-//        grammar.addProduction(PrimitiveType.ANNOTATION_PROPERTY, PrimitiveType.LITERAL);
-//        grammar.addProduction(PrimitiveType.ANNOTATION_PROPERTY, PrimitiveType.IRI);
-//        grammar.addProduction(PrimitiveType.OBJECT_PROPERTY, PrimitiveType.NAMED_INDIVIDUAL);
-//        grammar.addProduction(PrimitiveType.OBJECT_PROPERTY, PrimitiveType.CLASS);
-//        grammar.addProduction(PrimitiveType.DATA_PROPERTY, PrimitiveType.LITERAL);
-//        grammar.addProduction(PrimitiveType.DATA_PROPERTY, PrimitiveType.DATA_TYPE);
         assertions = new PropertyValueListEditor(projectId);
         assertions.setGrammar(PropertyValueGridGrammar.getNamedIndividualGrammar());
-        types = new PrimitiveDataListEditor(projectId, PrimitiveType.CLASS);
+        types = new PrimitiveDataListEditor(PrimitiveType.CLASS);
         types.setPlaceholder("Enter class name");
-        sameAs = new PrimitiveDataListEditor(projectId, PrimitiveType.NAMED_INDIVIDUAL);
+        sameAs = new PrimitiveDataListEditor(PrimitiveType.NAMED_INDIVIDUAL);
         sameAs.setPlaceholder("Enter individual name");
+        WebProtegeClientBundle.BUNDLE.style().ensureInjected();
         HTMLPanel rootElement = ourUiBinder.createAndBindUi(this);
         setWidget(rootElement);
         iriField.setEnabled(false);
@@ -133,8 +126,7 @@ public class NamedIndividualFrameEditor extends AbstractFrameEditor<LabelledFram
                 dataList.add(rendering.get());
             }
         }
-        OWLPrimitiveDataList list = new OWLPrimitiveDataList(dataList);
-        types.setValue(list);
+        types.setValue(dataList);
 
         List<OWLPrimitiveData> sameAsList = new ArrayList<OWLPrimitiveData>();
         for (OWLNamedIndividual individual : editedFrame.getSameIndividuals()) {
@@ -143,7 +135,7 @@ public class NamedIndividualFrameEditor extends AbstractFrameEditor<LabelledFram
                 sameAsList.add(individualRendering.get());
             }
         }
-        sameAs.setValue(new OWLPrimitiveDataList(sameAsList));
+        sameAs.setValue(sameAsList);
     }
 
     @Override
@@ -164,24 +156,28 @@ public class NamedIndividualFrameEditor extends AbstractFrameEditor<LabelledFram
        PropertyValueList propertyValueList = assertions.getValue().get();
        Set<OWLClass> rawTypes = getRawTypes();
        Set<OWLNamedIndividual> sameAs = getRawSameAs();
-       NamedIndividualFrame reference = new NamedIndividualFrame(editedFrame.getSubject(), rawTypes, propertyValueList.getPropertyValues(), sameAs);
+       NamedIndividualFrame reference = new NamedIndividualFrame(editedFrame.getSubject(), rawTypes, propertyValueList, sameAs);
        return Optional.of(new LabelledFrame<NamedIndividualFrame>(getDisplayName(), reference));
    }
 
     private Set<OWLClass> getRawTypes() {
         Set<OWLClass> rawTypes = new HashSet<OWLClass>();
-        Optional<OWLPrimitiveDataList> typesList = types.getValue();
+        Optional<List<OWLPrimitiveData>> typesList = types.getValue();
         if(typesList.isPresent()) {
-            rawTypes.addAll(typesList.get().getEntitiesOfType(EntityType.CLASS));
+            for(OWLPrimitiveData data : typesList.get()) {
+                rawTypes.add((OWLClass) data.getObject());
+            }
         }
         return rawTypes;
     }
 
     private Set<OWLNamedIndividual> getRawSameAs() {
         Set<OWLNamedIndividual> rawSameAs = new HashSet<OWLNamedIndividual>();
-        Optional<OWLPrimitiveDataList> sameAsList = sameAs.getValue();
+        Optional<List<OWLPrimitiveData>> sameAsList = sameAs.getValue();
         if(sameAsList.isPresent()) {
-            rawSameAs.addAll(sameAsList.get().getEntitiesOfType(EntityType.NAMED_INDIVIDUAL));
+            for(OWLPrimitiveData data : sameAsList.get()) {
+                rawSameAs.add((OWLNamedIndividual) data.getObject());
+            }
         }
         return rawSameAs;
     }
@@ -216,7 +212,7 @@ public class NamedIndividualFrameEditor extends AbstractFrameEditor<LabelledFram
     }
 
     @UiHandler("types")
-    protected void handleTypesChanged(ValueChangeEvent<Optional<OWLPrimitiveDataList>> event) {
+    protected void handleTypesChanged(ValueChangeEvent<Optional<List<OWLPrimitiveData>>> event) {
         if(isWellFormed()) {
             ValueChangeEvent.fire(this, getValue());
         }
@@ -228,7 +224,7 @@ public class NamedIndividualFrameEditor extends AbstractFrameEditor<LabelledFram
     }
 
     @UiHandler("sameAs")
-    protected void handleSameAsChanged(ValueChangeEvent<Optional<OWLPrimitiveDataList>> event) {
+    protected void handleSameAsChanged(ValueChangeEvent<Optional<List<OWLPrimitiveData>>> event) {
         if(isWellFormed()) {
             ValueChangeEvent.fire(this, getValue());
         }

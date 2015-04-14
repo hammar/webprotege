@@ -93,11 +93,6 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 		}
 	}
 
-	@Override
-	public void reload() {
-		setTitle("ODP Search Reloaded!");
-	}
-
 	// Initialization method for GUI
 	@Override
 	public void initialize() {

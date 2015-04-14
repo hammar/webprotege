@@ -47,11 +47,6 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 		return null;
 	}
 
-	@Override
-	public void reload() {
-		
-	}
-
 	// Initialization method for GUI
 	@SuppressWarnings("deprecation")
 	@Override

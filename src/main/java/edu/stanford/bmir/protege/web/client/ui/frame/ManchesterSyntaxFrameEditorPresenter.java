@@ -2,11 +2,10 @@ package edu.stanford.bmir.protege.web.client.ui.frame;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.events.UserLoggedInEvent;
 import edu.stanford.bmir.protege.web.client.events.UserLoggedInHandler;
@@ -15,14 +14,11 @@ import edu.stanford.bmir.protege.web.client.events.UserLoggedOutHandler;
 import edu.stanford.bmir.protege.web.client.permissions.PermissionChecker;
 import edu.stanford.bmir.protege.web.client.ui.library.msgbox.InputBox;
 import edu.stanford.bmir.protege.web.client.ui.library.msgbox.InputBoxHandler;
-import edu.stanford.bmir.protege.web.client.ui.library.msgbox.MessageBox;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.HasSubject;
 import edu.stanford.bmir.protege.web.shared.HasUserId;
 import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
-import edu.stanford.bmir.protege.web.shared.event.HasEventHandlerManagement;
-import edu.stanford.bmir.protege.web.shared.event.PermissionsChangedEvent;
-import edu.stanford.bmir.protege.web.shared.event.PermissionsChangedHandler;
+import edu.stanford.bmir.protege.web.shared.event.*;
 import edu.stanford.bmir.protege.web.shared.frame.*;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.user.UserId;
@@ -102,12 +98,8 @@ public class ManchesterSyntaxFrameEditorPresenter implements HasSubject<OWLEntit
             }
         });
         editor.setCreateAsEntityTypeHandler(createAsEntityTypeHandler);
-        editor.setAutoCompletionHandler(new ManchesterSyntaxFrameAutoCompletionHandler(
-                DispatchServiceManager.get(),
-                projectId,
-                this,
-                this
-        ));
+        editor.setAutoCompletionHandler(new ManchesterSyntaxFrameAutoCompletionHandler(DispatchServiceManager.get(),
+                                                                                       projectId, this, this));
         editor.setApplyChangesHandler(applyChangesActionHandler);
         management.addProjectEventHandler(UserLoggedInEvent.TYPE, new UserLoggedInHandler() {
             @Override
@@ -127,8 +119,52 @@ public class ManchesterSyntaxFrameEditorPresenter implements HasSubject<OWLEntit
                 updateState();
             }
         });
+        management.addProjectEventHandler(ProjectChangedEvent.TYPE, new ProjectChangedHandler() {
+            @Override
+            public void handleProjectChanged(ProjectChangedEvent event) {
+                refreshIfPristine();
+            }
+        });
         updateState();
     }
+
+    private boolean isPristine() {
+        return editor.getValue().equals(pristineValue);
+    }
+
+    public void clearSubject() {
+        editor.clearValue();
+        currentSubject = Optional.absent();
+        freshEntities.clear();
+    }
+
+    public void setSubject(final OWLEntity subject) {
+        applyChangesWithoutCommitMessage();
+        replaceTextWithFrameRendering(subject);
+    }
+
+    public void refresh() {
+        if (currentSubject.isPresent()) {
+            replaceTextWithFrameRendering(currentSubject.get());
+        }
+    }
+
+    private void refreshIfPristine() {
+        if(isPristine()) {
+            refresh();
+        }
+    }
+
+    @Override
+    public Set<OWLEntityData> getFreshEntities() {
+        return Sets.newHashSet(freshEntities);
+    }
+
+    @Override
+    public OWLEntity getSubject() {
+        return currentSubject.orNull();
+    }
+
 
     private void updateState() {
         UserId userId = hasUserId.getUserId();
@@ -149,14 +185,15 @@ public class ManchesterSyntaxFrameEditorPresenter implements HasSubject<OWLEntit
         else {
             String newRendering = editor.getValue().get();
             dispatchService.execute(new CheckManchesterSyntaxFrameAction(projectId, currentSubject.get(), pristineValue.get(), newRendering, freshEntities),
-                    new AsyncCallback<CheckManchesterSyntaxFrameResult>() {
+                    new DispatchServiceCallback<CheckManchesterSyntaxFrameResult>() {
+
                         @Override
-                        public void onFailure(Throwable caught) {
+                        public void handleFinally() {
                             editor.setApplyChangesViewVisible(false);
                         }
 
                         @Override
-                        public void onSuccess(CheckManchesterSyntaxFrameResult result) {
+                        public void handleSuccess(CheckManchesterSyntaxFrameResult result) {
                             if(result.getResult() != ManchesterSyntaxFrameParseResult.ERROR) {
                                 editor.clearError();
                             }
@@ -170,36 +207,12 @@ public class ManchesterSyntaxFrameEditorPresenter implements HasSubject<OWLEntit
 
     }
 
-    public void clearSubject() {
-        editor.clearValue();
-        currentSubject = Optional.absent();
-        freshEntities.clear();
-    }
-
-    public void setSubject(final OWLEntity subject) {
-        applyChangesWithoutCommitMessage();
-        freshEntities.clear();
-        dispatchService.execute(new GetManchesterSyntaxFrameAction(projectId, subject), new AsyncCallback<GetManchesterSyntaxFrameResult>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                // TODO:
-            }
-
-            @Override
-            public void onSuccess(GetManchesterSyntaxFrameResult result) {
-                editor.setValue(result.getManchesterSyntax());
-                pristineValue = Optional.of(result.getManchesterSyntax());
-                currentSubject = Optional.of(subject);
-            }
-        });
-    }
-
     private void applyChangesWithoutCommitMessage() {
-        applyChanges(Optional.<String>absent());
+        applyChanges(Optional.<String>absent(), false);
     }
 
     private void applyChangesWithCommitMessage(String input) {
-        applyChanges(Optional.of(input));
+        applyChanges(Optional.of(input), false);
     }
 
     private void applyChangesWithCommitMessage() {
@@ -211,32 +224,33 @@ public class ManchesterSyntaxFrameEditorPresenter implements HasSubject<OWLEntit
         });
     }
 
-    private void applyChanges(Optional<String> commitMessage) {
+    private void applyChanges(Optional<String> commitMessage, final boolean reformatText) {
         editor.setApplyChangesViewVisible(false);
         final Optional<String> editorText = editor.getValue();
-        if(!editorText.equals(pristineValue) && pristineValue.isPresent() && editorText.isPresent() && currentSubject.isPresent()) {
+        if(!isPristine() && pristineValue.isPresent() && editorText.isPresent() && currentSubject.isPresent()) {
             String text = editorText.get();
-            dispatchService.execute(new SetManchesterSyntaxFrameAction(projectId, currentSubject.get(), pristineValue.get(), text, freshEntities, commitMessage), new AsyncCallback<SetManchesterSyntaxFrameResult>() {
+            dispatchService.execute(new SetManchesterSyntaxFrameAction(projectId, currentSubject.get(), pristineValue.get(), text, freshEntities, commitMessage), new DispatchServiceCallback<SetManchesterSyntaxFrameResult>() {
                 @Override
-                public void onFailure(Throwable caught) {
-                    MessageBox.showAlert("A problem has occurred and the changes could not be applied.  Please try again.");
-                }
-
-                @Override
-                public void onSuccess(SetManchesterSyntaxFrameResult result) {
-
+                public void handleSuccess(SetManchesterSyntaxFrameResult result) {
+                    if(reformatText) {
+                        editor.setValue(result.getFrameText());
+                    }
                 }
             });
         }
     }
 
-    @Override
-    public Set<OWLEntityData> getFreshEntities() {
-        return Sets.newHashSet(freshEntities);
-    }
 
-    @Override
-    public OWLEntity getSubject() {
-        return currentSubject.orNull();
+    private void replaceTextWithFrameRendering(final OWLEntity subject) {
+        editor.setApplyChangesViewVisible(false);
+        freshEntities.clear();
+        dispatchService.execute(new GetManchesterSyntaxFrameAction(projectId, subject), new DispatchServiceCallback<GetManchesterSyntaxFrameResult>() {
+            @Override
+            public void handleSuccess(GetManchesterSyntaxFrameResult result) {
+                editor.setValue(result.getManchesterSyntax());
+                pristineValue = Optional.of(result.getManchesterSyntax());
+                currentSubject = Optional.of(subject);
+            }
+        });
     }
 }

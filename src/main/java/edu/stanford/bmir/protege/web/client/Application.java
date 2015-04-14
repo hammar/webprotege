@@ -2,12 +2,13 @@ package edu.stanford.bmir.protege.web.client;
 
 import com.google.common.base.Optional;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.gwtext.client.widgets.MessageBox;
+import edu.stanford.bmir.protege.web.client.app.ClientApplicationPropertiesDecoder;
+import edu.stanford.bmir.protege.web.client.app.ClientObjectReader;
 import edu.stanford.bmir.protege.web.client.crud.EntityCrudKitManagerInitializationTask;
-import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.events.UserLoggedInEvent;
 import edu.stanford.bmir.protege.web.client.events.UserLoggedOutEvent;
 import edu.stanford.bmir.protege.web.client.permissions.PermissionChecker;
@@ -17,8 +18,6 @@ import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.project.ProjectManager;
 import edu.stanford.bmir.protege.web.shared.HasUserId;
 import edu.stanford.bmir.protege.web.shared.app.ClientApplicationProperties;
-import edu.stanford.bmir.protege.web.shared.app.GetClientApplicationPropertiesAction;
-import edu.stanford.bmir.protege.web.shared.app.GetClientApplicationPropertiesResult;
 import edu.stanford.bmir.protege.web.shared.app.WebProtegePropertyName;
 import edu.stanford.bmir.protege.web.shared.event.EventBusManager;
 import edu.stanford.bmir.protege.web.shared.permissions.GroupId;
@@ -197,18 +196,9 @@ public class Application implements HasUserId, PermissionChecker {
      * @param callback The call back that will be executed once the project has been loaded.  Not {@code null}.
      * @throws NullPointerException if any parameters are {@code null}.
      */
-    public void loadProject(final ProjectId projectId, final AsyncCallback<Project> callback) {
+    public void loadProject(final ProjectId projectId, final DispatchServiceCallback<Project> callback) {
         checkNotNull(callback);
-        GWT.runAsync(new RunAsyncCallback() {
-            @Override
-            public void onFailure(Throwable reason) {
-            }
-
-            @Override
-            public void onSuccess() {
-                ProjectManager.get().loadProject(projectId, callback);
-            }
-        });
+        ProjectManager.get().loadProject(projectId, callback);
     }
 
     public void closeProject(ProjectId projectId, AsyncCallback<ProjectId> callback) {
@@ -410,18 +400,23 @@ public class Application implements HasUserId, PermissionChecker {
 
         @Override
         public void run(final ApplicationInitManager.ApplicationInitTaskCallback taskFinishedCallback) {
-            DispatchServiceManager.get().execute(new GetClientApplicationPropertiesAction(), new AsyncCallback<GetClientApplicationPropertiesResult>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    taskFinishedCallback.taskFailed(caught);
-                }
+            clientApplicationProperties = ClientObjectReader.create(
+                    "clientApplicationProperties", new ClientApplicationPropertiesDecoder()
+            ).read();
+            taskFinishedCallback.taskComplete();
 
-                @Override
-                public void onSuccess(GetClientApplicationPropertiesResult result) {
-                    clientApplicationProperties = result.getClientApplicationProperties();
-                    taskFinishedCallback.taskComplete();
-                }
-            });
+//            DispatchServiceManager.get().execute(new GetClientApplicationPropertiesAction(), new AsyncCallback<GetClientApplicationPropertiesResult>() {
+//                @Override
+//                public void onFailure(Throwable caught) {
+//                    taskFinishedCallback.taskFailed(caught);
+//                }
+//
+//                @Override
+//                public void handleSuccess(GetClientApplicationPropertiesResult result) {
+//                    clientApplicationProperties = result.getClientApplicationProperties();
+//                    taskFinishedCallback.taskComplete();
+//                }
+//            });
         }
 
         @Override

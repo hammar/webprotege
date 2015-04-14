@@ -1,0 +1,246 @@
+@external web-protege-laf;
+
+.webProtegeLaf {
+
+}
+
+.formMain {
+    padding: 20px;
+    padding-top: 13px;
+}
+
+.formMain [disabled] {
+    background-color: #ffffff !important;
+}
+
+.formGroup {
+    padding-bottom: 10px;
+}
+
+.formLabel {
+    color: #000000;
+    font-weight: bold;
+    font-size: 12px;
+    padding-bottom: 2px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.dlgLabel {
+    color: rgb(70, 120, 200);
+    font-weight: bold;
+    font-size: 10pt;
+    padding-bottom: 4px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.formField {
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: transparent;
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: transparent;
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: transparent;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+@sprite .warningLabel {
+    gwt-image: 'warningIcon';
+    border: solid 1px #ffe884;
+    background-position: 2px 2px;
+    background-color: #faf6c3;
+    width: auto;
+    height: auto;
+    vertical-align: top;
+    padding: 4px 4px 4px 24px;
+    font-size: 10px;
+    font-family: tahoma, sans-serif;
+}
+
+@sprite .classIcon
+{
+    gwt-image: 'classIcon';
+}
+
+@sprite .deprecatedClassIcon
+{
+    gwt-image: 'classIcon';
+    opacity:0.5;
+}
+
+@sprite .classIconInset {
+    gwt-image: 'classIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .objectPropertyIconInset {
+    gwt-image: 'objectPropertyIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .objectPropertyIcon
+{
+    gwt-image: 'objectPropertyIcon';
+}
+
+@sprite .deprecatedObjectPropertyIcon
+{
+    gwt-image: 'objectPropertyIcon';
+    opacity:0.5;
+}
+
+
+@sprite .dataPropertyIconInset {
+    gwt-image: 'dataPropertyIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .dataPropertyIcon
+{
+    gwt-image: 'dataPropertyIcon';
+}
+
+@sprite .deprecatedDataPropertyIcon
+{
+    gwt-image: 'dataPropertyIcon';
+    opacity:0.5;
+}
+
+
+
+
+@sprite .annotationPropertyIconInset {
+    gwt-image: 'annotationPropertyIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .annotationPropertyIcon
+{
+    gwt-image: 'annotationPropertyIcon';
+}
+
+@sprite .deprecatedAnnotationPropertyIcon
+{
+    gwt-image: 'annotationPropertyIcon';
+    opacity:0.5;
+}
+
+
+@sprite .datatypeIconInset {
+    gwt-image: 'datatypeIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .datatypeIcon
+{
+    gwt-image: 'datatypeIcon';
+}
+
+@sprite .deprecatedDatatypeIcon
+{
+    gwt-image: 'dataPropertyIcon';
+    opacity:0.5;
+}
+
+
+
+@sprite .literalIcon
+{
+    gwt-image: 'literalIcon';
+}
+
+@sprite .literalIconInset {
+    gwt-image: 'literalIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .individualIcon
+{
+    gwt-image: 'individualIcon';
+}
+
+@sprite .deprecatedIndividualIcon
+{
+    gwt-image: 'individualIcon';
+    opacity:0.5;
+}
+
+@sprite .individualIconInset {
+    gwt-image: 'individualIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .linkIcon
+{
+    gwt-image: 'linkIcon';
+}
+
+@sprite .linkIconInset {
+    gwt-image: 'linkIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .iriIcon
+{
+    gwt-image: 'iriIcon';
+}
+
+@sprite .iriIconInset {
+    gwt-image: 'iriIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .numberIcon
+{
+    gwt-image: 'numberIcon';
+}
+
+@sprite .numberIconInset {
+    gwt-image: 'numberIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}
+
+@sprite .dateTimeIcon
+{
+    gwt-image: 'dateTimeIcon';
+}
+
+@sprite .dateTimeIconInset {
+    gwt-image: 'dateTimeIcon';
+    background-position: 2px 2px;
+    width: auto;
+    height: auto;
+    padding-left: 22px !important;
+}

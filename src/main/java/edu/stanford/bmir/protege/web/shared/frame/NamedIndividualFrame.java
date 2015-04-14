@@ -1,5 +1,7 @@
 package edu.stanford.bmir.protege.web.shared.frame;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableSet;
 import edu.stanford.bmir.protege.web.shared.HasSignature;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLEntity;
@@ -7,6 +9,8 @@ import org.semanticweb.owlapi.model.OWLNamedIndividual;
 
 import java.io.Serializable;
 import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Author: Matthew Horridge<br>
@@ -18,32 +22,32 @@ public class NamedIndividualFrame implements EntityFrame<OWLNamedIndividual>, Ha
 
     private OWLNamedIndividual subject;
 
-    private Set<OWLClass> namedTypes;
+    private ImmutableSet<OWLClass> namedTypes;
 
     private PropertyValueList propertyValueList;
 
-    private Set<OWLNamedIndividual> sameIndividuals;
+    private ImmutableSet<OWLNamedIndividual> sameIndividuals;
 
     private NamedIndividualFrame() {
 
     }
 
-    public NamedIndividualFrame(OWLNamedIndividual subject, Set<OWLClass> namedTypes, Collection<PropertyValue> propertyValueList, Set<OWLNamedIndividual> sameIndividuals) {
-        this.subject = subject;
-        this.namedTypes = new HashSet<OWLClass>(namedTypes);
-        this.propertyValueList = new PropertyValueList(propertyValueList);
-        this.sameIndividuals = new HashSet<OWLNamedIndividual>(sameIndividuals);
+    public NamedIndividualFrame(OWLNamedIndividual subject, Set<OWLClass> namedTypes, PropertyValueList propertyValueList, Set<OWLNamedIndividual> sameIndividuals) {
+        this.subject = checkNotNull(subject);
+        this.namedTypes = ImmutableSet.copyOf(checkNotNull(namedTypes));
+        this.propertyValueList = checkNotNull(propertyValueList);
+        this.sameIndividuals = ImmutableSet.copyOf(checkNotNull(sameIndividuals));
     }
 
     public OWLNamedIndividual getSubject() {
         return subject;
     }
 
-    public Set<OWLClass> getClasses() {
+    public ImmutableSet<OWLClass> getClasses() {
         return namedTypes;
     }
 
-    public Set<OWLNamedIndividual> getSameIndividuals() {
+    public ImmutableSet<OWLNamedIndividual> getSameIndividuals() {
         return sameIndividuals;
     }
 
@@ -68,13 +72,12 @@ public class NamedIndividualFrame implements EntityFrame<OWLNamedIndividual>, Ha
      */
     @Override
     public Set<OWLEntity> getSignature() {
-        Set<OWLEntity> result = new HashSet<OWLEntity>();
+        Set<OWLEntity> result = new HashSet<>();
         result.add(subject);
         result.addAll(namedTypes);
         result.addAll(propertyValueList.getSignature());
         result.addAll(sameIndividuals);
         return result;
-//        return Sets.union(namedTypes, propertyValueList.getSignature());
     }
 
     @Override
@@ -99,30 +102,24 @@ public class NamedIndividualFrame implements EntityFrame<OWLNamedIndividual>, Ha
         return this.subject.equals(other.subject) && this.namedTypes.equals(other.namedTypes) && this.propertyValueList.equals(other.propertyValueList) && this.sameIndividuals.equals(other.sameIndividuals);
     }
 
+
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("NamedIndividualFrame");
-        sb.append("(");
-        sb.append(subject);
-        sb.append(" NamedTypes(");
-        sb.append(namedTypes);
-        sb.append(") PropertyValues(");
-        sb.append(propertyValueList);
-        sb.append(") SameAs(");
-        sb.append(sameIndividuals);
-        sb.append("))");
-        return sb.toString();
-//        return Objects.toStringHelper(this).add("subject", subject).add("types", namedTypes).add("property values", propertyValueList).toString();
+        return Objects.toStringHelper("NamedIndividualFrame")
+                .addValue(subject)
+                .add("types", namedTypes)
+                .addValue(propertyValueList)
+                .add("sameIndividuals", sameIndividuals)
+                .toString();
     }
 
     public static class Builder {
 
         private OWLNamedIndividual subject;
 
-        private Set<OWLClass> namedTypes = new HashSet<OWLClass>();
+        private Set<OWLClass> namedTypes = new HashSet<>();
 
-        private List<PropertyValue> propertyValues = new ArrayList<PropertyValue>();
+        private List<PropertyValue> propertyValues = new ArrayList<>();
 
         private Set<OWLNamedIndividual> sameIndividuals = new HashSet<OWLNamedIndividual>();
 
@@ -147,7 +144,7 @@ public class NamedIndividualFrame implements EntityFrame<OWLNamedIndividual>, Ha
         }
 
         public NamedIndividualFrame build() {
-            return new NamedIndividualFrame(subject, namedTypes, propertyValues, sameIndividuals);
+            return new NamedIndividualFrame(subject, namedTypes, new PropertyValueList(propertyValues), sameIndividuals);
         }
 
 

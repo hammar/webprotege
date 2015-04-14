@@ -25,11 +25,6 @@ public class RevisionsPortlet extends AbstractOWLEntityPortlet {
     }
 
     @Override
-    public void reload() {
-        presenter.reload();
-    }
-
-    @Override
     public void initialize() {
         setLayout(new FitLayout());
         setHeight(INITIAL_HEIGHT);
@@ -37,10 +32,7 @@ public class RevisionsPortlet extends AbstractOWLEntityPortlet {
         presenter.reload();
         add(presenter.getWidget());
         setTitle("Revisions");
-    }
-
-    public Collection<EntityData> getSelection() {
-        return Collections.emptyList();
+        presenter.reload();
     }
 
     @Override

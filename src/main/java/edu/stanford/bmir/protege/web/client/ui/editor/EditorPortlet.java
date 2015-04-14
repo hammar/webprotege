@@ -29,20 +29,6 @@ public class EditorPortlet extends AbstractOWLEntityPortlet {
     }
 
     @Override
-    public void reload() {
-        Optional<OWLEntityData> sel = getSelectedEntityData();
-        if(!sel.isPresent()) {
-            // TODO: Show nothing selected
-            return;
-        }
-        final Optional<EditorCtx> editorContext = getEditorContext();
-        editorPresenter.setEditorContext(editorContext);
-
-    }
-
-
-
-    @Override
     public void initialize() {
         setTitle("Nothing selected");
         EditorContextMapper contextMapper = new EditorContextMapper();
@@ -64,8 +50,14 @@ public class EditorPortlet extends AbstractOWLEntityPortlet {
     }
 
     @Override
-    public Collection<EntityData> getSelection() {
-        return null;
+    protected void handleAfterSetEntity(Optional<OWLEntityData> entityData) {
+        Optional<OWLEntityData> sel = getSelectedEntityData();
+        if(!sel.isPresent()) {
+            // TODO: Show nothing selected
+            return;
+        }
+        final Optional<EditorCtx> editorContext = getEditorContext();
+        editorPresenter.setEditorContext(editorContext);
     }
 
     public Optional<EditorCtx> getEditorContext() {

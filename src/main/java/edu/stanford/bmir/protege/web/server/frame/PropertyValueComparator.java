@@ -2,8 +2,9 @@ package edu.stanford.bmir.protege.web.server.frame;
 
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
 import edu.stanford.bmir.protege.web.server.owlapi.RenderingManager;
+import edu.stanford.bmir.protege.web.server.render.AnnotationPropertyComparatorImpl;
+import edu.stanford.bmir.protege.web.server.render.IRIIndexProvider;
 import edu.stanford.bmir.protege.web.shared.frame.PropertyValue;
-import edu.stanford.bmir.protege.web.shared.frame.PropertyValueState;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLLiteral;
@@ -24,9 +25,14 @@ public class PropertyValueComparator implements Comparator<PropertyValue> {
     public static final int BEFORE = -AFTER;
 
     private OWLAPIProject project;
+    private AnnotationPropertyComparatorImpl annotationPropertyComparator;
 
     public PropertyValueComparator(OWLAPIProject project) {
         this.project = project;
+        this.annotationPropertyComparator = new AnnotationPropertyComparatorImpl(
+                project.getRenderingManager().getShortFormProvider(),
+                IRIIndexProvider.withDefaultAnnotationPropertyOrdering()
+        );
     }
 
     @Override
@@ -75,26 +81,7 @@ public class PropertyValueComparator implements Comparator<PropertyValue> {
             if (property2.isOWLAnnotationProperty()) {
                 OWLAnnotationProperty annoProp1 = (OWLAnnotationProperty) property1;
                 OWLAnnotationProperty annoProp2 = (OWLAnnotationProperty) property2;
-                if(annoProp1.isLabel()) {
-                    if(!annoProp2.isLabel()) {
-                        return BEFORE;
-                    }
-                }
-                else {
-                    if(annoProp2.isLabel()) {
-                        return AFTER;
-                    }
-                    if(annoProp1.isComment()) {
-                        if(!annoProp2.isComment()) {
-                            return BEFORE;
-                        }
-                    }
-                    else {
-                        if(annoProp2.isComment()) {
-                            return AFTER;
-                        }
-                    }
-                }
+                return annotationPropertyComparator.compare(annoProp1, annoProp2);
             }
             else {
                 return BEFORE;
@@ -117,6 +104,6 @@ public class PropertyValueComparator implements Comparator<PropertyValue> {
     }
 
     private boolean isDefaultLanguage(OWLLiteral lit) {
-        return lit.hasLang() && project.getDefaultLanguage().equals(lit.getLang());
+        return lit.hasLang() && project.getLang().equals(lit.getLang());
     }
 }

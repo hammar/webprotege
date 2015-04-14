@@ -1,11 +1,13 @@
 package edu.stanford.bmir.protege.web.shared.app;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -41,6 +43,32 @@ public class ClientApplicationProperties implements IsSerializable {
         return Optional.fromNullable(propertyMap.get(checkNotNull(propertyName)));
     }
 
+    public String toJson() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        for(Iterator<WebProtegePropertyName> it = propertyMap.keySet().iterator() ; it.hasNext() ;) {
+            WebProtegePropertyName propertyName = it.next();
+            sb.append("\"");
+            sb.append(propertyName.getPropertyName());
+            sb.append("\" : \"");
+            sb.append(propertyMap.get(propertyName));
+            sb.append("\"");
+            if(it.hasNext()) {
+                sb.append(",");
+            }
+            sb.append("\n");
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper("ClientApplicationProperties")
+                .addValue(propertyMap)
+                .toString();
+    }
 
     public static class Builder {
 

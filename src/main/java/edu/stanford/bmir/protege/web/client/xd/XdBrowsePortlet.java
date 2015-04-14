@@ -67,11 +67,6 @@ public class XdBrowsePortlet extends AbstractOWLEntityPortlet {
 		}
 	}
 
-	@Override
-	public void reload() {
-		setTitle("ODP Browser Reloaded!");
-	}
-
 	// Initialization method for GUI
 	@Override
 	public void initialize() {

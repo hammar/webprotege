@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import edu.stanford.bmir.protege.web.client.Application;
 import edu.stanford.bmir.protege.web.client.ui.library.msgbox.MessageBox;
 import edu.stanford.bmir.protege.web.client.ui.library.popupmenu.PopupMenu;
-import edu.stanford.bmir.protege.web.client.ui.res.WebProtegeClientBundle;
+import edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle;
 import edu.stanford.bmir.protege.web.shared.user.UserId;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -77,6 +77,11 @@ public class ApplicationBarImpl extends Composite implements ApplicationActionBa
 
     public void setSignUpForAccountHandler(SignUpForAccountHandler signUpForAccountHandler) {
         this.signUpForAccountHandler = signUpForAccountHandler;
+    }
+
+    @Override
+    public void setSignUpForAccountVisible(boolean visible) {
+        signUpForAccountItem.setVisible(visible);
     }
 
     interface ApplicationBarImplUiBinder extends UiBinder<HTMLPanel, ApplicationBarImpl> {

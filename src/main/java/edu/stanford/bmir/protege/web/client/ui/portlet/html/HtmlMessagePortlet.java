@@ -31,6 +31,7 @@ public class HtmlMessagePortlet extends AbstractOWLEntityPortlet {
         htmlTextComponent = new HtmlTextComponent(getProject());
         add(htmlTextComponent);
         doLayout();
+        refreshContent();
     }
 
     @Override
@@ -40,25 +41,6 @@ public class HtmlMessagePortlet extends AbstractOWLEntityPortlet {
 
         initConfiguration();
         refreshContent();
-    }
-
-    @Override
-    public void reload() {
-        onRefresh();
-    }
-
-    @Override
-    protected void afterRender() {
-        //onRefresh();
-    }
-
-    @Override
-    protected void onRefresh() {
-        refreshContent();
-    }
-
-    public Collection<EntityData> getSelection() {
-        return Collections.emptySet();
     }
 
     private void initConfiguration() {

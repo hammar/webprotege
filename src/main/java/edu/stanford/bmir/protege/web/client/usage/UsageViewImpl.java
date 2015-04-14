@@ -23,6 +23,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import edu.stanford.bmir.protege.web.client.csv.CSVGridResources;
+import edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle;
 import edu.stanford.bmir.protege.web.shared.axiom.AxiomTypeGroup;
 import edu.stanford.bmir.protege.web.shared.usage.UsageFilter;
 import edu.stanford.bmir.protege.web.shared.usage.UsageReference;
@@ -34,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+
+import static edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle.BUNDLE;
 
 /**
  * Author: Matthew Horridge<br>
@@ -228,32 +231,32 @@ public class UsageViewImpl extends Composite implements UsageView {
                 iconClass = object.getAxiomSubject().get().accept(new OWLEntityVisitorEx<String>() {
                     @Override
                     public String visit(OWLClass cls) {
-                        return "class-icon-inset";
+                        return BUNDLE.style().classIconInset();
                     }
 
                     @Override
                     public String visit(OWLObjectProperty property) {
-                        return "object-property-icon-inset";
+                        return BUNDLE.style().objectPropertyIconInset();
                     }
 
                     @Override
                     public String visit(OWLDataProperty property) {
-                        return "data-property-icon-inset";
+                        return BUNDLE.style().dataPropertyIconInset();
                     }
 
                     @Override
                     public String visit(OWLNamedIndividual individual) {
-                        return "individual-icon-inset";
+                        return BUNDLE.style().individualIconInset();
                     }
 
                     @Override
                     public String visit(OWLDatatype datatype) {
-                        return "datatype-icon-inset";
+                        return BUNDLE.style().datatypeIconInset();
                     }
 
                     @Override
                     public String visit(OWLAnnotationProperty property) {
-                        return "annotation-property-icon-inset";
+                        return BUNDLE.style().annotationPropertyIconInset();
                     }
                 });
             }

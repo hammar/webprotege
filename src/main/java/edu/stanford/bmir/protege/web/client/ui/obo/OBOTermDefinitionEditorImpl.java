@@ -10,8 +10,10 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.Widget;
+import edu.stanford.bmir.protege.web.client.ui.library.text.ExpandingTextBoxImpl;
+import edu.stanford.bmir.protege.web.client.ui.library.text.ExpandingTextBoxMode;
+import edu.stanford.bmir.protege.web.resources.WebProtegeClientBundle;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedEvent;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedHandler;
 import edu.stanford.bmir.protege.web.shared.obo.OBOTermDefinition;
@@ -34,7 +36,7 @@ public class OBOTermDefinitionEditorImpl extends Composite implements OBOTermDef
     private static OBOTermDefinitionEditorImplUiBinder ourUiBinder = GWT.create(OBOTermDefinitionEditorImplUiBinder.class);
 
     @UiField
-    protected TextBoxBase definitionField;
+    protected ExpandingTextBoxImpl definitionField;
 
     @UiField
     protected XRefListEditor xrefsField;
@@ -44,8 +46,10 @@ public class OBOTermDefinitionEditorImpl extends Composite implements OBOTermDef
 
 
     public OBOTermDefinitionEditorImpl() {
+        WebProtegeClientBundle.BUNDLE.style().ensureInjected();
         HTMLPanel rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
+        definitionField.setMode(ExpandingTextBoxMode.MULTI_LINE);
     }
 
     @Override
@@ -95,7 +99,7 @@ public class OBOTermDefinitionEditorImpl extends Composite implements OBOTermDef
     }
 
     private String getDefinition() {
-        return definitionField.getValue().trim();
+        return definitionField.getText().trim();
     }
 
     @Override

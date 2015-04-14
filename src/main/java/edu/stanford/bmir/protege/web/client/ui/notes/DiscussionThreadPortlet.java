@@ -28,19 +28,6 @@ public class DiscussionThreadPortlet extends AbstractOWLEntityPortlet {
     }
 
     @Override
-    public void reload() {
-        Optional<OWLEntityData> selectedEntity = getSelectedEntityData();
-        if(selectedEntity.isPresent()) {
-            presenter.setTarget(selectedEntity.get().getEntity());
-            setTitle("Discussions for " + selectedEntity.get().getBrowserText());
-        }
-        else {
-            presenter.clearTarget();
-            setTitle("Nothing selected");
-        }
-    }
-
-    @Override
     public void initialize() {
         presenter = new DiscussionThreadPresenter(getProjectId());
         add(presenter.getWidget());
@@ -48,8 +35,15 @@ public class DiscussionThreadPortlet extends AbstractOWLEntityPortlet {
     }
 
     @Override
-    public Collection<EntityData> getSelection() {
-        return Collections.emptyList();
+    protected void handleAfterSetEntity(Optional<OWLEntityData> entityData) {
+        if(entityData.isPresent()) {
+            presenter.setTarget(entityData.get().getEntity());
+            setTitle("Discussions for " + entityData.get().getBrowserText());
+        }
+        else {
+            presenter.clearTarget();
+            setTitle("Nothing selected");
+        }
     }
 
     @Override

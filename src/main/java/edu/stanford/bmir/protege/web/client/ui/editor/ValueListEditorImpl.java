@@ -12,11 +12,14 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
 import edu.stanford.bmir.protege.web.client.ui.library.button.DeleteButton;
+import edu.stanford.bmir.protege.web.client.ui.library.common.HasPlaceholder;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedEvent;
 import edu.stanford.bmir.protege.web.shared.DirtyChangedHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Author: Matthew Horridge<br>
@@ -24,8 +27,9 @@ import java.util.List;
  * Bio-Medical Informatics Research Group<br>
  * Date: 15/06/2013
  */
-public class ValueListEditorImpl<O> extends Composite implements ValueListEditor<O> {
+public class ValueListEditorImpl<O> extends Composite implements ValueListEditor<O>, HasPlaceholder {
 
+    public static final int DELETE_BUTTON_COLUMN = 1;
     private final DirtyChangedHandler dirtyChangedHandler;
 
     private final ValueChangeHandler<Optional<O>> valueChangeHandler;
@@ -44,6 +48,8 @@ public class ValueListEditorImpl<O> extends Composite implements ValueListEditor
     private boolean dirty = false;
 
     private boolean enabled = false;
+
+    private String placeholder = "";
 
     @UiField
     protected FlexTable tableField;
@@ -71,7 +77,15 @@ public class ValueListEditorImpl<O> extends Composite implements ValueListEditor
         updateEnabled();
     }
 
+    @Override
+    public String getPlaceholder() {
+        return placeholder;
+    }
 
+    @Override
+    public void setPlaceholder(String placeholder) {
+        this.placeholder = checkNotNull(placeholder);
+    }
 
     @Override
     public Widget getWidget() {
@@ -154,6 +168,14 @@ public class ValueListEditorImpl<O> extends Composite implements ValueListEditor
                 ((HasEnabled) editor).setEnabled(enabled);
             }
         }
+        for(int i = 0; i < tableField.getRowCount(); i++) {
+            DeleteButton deleteButton = (DeleteButton) tableField.getWidget(i, DELETE_BUTTON_COLUMN);
+            deleteButton.setEnabled(enabled);
+            // Don't enabled the delete button for the last row if it is a blank row
+            if (i < tableField.getRowCount() - 1 || !enabled) {
+                deleteButton.setVisible(enabled);
+            }
+        }
     }
 
     @Override
@@ -169,13 +191,16 @@ public class ValueListEditorImpl<O> extends Composite implements ValueListEditor
 
 
     private void ensureBlank() {
-        if(currentEditors.isEmpty() || currentEditors.get(currentEditors.size() - 1).getValue().isPresent()) {
-            addValueEditor(false);
+        if (isEnabled()) {
+            if(currentEditors.isEmpty() || currentEditors.get(currentEditors.size() - 1).getValue().isPresent()) {
+                addValueEditor(false);
+            }
         }
         for(int i = 0; i < tableField.getRowCount(); i++) {
-            Widget deleteButton = tableField.getWidget(i, 1);
+            DeleteButton deleteButton = (DeleteButton) tableField.getWidget(i, DELETE_BUTTON_COLUMN);
             if(i < tableField.getRowCount() - 1 && !deleteButton.isVisible()) {
-                deleteButton.setVisible(true);
+                deleteButton.setEnabled(enabled);
+                deleteButton.setVisible(enabled);
             }
         }
     }
@@ -202,8 +227,12 @@ public class ValueListEditorImpl<O> extends Composite implements ValueListEditor
         editor.addDirtyChangedHandler(dirtyChangedHandler);
         editor.addValueChangeHandler(valueChangeHandler);
         deleteButton.setVisible(deleteVisible);
+        deleteButton.setEnabled(enabled);
         if(editor instanceof HasEnabled) {
             ((HasEnabled) editor).setEnabled(enabled);
+        }
+        if(editor instanceof HasPlaceholder) {
+            ((HasPlaceholder) editor).setPlaceholder(placeholder);
         }
         return editor;
     }
