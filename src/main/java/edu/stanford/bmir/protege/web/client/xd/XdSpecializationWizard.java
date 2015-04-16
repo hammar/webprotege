@@ -8,14 +8,12 @@ import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubDataPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
 
-import uk.ac.manchester.cs.owl.owlapi.OWLSubClassOfAxiomImpl;
-import uk.ac.manchester.cs.owl.owlapi.OWLSubDataPropertyOfAxiomImpl;
-import uk.ac.manchester.cs.owl.owlapi.OWLSubObjectPropertyOfAxiomImpl;
-
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.gwtext.client.core.EventObject; 
 import com.gwtext.client.core.Position;
@@ -26,6 +24,12 @@ import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.CardLayout;
+import com.gwtext.client.widgets.layout.ColumnLayout;
+import com.gwtext.client.widgets.layout.ColumnLayoutData;
+import com.gwtext.client.widgets.layout.RowLayout;
+import com.gwtext.client.widgets.layout.VerticalLayout;
+import com.gwtext.client.widgets.tree.TreeNode;
+import com.gwtext.client.widgets.tree.TreePanel;
 
 public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 
@@ -43,13 +47,18 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private List<OWLSubObjectPropertyOfAxiom> subObjectPropertyAxioms;
 	
 	// Strategy selection radio buttons
-	RadioButton propStrategyButton;
-	RadioButton classStrategyButton;
-	RadioButton hybridStrategyButton;
+	private RadioButton propStrategyButton;
+	private RadioButton classStrategyButton;
+	private RadioButton hybridStrategyButton;
 	
-	// Test field for class transfer
-	// TODO: remove this field
-	private OWLClass odpImplementation;
+	// TreePanels for customizing classes and properties
+	private TreePanel classTreePanel;
+	private TreePanel objectPropertyTreePanel;
+	private TreePanel datatypePropertyTreePanel;
+	
+	// Visualization and text representation fields
+	private Panel visualizationPanel;
+	private TextArea instantationAxiomsPreview;
 
 	public XdSpecializationWizard() {
 		subClassAxioms = new ArrayList<OWLSubClassOfAxiom>();
@@ -86,7 +95,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         	}
         });  
         finishButton.setId("move-finish");  
-        navigationBar.addButton(finishButton);  
+        navigationBar.addButton(finishButton);
+        finishButton.setVisible(false);
         this.setBottomToolbar(navigationBar);  
 
         
@@ -116,7 +126,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 
 			@Override
 			public void onSuccess(OWLClass result) {
-				odpImplementation = result;
+				//odpImplementation = result;
 			}
         });
 	}
@@ -132,6 +142,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                     if (panelID.equals("card-2")) {
                     	// From last to middle card
                         cardLayout.setActiveItem(1);
+                        finishButton.setVisible(false);
+                        nextButton.setVisible(true);
                     }
                     else {
                     	// From middle to first card
@@ -149,6 +161,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                     else {
                     	// From second to third card
                         cardLayout.setActiveItem(2);
+                        finishButton.setVisible(true);
+                        nextButton.setVisible(false);
                         // TODO: Clear out old rendering from UI
                         // TODO: Render specialization graphically
                     }  
@@ -199,10 +213,31 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         classSpecialisationPanel.setAutoScroll(true);
         classSpecialisationPanel.setHtml("This is where we specialise classes.");
         
+        // The tab where we set object properties
         Panel objPropertySpecialisationPanel = new Panel();  
         objPropertySpecialisationPanel.setTitle("Obj properties");  
         objPropertySpecialisationPanel.setAutoScroll(true);
-        objPropertySpecialisationPanel.setHtml("This is where we specialise object properties.");
+        objPropertySpecialisationPanel.setLayout(new ColumnLayout());
+        // Tree panel
+        objectPropertyTreePanel = new TreePanel();
+        //objectPropertyTreePanel.setAutoWidth(true);
+        objectPropertyTreePanel.setAnimate(true);
+        objectPropertyTreePanel.setAutoScroll(true);
+        objectPropertyTreePanel.setRootVisible(true);
+        final TreeNode root = new TreeNode("A superproperty");
+        root.appendChild(new TreeNode("A subproperty"));
+        root.appendChild(new TreeNode("Another subproperty"));
+        root.appendChild(new TreeNode("A third subproperty"));
+        objectPropertyTreePanel.setRootNode(root);
+        objectPropertyTreePanel.expandAll();
+        objPropertySpecialisationPanel.add(objectPropertyTreePanel, new ColumnLayoutData(.9));
+        // Controls
+        Panel objectPropertyModificationControls = new Panel();
+        objectPropertyModificationControls.setLayout(new RowLayout());
+        objectPropertyModificationControls.add(new Button("Add"));
+        objectPropertyModificationControls.add(new Button("Remove"));
+        objectPropertyModificationControls.add(new Button("Modify"));
+        objPropertySpecialisationPanel.add(objectPropertyModificationControls, new ColumnLayoutData(.1));
         
         Panel dataPropertySpecialisationPanel = new Panel();  
         dataPropertySpecialisationPanel.setTitle("Data properties");  
@@ -218,11 +253,42 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	}
 	
 	private Panel makeThirdCard() {
-        Panel third = new Panel();  
+        Panel third = new Panel();
+        third.setLayout(new RowLayout());
         third.setBorder(false);  
         third.setId("card-2");
         third.setTitle("Specialisation Overview");
-        third.setHtml("<h1>Congratulations!</h1><p>Step 3 of 3 - Complete</p>");  
+        
+        // Visualization stuff
+        visualizationPanel = new Panel();
+        visualizationPanel.setTitle("Visualization");
+        HTML circle = new HTML("<div style=\"font-size: 12px; line-height:50px; width: 100px; height: 50px; margin: 50px 20px; border-radius:50%; text-align:center; background: orange;\">My Class Name</div>");
+        visualizationPanel.add(circle);
+        third.add(visualizationPanel);
+        
+        // Axioms list
+        Panel instantiationAxiomsPanel = new Panel();
+        instantiationAxiomsPanel.setTitle("ODP Instantiation Axioms");
+        instantiationAxiomsPanel.setLayout(new RowLayout());
+        instantationAxiomsPreview = new TextArea();
+        instantationAxiomsPreview.setEnabled(false);
+        instantationAxiomsPreview.setText(getInstantiationAxioms());
+        instantiationAxiomsPanel.add(instantationAxiomsPreview);
+        third.add(instantiationAxiomsPanel);
+          
         return third;
+	}
+	
+	private String getInstantiationAxioms() {
+		// TODO: Actually implement this
+		return "<#green-goblin>\n" + 
+				"    rel:enemyOf <#spiderman> ;\n" + 
+				"    a foaf:Person ;    # in the context of the Marvel universe\n" +
+				"    foaf:name \"Green Goblin\" .\n" + 
+				"\n" +
+				"<#spiderman>\n" +
+				"    rel:enemyOf <#green-goblin> ;\n" + 
+				"    a foaf:Person ;\n" +
+				"    foaf:name \"Spiderman\", \"Человек-паук\"@ru .";
 	}
 }

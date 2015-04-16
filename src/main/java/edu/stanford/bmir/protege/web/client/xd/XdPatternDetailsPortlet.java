@@ -1,15 +1,8 @@
 package edu.stanford.bmir.protege.web.client.xd;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAnnotation;
-import org.semanticweb.owlapi.model.OWLDataFactory;
 
 import com.google.common.base.Optional;
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
@@ -19,23 +12,15 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.VerticalLayout;
 
-import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
-import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
-import edu.stanford.bmir.protege.web.client.dispatch.RenderableGetObjectResult;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.GetOntologyAnnotationsAction;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.SetOntologyAnnotationsAction;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.SetOntologyAnnotationsResult;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
-import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 
@@ -62,9 +47,6 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	private Anchor odpUriLink;
 	private HTML odpScenariosList;
 	private Grid odpDetailsGrid;
-	
-	// TODO : Debug code below remove when done
-	private Optional<Set<OWLAnnotation>> lastSet = Optional.absent();
 	
 	// References to specialisation wizard and its popup
 	//private XdSpecializationWizard wizard;
@@ -207,14 +189,6 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 		mainPanel.setVisible(false);
 		
 		add(mainPanel);
-		
-		// TODO : below is debug code, remove when done
-		DispatchServiceManager.get().execute(new GetOntologyAnnotationsAction(getProjectId()), new DispatchServiceCallback<RenderableGetObjectResult<Set<OWLAnnotation>>>() {
-			public void handleSuccess(RenderableGetObjectResult<Set<OWLAnnotation>> result) {
-				final Set<OWLAnnotation> object = result.getObject();
-                lastSet = Optional.of(object);
-		    }
-		});
 	}
 
 	
@@ -235,38 +209,5 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
         
         useOdpButton.setDisabled(true);
         toolbar.addButton(useOdpButton);
-        
-        ToolbarButton testImportsButton = new ToolbarButton("Imports test");
-        testImportsButton.addListener(new ButtonListenerAdapter() {
-        	@Override
-            public void onClick(final Button button, final EventObject e) {
-        		OWLDataFactory df = DataFactory.get();
-        		OWLAnnotation importsAnnotation = DataFactory.get().getOWLAnnotation(df.getOWLAnnotationProperty(IRI.create("http://www.w3.org/2002/07/owl#imports")),IRI.create("http://www.ontologydesignpatterns.org/cp/owl/agentrole.owl"));
-        		Set<OWLAnnotation> oldSet = lastSet.get();
-        		Set<OWLAnnotation> newSet = new HashSet<OWLAnnotation>();
-        		newSet.addAll(oldSet);
-        		newSet.add(importsAnnotation);
-        		DispatchServiceManager.get().execute(new SetOntologyAnnotationsAction(getProjectId(), oldSet, newSet), new DispatchServiceCallback<SetOntologyAnnotationsResult>() {
-        			public void handleSuccess(SetOntologyAnnotationsResult result) {
-        				MessageBox.alert("Import annotations were added properly. Now attempting to cache imports..");
-                    	XdServiceManager.getInstance().cacheImports(getProjectId(), new AsyncCallback<Void>() {
-
-							@Override
-							public void onFailure(Throwable caught) {
-								MessageBox.alert("There was a problem updating the project imports closure cache serverside.");
-								// TODO Auto-generated method stub
-							}
-
-							@Override
-							public void onSuccess(Void result) {
-								MessageBox.alert("Imports closure succesfully cached!");
-								// TODO Auto-generated method stub
-							}
-                    	});
-        			}
-                });
-        	}
-        });
-        toolbar.addButton(testImportsButton);
 	}
 }
