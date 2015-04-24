@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd;
+package edu.stanford.bmir.protege.web.client.xd.specialization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,8 @@ import com.gwtext.client.widgets.layout.ColumnLayoutData;
 import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
+
+import edu.stanford.bmir.protege.web.client.xd.XdServiceManager;
 
 public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 

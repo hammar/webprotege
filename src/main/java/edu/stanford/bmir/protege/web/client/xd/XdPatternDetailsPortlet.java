@@ -21,6 +21,7 @@ import com.gwtext.client.widgets.layout.VerticalLayout;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
+import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 
