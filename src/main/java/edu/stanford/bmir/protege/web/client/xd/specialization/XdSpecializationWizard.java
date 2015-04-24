@@ -61,7 +61,12 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private Panel visualizationPanel;
 	private TextArea instantationAxiomsPreview;
 
+	// Entity specialization windows
+	private ClassDetailsWindow cdw;
+	
 	public XdSpecializationWizard() {
+		cdw = new ClassDetailsWindow();
+		
 		subClassAxioms = new ArrayList<OWLSubClassOfAxiom>();
 		subDataPropertyAxioms = new ArrayList<OWLSubDataPropertyOfAxiom>();
 		subObjectPropertyAxioms = new ArrayList<OWLSubObjectPropertyOfAxiom>();
@@ -225,9 +230,27 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         classSpecialisationPanel.add(classTreePanel, new ColumnLayoutData(.9));;
         // Controls
         Panel classModificationControls = new Panel();
-        classModificationControls.add(new Button("Add"));
+        Button addClassButton = new Button("Add new subclass");
+        addClassButton.addListener(new ButtonListenerAdapter() {
+        	@Override
+        	public void onClick(final Button button, final EventObject e) {
+        		cdw.reset();
+        		cdw.show();
+        	}
+        });
+        classModificationControls.add(addClassButton);
         classModificationControls.add(new Button("Remove"));
-        classModificationControls.add(new Button("Modify"));
+        Button modifyClassButton = new Button("Modify class");
+        modifyClassButton.addListener(new ButtonListenerAdapter() {
+        	@Override
+        	public void onClick(final Button button, final EventObject e) {
+        		cdw.reset();
+        		cdw.show();
+        		// TODO: cdw.load()...
+        	}
+        });
+        classModificationControls.add(modifyClassButton);
+        
         classSpecialisationPanel.add(classModificationControls, new ColumnLayoutData(.1));
         
         // The tab where we set object properties
