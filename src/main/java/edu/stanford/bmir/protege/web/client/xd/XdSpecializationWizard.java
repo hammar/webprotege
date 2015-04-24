@@ -27,7 +27,6 @@ import com.gwtext.client.widgets.layout.CardLayout;
 import com.gwtext.client.widgets.layout.ColumnLayout;
 import com.gwtext.client.widgets.layout.ColumnLayoutData;
 import com.gwtext.client.widgets.layout.RowLayout;
-import com.gwtext.client.widgets.layout.VerticalLayout;
 import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
 
@@ -208,21 +207,33 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         tabPanel.setTabWidth(135);
         tabPanel.setActiveTab(0);
         
+        // The tab where we set classes
         Panel classSpecialisationPanel = new Panel();  
-        classSpecialisationPanel.setTitle("Classes");  
-        classSpecialisationPanel.setAutoScroll(true);
-        classSpecialisationPanel.setHtml("This is where we specialise classes.");
+        classSpecialisationPanel.setTitle("Classes");
+        classSpecialisationPanel.setLayout(new ColumnLayout());
+        // Class tree panel
+        classTreePanel = new TreePanel();
+        classTreePanel.setRootVisible(true);
+        final TreeNode root2 = new TreeNode("A superclass");
+        root2.appendChild(new TreeNode("A subclass"));
+        root2.appendChild(new TreeNode("Another subclass"));
+        root2.appendChild(new TreeNode("A third subclass"));
+        classTreePanel.setRootNode(root2);
+        classTreePanel.expandAll();
+        classSpecialisationPanel.add(classTreePanel, new ColumnLayoutData(.9));;
+        // Controls
+        Panel classModificationControls = new Panel();
+        classModificationControls.add(new Button("Add"));
+        classModificationControls.add(new Button("Remove"));
+        classModificationControls.add(new Button("Modify"));
+        classSpecialisationPanel.add(classModificationControls, new ColumnLayoutData(.1));
         
         // The tab where we set object properties
         Panel objPropertySpecialisationPanel = new Panel();  
         objPropertySpecialisationPanel.setTitle("Obj properties");  
-        objPropertySpecialisationPanel.setAutoScroll(true);
         objPropertySpecialisationPanel.setLayout(new ColumnLayout());
         // Tree panel
         objectPropertyTreePanel = new TreePanel();
-        //objectPropertyTreePanel.setAutoWidth(true);
-        objectPropertyTreePanel.setAnimate(true);
-        objectPropertyTreePanel.setAutoScroll(true);
         objectPropertyTreePanel.setRootVisible(true);
         final TreeNode root = new TreeNode("A superproperty");
         root.appendChild(new TreeNode("A subproperty"));
@@ -233,16 +244,32 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         objPropertySpecialisationPanel.add(objectPropertyTreePanel, new ColumnLayoutData(.9));
         // Controls
         Panel objectPropertyModificationControls = new Panel();
-        objectPropertyModificationControls.setLayout(new RowLayout());
         objectPropertyModificationControls.add(new Button("Add"));
         objectPropertyModificationControls.add(new Button("Remove"));
         objectPropertyModificationControls.add(new Button("Modify"));
         objPropertySpecialisationPanel.add(objectPropertyModificationControls, new ColumnLayoutData(.1));
         
+        // The tab where we set datatype properties
         Panel dataPropertySpecialisationPanel = new Panel();  
-        dataPropertySpecialisationPanel.setTitle("Data properties");  
-        dataPropertySpecialisationPanel.setAutoScroll(true);
-        dataPropertySpecialisationPanel.setHtml("This is where we specialise datatype properties.");
+        dataPropertySpecialisationPanel.setTitle("Data properties");
+        dataPropertySpecialisationPanel.setLayout(new ColumnLayout());
+        // Tree panel
+        datatypePropertyTreePanel = new TreePanel();
+        datatypePropertyTreePanel.setRootVisible(true);
+        final TreeNode root3 = new TreeNode("A superdataproperty");
+        root3.appendChild(new TreeNode("A subdataproperty"));
+        root3.appendChild(new TreeNode("Another subdataproperty"));
+        root3.appendChild(new TreeNode("A third subdataproperty"));
+        datatypePropertyTreePanel.setRootNode(root3);
+        datatypePropertyTreePanel.expandAll();
+        dataPropertySpecialisationPanel.add(datatypePropertyTreePanel, new ColumnLayoutData(.9));
+        // Controls
+        Panel datatypePropertyModificationControls = new Panel();
+        datatypePropertyModificationControls.add(new Button("Add"));
+        datatypePropertyModificationControls.add(new Button("Remove"));
+        datatypePropertyModificationControls.add(new Button("Modify"));
+        dataPropertySpecialisationPanel.add(datatypePropertyModificationControls, new ColumnLayoutData(.1));
+        
         
         tabPanel.add(classSpecialisationPanel);
         tabPanel.add(objPropertySpecialisationPanel);
