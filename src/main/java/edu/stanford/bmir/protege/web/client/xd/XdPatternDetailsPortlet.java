@@ -56,7 +56,7 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	
 	public XdPatternDetailsPortlet(Project project) {
 		super(project);
-		wizard = new XdSpecializationWizard();
+		wizard = new XdSpecializationWizard(this);
 	}
 
 	@Override

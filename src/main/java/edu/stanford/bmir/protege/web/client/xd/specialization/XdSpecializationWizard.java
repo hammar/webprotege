@@ -8,6 +8,7 @@ import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubDataPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
 
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
@@ -17,7 +18,10 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.gwtext.client.core.EventObject; 
 import com.gwtext.client.core.Position;
+import com.gwtext.client.data.Node;
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.MessageBox;
+import com.gwtext.client.widgets.MessageBoxConfig;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.Toolbar;
@@ -30,10 +34,19 @@ import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
 
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
+import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateClassAction;
+import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateClassResult;
+import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.xd.XdServiceManager;
+import edu.stanford.bmir.protege.web.shared.DataFactory;
 
 public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 
+	// Calling portlet
+	private XdPatternDetailsPortlet parent;
+	
 	//private Panel wizardPanel;
 	private ToolbarButton backButton;
 	private ToolbarButton nextButton;
@@ -43,6 +56,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private CardLayout cardLayout;
 	
 	// Lists of user-selected subclass/subproperty axioms
+	//private OWLClass owlThing;
 	private List<OWLSubClassOfAxiom> subClassAxioms;
 	private List<OWLSubDataPropertyOfAxiom> subDataPropertyAxioms;
 	private List<OWLSubObjectPropertyOfAxiom> subObjectPropertyAxioms;
@@ -64,12 +78,26 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	// Entity specialization windows
 	private ClassDetailsWindow cdw;
 	
-	public XdSpecializationWizard() {
+	// Progress window when performing instantiation
+	private MessageBoxConfig instantiationProgressConf;
+	
+	// Used to synchroneize GWT-RPC-calls so that frame updates don't occur prior to entity creation
+	private Integer requiredServiceCalls;
+	private Integer completedServiceCalls;
+	
+	public XdSpecializationWizard(XdPatternDetailsPortlet parent) {
+		this.parent = parent;
 		cdw = new ClassDetailsWindow();
+		
+		// TODO: GET DEBUG ROOT CLASS
+		//owlThing = DataFactory.getOWLThing();
 		
 		subClassAxioms = new ArrayList<OWLSubClassOfAxiom>();
 		subDataPropertyAxioms = new ArrayList<OWLSubDataPropertyOfAxiom>();
 		subObjectPropertyAxioms = new ArrayList<OWLSubObjectPropertyOfAxiom>();
+		
+		requiredServiceCalls = 0;
+		completedServiceCalls = 0;
 		
 		this.setTitle("ODP Specialisation Wizard");
 		this.setWidth(640);
@@ -110,11 +138,149 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         this.add(makeFirstCard());  
         this.add(makeSecondCard());  
         this.add(makeThirdCard()); 
+        
+        // Configure the progress window shown when finishing
+        instantiationProgressConf = new MessageBoxConfig() {  
+            {  
+                setTitle("Instantiating ODP...");  
+                setMsg("Creating entities...");  
+                setWidth(240);  
+                setProgress(true);  
+                setClosable(false);  
+            }  
+        };
+        
 	}
 	
-	private void saveAndClose() {
-		// TODO: implement this, wrap the below in an async service call that stores wizard results
+	/**
+	 * This method stores the customized ODP instantiation into the ontology on the server side
+	 * and then closes down the wizard. 
+	 */
+	private void saveAndClose() {		
+		// 1. Calculate the total number of async service calls required
+		requiredServiceCalls = calculateRequiredServiceCalls();
+		
+		// 2. Create class, object property, and datatype property hierarchies on server
+		// Note that each of these methods on the leaf level execute proceedIfAllEntitiesCreated()
+		// which will not proceed until all entities have been created.
+		createChildClasses(classTreePanel.getRootNode());
+		createChildObjectProperties(objectPropertyTreePanel.getRootNode());
+		createChildDatatypeProperties(datatypePropertyTreePanel.getRootNode());
+		
+		MessageBox.show(instantiationProgressConf);
 		this.hide();
+	}
+	
+	/**
+	 * Gets the number of child elements (e.g., classes or properties to create) in
+	 * the class, object property, and datatype property trees. That is to say, how
+	 * many GWT-RPC calls will be required to create this structure in the ontology.
+	 * Note the -3: this is because we don't want to include the three root nodes.
+	 * Note also that we don't account for classes that may already exist in the
+	 * ontology - this is future work to look for/fix.
+	 * @return Number of service 
+	 */
+	private Integer calculateRequiredServiceCalls() {
+		return getInclusiveChildNodeCount(classTreePanel.getRootNode()) +
+				getInclusiveChildNodeCount(objectPropertyTreePanel.getRootNode()) + 
+				getInclusiveChildNodeCount(datatypePropertyTreePanel.getRootNode()) - 3;
+	}
+
+	/**
+	 * Recursive method to calculate the total number of child nodes (including the
+	 * starting node) of a given subtree.
+	 * @param parentNode - the starting node
+	 * @return number of child nodes including starting node
+	 */
+	private int getInclusiveChildNodeCount(TreeNode parentNode) {
+		Integer i = 0;
+		for (final Node childNode: parentNode.getChildNodes()) {
+			i += getInclusiveChildNodeCount((TreeNode)childNode);
+		}
+		return 1 + i;
+	}
+
+	/**
+	 *  Gate-keeper method that only proceeds with updating frames (e.g., annotations, domains and ranges)
+	 *  of created OWL entities if all of those entities have been created successfully (e.g., if every estimated
+	 *  service call has been successfully executed).
+	 *  Thus we force GWT to act synchronously, which is perhaps not a very nice solution architecturally - but is
+	 *  required if we want to reuse existing WebProtégé dispatch APIs rather than create new ones.
+	 */
+	private void proceedIfAllEntitiesCreated() {
+		if (requiredServiceCalls == completedServiceCalls) {
+			// If the above is true, then all classes, object properties, and datatype properties in the respective
+			// trees have been created successfully using GWT-RPC calls, and we can now proceed to update their
+			// frames.
+			MessageBox.updateText("Updating entity frames...");
+			updateClassFrames();
+			updateObjectPropertyFrames();
+			updateDatatypePropertyFrames();
+			
+			// TODO: Debug code, remove once done
+			final Node tempNode = classTreePanel.getRootNode().getChildNodes()[0];
+			OWLClass tempClass = (OWLClass)tempNode.getAttributeAsObject("owlClass");
+			//Window.alert("Created " + tempClass.getIRI().toString());
+		} 
+	}
+	
+	/**
+	 * Recursive method that via GWT-RPC calls creates OWL subclasses to match the subtree
+	 * of which the input starting node is the parent.
+	 * @param parentNode - Starting node.
+	 */
+	private void createChildClasses(TreeNode parentNode) {
+		OWLClass parentClass = (OWLClass)parentNode.getAttributeAsObject("owlClass");
+		final Node[] childNodes = parentNode.getChildNodes();
+		
+		for (final Node childNode: childNodes) {
+			final TreeNode childTreeNode = (TreeNode)childNode;
+			CreateClassAction cca = new CreateClassAction(parent.getProjectId(),childTreeNode.getText(),parentClass);
+			
+			DispatchServiceManager.get().execute(cca, new DispatchServiceCallback<CreateClassResult>() {
+		        public void handleSuccess(final CreateClassResult result) {
+		        	completedServiceCalls += 1;
+		        	childTreeNode.setAttribute("owlClass", result.getObject());
+		        	updateProgressBarAndClose();
+		        	createChildClasses(childTreeNode);
+		        	proceedIfAllEntitiesCreated();
+		        }
+			});
+		}
+	}
+	
+	/**
+	 * This method updates the progress bar and is called by all returning GWT-RPC handlers.
+	 * If we find that all service calls are finished executing, we hide the progress bar and 
+	 * the specialization wizard window.
+	 */
+	private void updateProgressBarAndClose() {
+		Integer percentage = (100*completedServiceCalls)/(100*requiredServiceCalls);
+    	MessageBox.updateProgress(percentage);
+    	if (completedServiceCalls == requiredServiceCalls)
+    	{
+    		MessageBox.hide();
+    	}
+	}
+	
+	private void createChildObjectProperties(TreeNode parentNode) {
+		// TODO: Implement this
+	}
+	
+	private void createChildDatatypeProperties(TreeNode parentNode) {
+		// TODO: Implement this
+	}
+	
+	private void updateClassFrames() {
+		// TODO: Implement this
+	}
+	
+	private void updateObjectPropertyFrames() {
+		// TODO: Implement this
+	}
+	
+	private void updateDatatypePropertyFrames() {
+		// TODO: Implement this
 	}
 	
 	// This is where we clear out old data, load new data required 
@@ -220,12 +386,24 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         classSpecialisationPanel.setLayout(new ColumnLayout());
         // Class tree panel
         classTreePanel = new TreePanel();
-        classTreePanel.setRootVisible(true);
-        final TreeNode root2 = new TreeNode("A superclass");
-        root2.appendChild(new TreeNode("A subclass"));
-        root2.appendChild(new TreeNode("Another subclass"));
-        root2.appendChild(new TreeNode("A third subclass"));
-        classTreePanel.setRootNode(root2);
+        classTreePanel.setRootVisible(false);
+        final TreeNode rootClassNode = new TreeNode();
+        rootClassNode.setAttribute("owlClass", DataFactory.getOWLThing());
+        TreeNode odpClassNode1 = new TreeNode("ODP Class 1");
+        odpClassNode1.appendChild(new TreeNode("Custom subclass 1"));
+        rootClassNode.appendChild(odpClassNode1);
+        
+        TreeNode odpClassNode2 = new TreeNode("ODP Class 2");
+        odpClassNode2.appendChild(new TreeNode("Custom subclass 2a"));
+        odpClassNode2.appendChild(new TreeNode("Custom subclass 2b"));
+        rootClassNode.appendChild(odpClassNode2);
+        
+        TreeNode odpClassNode3 = new TreeNode("ODP Class 3");
+        odpClassNode3.appendChild(new TreeNode("Custom subclass 3a"));
+        odpClassNode3.appendChild(new TreeNode("Custom subclass 3b"));
+        odpClassNode3.appendChild(new TreeNode("Custom subclass 3c"));
+        rootClassNode.appendChild(odpClassNode3);
+        classTreePanel.setRootNode(rootClassNode);
         classTreePanel.expandAll();
         classSpecialisationPanel.add(classTreePanel, new ColumnLayoutData(.9));;
         // Controls
@@ -330,6 +508,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
           
         return third;
 	}
+	
 	
 	private String getInstantiationAxioms() {
 		// TODO: Actually implement this
