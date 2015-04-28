@@ -55,9 +55,12 @@ import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
 import edu.stanford.bmir.protege.web.shared.dispatch.UpdateObjectAction;
 import edu.stanford.bmir.protege.web.shared.frame.ClassFrame;
+import edu.stanford.bmir.protege.web.shared.frame.ObjectPropertyCharacteristic;
+import edu.stanford.bmir.protege.web.shared.frame.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.frame.PropertyAnnotationValue;
 import edu.stanford.bmir.protege.web.shared.frame.PropertyValue;
 import edu.stanford.bmir.protege.web.shared.frame.PropertyValueState;
+import edu.stanford.bmir.protege.web.shared.frame.UpdateObjectPropertyFrameAction;
 
 public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 
@@ -74,9 +77,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	
 	// Lists of user-selected subclass/subproperty axioms
 	//private OWLClass owlThing;
-	private List<OWLSubClassOfAxiom> subClassAxioms;
-	private List<OWLSubDataPropertyOfAxiom> subDataPropertyAxioms;
-	private List<OWLSubObjectPropertyOfAxiom> subObjectPropertyAxioms;
+	//private List<OWLSubClassOfAxiom> subClassAxioms;
+	//private List<OWLSubDataPropertyOfAxiom> subDataPropertyAxioms;
+	//private List<OWLSubObjectPropertyOfAxiom> subObjectPropertyAxioms;
 	
 	// Strategy selection radio buttons
 	private RadioButton propStrategyButton;
@@ -111,9 +114,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		// TODO: GET DEBUG ROOT CLASS
 		//owlThing = DataFactory.getOWLThing();
 		
-		subClassAxioms = new ArrayList<OWLSubClassOfAxiom>();
-		subDataPropertyAxioms = new ArrayList<OWLSubDataPropertyOfAxiom>();
-		subObjectPropertyAxioms = new ArrayList<OWLSubObjectPropertyOfAxiom>();
+		//subClassAxioms = new ArrayList<OWLSubClassOfAxiom>();
+		//subDataPropertyAxioms = new ArrayList<OWLSubDataPropertyOfAxiom>();
+		//subObjectPropertyAxioms = new ArrayList<OWLSubObjectPropertyOfAxiom>();
 		
 		requiredCreationServiceCalls = 0;
 		requiredUpdateServiceCalls = 0;
@@ -239,7 +242,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			// frames.
 			//MessageBox.updateText("Updating entity frames...");
 			updateChildClassFrames(classTreePanel.getRootNode());
-			updateObjectPropertyFrames();
+			updateChildObjectPropertyFrames(objectPropertyTreePanel.getRootNode());
 			updateDatatypePropertyFrames();
 			
 			// TODO: Debug code, remove once done
@@ -361,8 +364,49 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		}
 	}
 	
-	private void updateObjectPropertyFrames() {
-		// TODO: Implement this
+	private void updateChildObjectPropertyFrames(TreeNode parentNode) {
+		final Node[] childNodes = parentNode.getChildNodes();
+		
+		for (final Node childNode: childNodes) {
+			final TreeNode childTreeNode = (TreeNode)childNode;
+			OWLObjectProperty childProperty = (OWLObjectProperty)childTreeNode.getAttributeAsObject("owlObjectProperty");
+			
+			// Create (empty) source object property frame
+			LabelledFrame<ObjectPropertyFrame> fromFrame = new LabelledFrame<ObjectPropertyFrame>(childTreeNode.getText(),new ObjectPropertyFrame.Builder(childProperty).build());
+			
+			// Extract property values that we support from node
+			Set<PropertyAnnotationValue> propertyValues = new HashSet<PropertyAnnotationValue>();
+			
+			if (childTreeNode.getAttribute("rdfsComment") != null) {
+				OWLAnnotationProperty rdfsCommentProperty = DataFactory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_COMMENT.getIRI());
+				OWLLiteral rdfsCommentValue = DataFactory.getOWLLiteral(childTreeNode.getAttribute("rdfsComment"));
+				PropertyAnnotationValue rdfsCommentPropertyValue = new PropertyAnnotationValue(rdfsCommentProperty,rdfsCommentValue, PropertyValueState.ASSERTED);
+				propertyValues.add(rdfsCommentPropertyValue);
+			}
+			
+			// TODO: Implement extraction of domains, ranges, inverses, and property characteristics below!
+			Set<OWLClass> domains = new HashSet<OWLClass>();
+			Set<OWLClass> ranges = new HashSet<OWLClass>();
+			Set<OWLObjectProperty> inverses = new HashSet<OWLObjectProperty>();
+			Set<ObjectPropertyCharacteristic> characteristics = new HashSet<ObjectPropertyCharacteristic>();
+			
+			// Create target (after update) frame for class
+			// Note that the Set<OWLClass> parameter which used to represent superclasses of 
+			// the subject class is actually not used on the server-side at the moment
+			// but is still required for the ClassFrame constructor.
+			LabelledFrame<ObjectPropertyFrame> toFrame = new LabelledFrame<ObjectPropertyFrame>(childTreeNode.getText(),
+					new ObjectPropertyFrame(childProperty, propertyValues, domains, ranges, inverses, characteristics));
+			
+			// Create and execute update action against dispatch service
+			UpdateObjectAction<LabelledFrame<ObjectPropertyFrame>> uoa = new UpdateObjectPropertyFrameAction(parent.getProjectId(),fromFrame,toFrame);
+			DispatchServiceManager.get().execute(uoa, new DispatchServiceCallback<Result>() {
+		        public void handleSuccess(final Result result) {
+		        	completedUpdateServiceCalls += 1;
+		        	updateChildClassFrames(childTreeNode);
+		        	proceedIfAllEntitiesUpdated();
+		        }
+			});
+		}
 	}
 	
 	private void updateDatatypePropertyFrames() {
@@ -372,9 +416,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	// This is where we clear out old data, load new data required 
 	// to run the wizard, prepare fields, etc etc
 	public void loadOdp(String uri) {
-		subClassAxioms.clear();
-		subDataPropertyAxioms.clear();
-		subObjectPropertyAxioms.clear();
+		//subClassAxioms.clear();
+		//subDataPropertyAxioms.clear();
+		//subObjectPropertyAxioms.clear();
 		
 		XdServiceManager.getInstance().getOdpImplementation(uri, new AsyncCallback<OWLClass>(){
 			@Override
