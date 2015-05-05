@@ -2,18 +2,20 @@ package edu.stanford.bmir.protege.web.client.xd.specialization;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
-import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
-import org.semanticweb.owlapi.model.OWLSubDataPropertyOfAxiom;
-import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
+import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
+import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
 import com.google.common.base.Optional;
 import com.google.gwt.user.client.Window;
@@ -27,8 +29,6 @@ import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Position;
 import com.gwtext.client.data.Node;
 import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
-import com.gwtext.client.widgets.MessageBoxConfig;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.Toolbar;
@@ -45,6 +45,8 @@ import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateClassAction;
 import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateClassResult;
+import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateDataPropertiesAction;
+import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateDataPropertiesResult;
 import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateObjectPropertiesAction;
 import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateObjectPropertiesResult;
 import edu.stanford.bmir.protege.web.client.dispatch.actions.UpdateClassFrameAction;
@@ -55,17 +57,18 @@ import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
 import edu.stanford.bmir.protege.web.shared.dispatch.UpdateObjectAction;
 import edu.stanford.bmir.protege.web.shared.frame.ClassFrame;
+import edu.stanford.bmir.protege.web.shared.frame.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.frame.ObjectPropertyCharacteristic;
 import edu.stanford.bmir.protege.web.shared.frame.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.frame.PropertyAnnotationValue;
 import edu.stanford.bmir.protege.web.shared.frame.PropertyValue;
+import edu.stanford.bmir.protege.web.shared.frame.PropertyValueList;
 import edu.stanford.bmir.protege.web.shared.frame.PropertyValueState;
+import edu.stanford.bmir.protege.web.shared.frame.UpdateDataPropertyFrameAction;
 import edu.stanford.bmir.protege.web.shared.frame.UpdateObjectPropertyFrameAction;
+import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 
 public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
-
-	// Calling portlet
-	private XdPatternDetailsPortlet parent;
 	
 	//private Panel wizardPanel;
 	private ToolbarButton backButton;
@@ -74,12 +77,6 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private Toolbar navigationBar;
 	private ButtonListenerAdapter navigationButtonsListener;
 	private CardLayout cardLayout;
-	
-	// Lists of user-selected subclass/subproperty axioms
-	//private OWLClass owlThing;
-	//private List<OWLSubClassOfAxiom> subClassAxioms;
-	//private List<OWLSubDataPropertyOfAxiom> subDataPropertyAxioms;
-	//private List<OWLSubObjectPropertyOfAxiom> subObjectPropertyAxioms;
 	
 	// Strategy selection radio buttons
 	private RadioButton propStrategyButton;
@@ -99,29 +96,36 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private ClassDetailsWindow cdw;
 	
 	// Progress window when performing instantiation
-	private MessageBoxConfig instantiationProgressConf;
+	//private MessageBoxConfig instantiationProgressConf;
 	
-	// Used to synchroneize GWT-RPC-calls so that frame updates don't occur prior to entity creation
+	// Reference to project ID required for service calls
+	private ProjectId projectId;
+	
+	// Used to synchronize GWT-RPC-calls so that frame updates don't occur prior to entity creation
 	private Integer requiredCreationServiceCalls;
 	private Integer requiredUpdateServiceCalls;
 	private Integer completedCreationServiceCalls;
 	private Integer completedUpdateServiceCalls;
 	
+	// Keeps track of created entities from the first half of instantiation
+	private Map<String,OWLClass> createdClasses;
+	private Map<String, OWLObjectProperty> createdObjectProperties;
+	private Map<String, OWLDataProperty> createdDataProperties;
+	
+	@SuppressWarnings("deprecation")
 	public XdSpecializationWizard(XdPatternDetailsPortlet parent) {
-		this.parent = parent;
-		cdw = new ClassDetailsWindow();
+		this.projectId = parent.getProjectId();
 		
-		// TODO: GET DEBUG ROOT CLASS
-		//owlThing = DataFactory.getOWLThing();
+		this.cdw = new ClassDetailsWindow();
 		
-		//subClassAxioms = new ArrayList<OWLSubClassOfAxiom>();
-		//subDataPropertyAxioms = new ArrayList<OWLSubDataPropertyOfAxiom>();
-		//subObjectPropertyAxioms = new ArrayList<OWLSubObjectPropertyOfAxiom>();
+		this.createdClasses = new HashMap<String,OWLClass>();
+		this.createdObjectProperties = new HashMap<String,OWLObjectProperty>();
+		this.createdDataProperties = new HashMap<String,OWLDataProperty>();
 		
-		requiredCreationServiceCalls = 0;
-		requiredUpdateServiceCalls = 0;
-		completedCreationServiceCalls = 0;
-		completedUpdateServiceCalls = 0;
+		this.requiredCreationServiceCalls = 0;
+		this.requiredUpdateServiceCalls = 0;
+		this.completedCreationServiceCalls = 0;
+		this.completedUpdateServiceCalls = 0;
 		
 		this.setTitle("ODP Specialisation Wizard");
 		this.setWidth(640);
@@ -164,7 +168,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         this.add(makeThirdCard()); 
         
         // Configure the progress window shown when finishing
-        instantiationProgressConf = new MessageBoxConfig() {  
+        /*instantiationProgressConf = new MessageBoxConfig() {  
             {  
                 setTitle("Instantiating ODP...");  
                 setMsg("Creating entities...");  
@@ -172,7 +176,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 setProgress(true);  
                 setClosable(false);  
             }  
-        };
+        };*/
         
 	}
 	
@@ -192,7 +196,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		createChildObjectProperties(objectPropertyTreePanel.getRootNode());
 		createChildDatatypeProperties(datatypePropertyTreePanel.getRootNode());
 		
-		// TODO: fixa varför den här inte funkar?
+		// TODO: Implement messagebox with pgogress bar (this does not currently work).
 		//MessageBox.show(instantiationProgressConf);
 		//this.hide();
 	}
@@ -207,11 +211,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	 * @return Number of service 
 	 */
 	private Integer calculateRequiredServiceCalls() {
-		// TODO: include also datatype properties once those creation
-		// dispatch calls are implemented
 		return getInclusiveChildNodeCount(classTreePanel.getRootNode()) +
-				getInclusiveChildNodeCount(objectPropertyTreePanel.getRootNode()) - 2; /* + 
-				getInclusiveChildNodeCount(datatypePropertyTreePanel.getRootNode()) - 3;*/
+				getInclusiveChildNodeCount(objectPropertyTreePanel.getRootNode()) + 
+				getInclusiveChildNodeCount(datatypePropertyTreePanel.getRootNode()) - 3;
 	}
 
 	/**
@@ -243,16 +245,14 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			//MessageBox.updateText("Updating entity frames...");
 			updateChildClassFrames(classTreePanel.getRootNode());
 			updateChildObjectPropertyFrames(objectPropertyTreePanel.getRootNode());
-			updateDatatypePropertyFrames();
-			
-			// TODO: Debug code, remove once done
-			final Node tempNode = classTreePanel.getRootNode().getChildNodes()[0];
-			OWLClass tempClass = (OWLClass)tempNode.getAttributeAsObject("owlClass");
-			//Window.alert("Created " + tempClass.getIRI().toString());
+			updateChildDatatypePropertyFrames(datatypePropertyTreePanel.getRootNode());
 		} 
 	}
 	
-	// TODO: Write comment here 
+	/**
+	 * Gate-keeper method that only closes down specialization wizard once all frame update service
+	 * calls have returned succesfully.
+	 */
 	private void proceedIfAllEntitiesUpdated() {
 		if (requiredUpdateServiceCalls == completedUpdateServiceCalls) {
 			this.hide();
@@ -270,12 +270,14 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		
 		for (final Node childNode: childNodes) {
 			final TreeNode childTreeNode = (TreeNode)childNode;
-			CreateClassAction cca = new CreateClassAction(parent.getProjectId(),childTreeNode.getText(),parentClass);
+			CreateClassAction cca = new CreateClassAction(projectId,childTreeNode.getText(),parentClass);
 			
 			DispatchServiceManager.get().execute(cca, new DispatchServiceCallback<CreateClassResult>() {
 		        public void handleSuccess(final CreateClassResult result) {
+		        	OWLClass resultingClass = result.getObject();
 		        	completedCreationServiceCalls += 1;
-		        	childTreeNode.setAttribute("owlClass", result.getObject());
+		        	createdClasses.put(result.getBrowserText(resultingClass).get(), resultingClass);
+		        	childTreeNode.setAttribute("owlClass", resultingClass);
 		        	//updateProgressBarAndClose();
 		        	createChildClasses(childTreeNode);
 		        	proceedIfAllEntitiesCreated();
@@ -289,6 +291,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	 * If we find that all service calls are finished executing, we hide the progress bar and 
 	 * the specialization wizard window.
 	 */
+	/*
 	private void updateProgressBarAndClose() {
 		Integer percentage = (100*completedCreationServiceCalls)/(100*requiredCreationServiceCalls);
     	MessageBox.updateProgress(percentage);
@@ -296,7 +299,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
     	{
     		MessageBox.hide();
     	}
-	}
+	}*/
 	
 	private void createChildObjectProperties(TreeNode parentNode) {
 		OWLObjectProperty parentProperty = (OWLObjectProperty)parentNode.getAttributeAsObject("owlObjectProperty");
@@ -306,23 +309,45 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			final TreeNode childTreeNode = (TreeNode)childNode;
 			String objectPropertyName = childTreeNode.getText();
 			Set<String> objectPropertyNames = new HashSet<String>(Arrays.asList(objectPropertyName));
-			CreateObjectPropertiesAction copa = new CreateObjectPropertiesAction(parent.getProjectId(), objectPropertyNames, Optional.of(parentProperty));
+			CreateObjectPropertiesAction copa = new CreateObjectPropertiesAction(projectId, objectPropertyNames, Optional.of(parentProperty));
 			
 			DispatchServiceManager.get().execute(copa, new DispatchServiceCallback<CreateObjectPropertiesResult>() {
 		        public void handleSuccess(final CreateObjectPropertiesResult result) {
 		        	completedCreationServiceCalls += 1;
-		        	childTreeNode.setAttribute("owlObjectProperty", result.getEntities().iterator().next());
+		        	OWLObjectProperty resultingProperty = result.getEntities().iterator().next();
+		        	createdObjectProperties.put(result.getBrowserText(resultingProperty).get(), resultingProperty);
+		        	childTreeNode.setAttribute("owlObjectProperty", resultingProperty);
 		        	//updateProgressBarAndClose();
 		        	createChildObjectProperties(childTreeNode);
 		        	proceedIfAllEntitiesCreated();
 		        }
 			});
 		}
-		// TODO: Implement this
 	}
 	
 	private void createChildDatatypeProperties(TreeNode parentNode) {
-		// TODO: Implement this
+		OWLDataProperty parentProperty = (OWLDataProperty)parentNode.getAttributeAsObject("owlDataProperty");
+		final Node[] childNodes = parentNode.getChildNodes();
+		
+		for (final Node childNode: childNodes) {
+			final TreeNode childTreeNode = (TreeNode)childNode;
+			String dataPropertyName = childTreeNode.getText();
+			Set<String> dataPropertyNames = new HashSet<String>(Arrays.asList(dataPropertyName));
+			CreateDataPropertiesAction cdpa = new CreateDataPropertiesAction(projectId, dataPropertyNames, Optional.of(parentProperty));
+			
+			DispatchServiceManager.get().execute(cdpa, new DispatchServiceCallback<CreateDataPropertiesResult>() {
+		        public void handleSuccess(final CreateDataPropertiesResult result) {
+		        	completedCreationServiceCalls += 1;
+		        	OWLDataProperty resultingProperty = result.getEntities().iterator().next();
+		        	String resultingLabel = result.getBrowserText(resultingProperty).get();
+		        	createdDataProperties.put(resultingLabel, resultingProperty);
+		        	childTreeNode.setAttribute("owlDataProperty", resultingProperty);
+		        	//updateProgressBarAndClose();
+		        	createChildDatatypeProperties(childTreeNode);
+		        	proceedIfAllEntitiesCreated();
+		        }
+			});
+		}
 	}
 	
 	private void updateChildClassFrames(TreeNode parentNode) {
@@ -353,7 +378,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 					new ClassFrame(childClass, new HashSet<OWLClass>(), propertyValues));;
 			
 			// Create and execute update action against dispatch service
-			UpdateObjectAction<LabelledFrame<ClassFrame>> uoa = new UpdateClassFrameAction(parent.getProjectId(),fromFrame,toFrame);
+			UpdateObjectAction<LabelledFrame<ClassFrame>> uoa = new UpdateClassFrameAction(projectId,fromFrame,toFrame);
 			DispatchServiceManager.get().execute(uoa, new DispatchServiceCallback<Result>() {
 		        public void handleSuccess(final Result result) {
 		        	completedUpdateServiceCalls += 1;
@@ -377,6 +402,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			// Extract property values that we support from node
 			Set<PropertyAnnotationValue> propertyValues = new HashSet<PropertyAnnotationValue>();
 			
+			// Extract rdfs:comment
 			if (childTreeNode.getAttribute("rdfsComment") != null) {
 				OWLAnnotationProperty rdfsCommentProperty = DataFactory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_COMMENT.getIRI());
 				OWLLiteral rdfsCommentValue = DataFactory.getOWLLiteral(childTreeNode.getAttribute("rdfsComment"));
@@ -384,11 +410,43 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 				propertyValues.add(rdfsCommentPropertyValue);
 			}
 			
-			// TODO: Implement extraction of domains, ranges, inverses, and property characteristics below!
+			// Extract rdfs:domain
 			Set<OWLClass> domains = new HashSet<OWLClass>();
+			if (childTreeNode.getAttribute("rdfsDomain") != null) {
+				String domainLabel = childTreeNode.getAttribute("rdfsDomain");
+				OWLClass domainClass = createdClasses.get(domainLabel);
+				domains.add(domainClass);
+			}
+			
+			// Extract rdfs:range
 			Set<OWLClass> ranges = new HashSet<OWLClass>();
+			if (childTreeNode.getAttribute("rdfsRange") != null) {
+				String rangeLabel = childTreeNode.getAttribute("rdfsRange");
+				OWLClass rangeClass = createdClasses.get(rangeLabel);
+				ranges.add(rangeClass);
+			}
+			
+			// Extract owl:inverseOf
+			// TODO: this presently does not work on server-side :(
 			Set<OWLObjectProperty> inverses = new HashSet<OWLObjectProperty>();
+			if (childTreeNode.getAttribute("owlInverseOf") != null) {
+				String inverseLabel = childTreeNode.getAttribute("owlInverseOf");
+				OWLObjectProperty inverseProperty = createdObjectProperties.get(inverseLabel);
+				inverses.add(inverseProperty);
+			}
+			
+			// Extract some more property characteristics
+			// TODO: Support more characteristics (reflexive, asymmetric, etc)
 			Set<ObjectPropertyCharacteristic> characteristics = new HashSet<ObjectPropertyCharacteristic>();
+			if (childTreeNode.getAttribute("owlTransitiveProperty") != null) {
+				characteristics.add(ObjectPropertyCharacteristic.TRANSITIVE);
+			}
+			if (childTreeNode.getAttribute("owlSymmetricProperty") != null) {
+				characteristics.add(ObjectPropertyCharacteristic.SYMMETRIC);
+			}
+			if (childTreeNode.getAttribute("owlFunctionalProperty") != null) {
+				characteristics.add(ObjectPropertyCharacteristic.FUNCTIONAL);
+			}
 			
 			// Create target (after update) frame for class
 			// Note that the Set<OWLClass> parameter which used to represent superclasses of 
@@ -398,19 +456,79 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 					new ObjectPropertyFrame(childProperty, propertyValues, domains, ranges, inverses, characteristics));
 			
 			// Create and execute update action against dispatch service
-			UpdateObjectAction<LabelledFrame<ObjectPropertyFrame>> uoa = new UpdateObjectPropertyFrameAction(parent.getProjectId(),fromFrame,toFrame);
+			UpdateObjectAction<LabelledFrame<ObjectPropertyFrame>> uoa = new UpdateObjectPropertyFrameAction(projectId,fromFrame,toFrame);
 			DispatchServiceManager.get().execute(uoa, new DispatchServiceCallback<Result>() {
 		        public void handleSuccess(final Result result) {
 		        	completedUpdateServiceCalls += 1;
-		        	updateChildClassFrames(childTreeNode);
+		        	updateChildObjectPropertyFrames(childTreeNode);
 		        	proceedIfAllEntitiesUpdated();
 		        }
 			});
 		}
 	}
 	
-	private void updateDatatypePropertyFrames() {
-		// TODO: Implement this
+	private void updateChildDatatypePropertyFrames(TreeNode parentNode) {
+		final Node[] childNodes = parentNode.getChildNodes();
+		
+		for (final Node childNode: childNodes) {
+			final TreeNode childTreeNode = (TreeNode)childNode;
+			OWLDataProperty childProperty = (OWLDataProperty)childTreeNode.getAttributeAsObject("owlDataProperty");
+			
+			// Create (empty) source object property frame
+			DataPropertyFrame fromFrame = new DataPropertyFrame(childProperty,new PropertyValueList(new ArrayList<PropertyValue>()),new HashSet<OWLClass>(),new HashSet<OWLDatatype>(),false);
+			LabelledFrame<DataPropertyFrame> fromLabelledFrame = new LabelledFrame<DataPropertyFrame>(childTreeNode.getText(),fromFrame);
+			
+			// Extract property values that we support from node
+			Set<PropertyAnnotationValue> propertyValues = new HashSet<PropertyAnnotationValue>();
+			
+			// Extract rdfs:comment
+			if (childTreeNode.getAttribute("rdfsComment") != null) {
+				OWLAnnotationProperty rdfsCommentProperty = DataFactory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_COMMENT.getIRI());
+				OWLLiteral rdfsCommentValue = DataFactory.getOWLLiteral(childTreeNode.getAttribute("rdfsComment"));
+				PropertyAnnotationValue rdfsCommentPropertyValue = new PropertyAnnotationValue(rdfsCommentProperty,rdfsCommentValue, PropertyValueState.ASSERTED);
+				propertyValues.add(rdfsCommentPropertyValue);
+			}
+			
+			// Extract rdfs:domain
+			Set<OWLClass> domains = new HashSet<OWLClass>();
+			if (childTreeNode.getAttribute("rdfsDomain") != null) {
+				String domainLabel = childTreeNode.getAttribute("rdfsDomain");
+				OWLClass domainClass = createdClasses.get(domainLabel);
+				domains.add(domainClass);
+			}
+			
+			// Extract rdfs:range
+			Set<OWLDatatype> ranges = new HashSet<OWLDatatype>();
+			if (childTreeNode.getAttribute("rdfsRange") != null) {
+				String rangeLabel = childTreeNode.getAttribute("rdfsRange");
+				IRI rangeIri = DataFactory.getIRI(rangeLabel);
+				OWLDatatype range = DataFactory.getOWLDatatype(rangeIri);
+				ranges.add(range);
+			}
+			
+			// Extract some more property characteristics
+			Boolean owlFunctional = false;
+			if (childTreeNode.getAttribute("owlFunctionalProperty") != null) {
+				owlFunctional = true;
+			}
+			
+			// Create target (after update) frame for class
+			// Note that the Set<OWLClass> parameter which used to represent superclasses of 
+			// the subject class is actually not used on the server-side at the moment
+			// but is still required for the ClassFrame constructor.
+			LabelledFrame<DataPropertyFrame> toFrame = new LabelledFrame<DataPropertyFrame>(childTreeNode.getText(),
+					new DataPropertyFrame(childProperty, new PropertyValueList(new ArrayList<PropertyValue>(propertyValues)), domains, ranges, owlFunctional));
+			
+			// Create and execute update action against dispatch service
+			UpdateObjectAction<LabelledFrame<DataPropertyFrame>> uoa = new UpdateDataPropertyFrameAction(projectId,fromLabelledFrame,toFrame);
+			DispatchServiceManager.get().execute(uoa, new DispatchServiceCallback<Result>() {
+		        public void handleSuccess(final Result result) {
+		        	completedUpdateServiceCalls += 1;
+		        	updateChildDatatypePropertyFrames(childTreeNode);
+		        	proceedIfAllEntitiesUpdated();
+		        }
+			});
+		}
 	}
 	
 	// This is where we clear out old data, load new data required 
@@ -574,9 +692,19 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         objectPropertyTreePanel.setRootVisible(true);
         final TreeNode rootObjectPropertyNode = new TreeNode("A superproperty");
         rootObjectPropertyNode.setAttribute("owlObjectProperty", DataFactory.getOWLObjectProperty(OWLRDFVocabulary.OWL_TOP_OBJECT_PROPERTY.getIRI()));
-        rootObjectPropertyNode.appendChild(new TreeNode("A subproperty"));
+        
+        final TreeNode firstSubProperty = new TreeNode("A subproperty");
+        firstSubProperty.setAttribute("rdfsDomain", "Custom subclass 3c");
+        firstSubProperty.setAttribute("rdfsRange", "Custom subclass 2b");
+        firstSubProperty.setAttribute("owlInverseOf", "A third subproperty");
+        firstSubProperty.setAttribute("owlFunctionalProperty", true);
+        rootObjectPropertyNode.appendChild(firstSubProperty);
         rootObjectPropertyNode.appendChild(new TreeNode("Another subproperty"));
-        rootObjectPropertyNode.appendChild(new TreeNode("A third subproperty"));
+        final TreeNode thirdSubObjectProperty = new TreeNode("A third subproperty");
+        thirdSubObjectProperty.setAttribute("owlSymmetricProperty", true);
+        thirdSubObjectProperty.setAttribute("owlTransitiveProperty", true);
+        rootObjectPropertyNode.appendChild(thirdSubObjectProperty);
+        
         objectPropertyTreePanel.setRootNode(rootObjectPropertyNode);
         objectPropertyTreePanel.expandAll();
         objPropertySpecialisationPanel.add(objectPropertyTreePanel, new ColumnLayoutData(.9));
@@ -594,11 +722,19 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         // Tree panel
         datatypePropertyTreePanel = new TreePanel();
         datatypePropertyTreePanel.setRootVisible(true);
-        final TreeNode root3 = new TreeNode("A superdataproperty");
-        root3.appendChild(new TreeNode("A subdataproperty"));
-        root3.appendChild(new TreeNode("Another subdataproperty"));
-        root3.appendChild(new TreeNode("A third subdataproperty"));
-        datatypePropertyTreePanel.setRootNode(root3);
+        final TreeNode rootDatatypePropertyNode = new TreeNode("A superdataproperty");
+        rootDatatypePropertyNode.setAttribute("owlDataProperty", DataFactory.getOWLDataProperty(OWLRDFVocabulary.OWL_TOP_DATA_PROPERTY.getIRI()));
+        rootDatatypePropertyNode.appendChild(new TreeNode("A subdataproperty"));
+        final TreeNode secondChildDataPropertyNode = new TreeNode("Another subdataproperty");
+        secondChildDataPropertyNode.setAttribute("rdfsDomain", "ODP Class 2");
+        secondChildDataPropertyNode.setAttribute("owlFunctionalProperty", true);
+        secondChildDataPropertyNode.setAttribute("rdfsRange", XSDVocabulary.DATE_TIME.toString());
+        rootDatatypePropertyNode.appendChild(secondChildDataPropertyNode);
+        
+        final TreeNode thirdChildDataPropertyNode = new TreeNode("A third subdataproperty");
+        thirdChildDataPropertyNode.setAttribute("rdfsComment", "This is a comment string on a datatype property!");
+        rootDatatypePropertyNode.appendChild(thirdChildDataPropertyNode);
+        datatypePropertyTreePanel.setRootNode(rootDatatypePropertyNode);
         datatypePropertyTreePanel.expandAll();
         dataPropertySpecialisationPanel.add(datatypePropertyTreePanel, new ColumnLayoutData(.9));
         // Controls
