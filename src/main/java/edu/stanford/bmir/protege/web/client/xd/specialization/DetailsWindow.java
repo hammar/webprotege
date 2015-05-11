@@ -45,8 +45,6 @@ public abstract class DetailsWindow extends Window {
 	// Resets this window to empty state
 	public abstract void reset();
 	
-	public abstract void load(OWLEntity entity);
-	
 	// Draw the custom window contents
 	public abstract void initialize();
 	

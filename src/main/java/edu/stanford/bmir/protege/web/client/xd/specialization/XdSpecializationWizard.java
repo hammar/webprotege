@@ -95,7 +95,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private TextArea instantationAxiomsPreview;
 
 	// Entity specialization windows
-	private ClassDetailsWindow cdw;
+	private NewClassDetailsWindow ncdw;
+	private EditClassDetailsWindow ecdw;
 	
 	// Progress window when performing instantiation
 	//private MessageBoxConfig instantiationProgressConf;
@@ -118,7 +119,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	public XdSpecializationWizard(XdPatternDetailsPortlet parent) {
 		this.projectId = parent.getProjectId();
 		
-		this.cdw = new ClassDetailsWindow(this);
+		this.ncdw = new NewClassDetailsWindow(this);
+		this.ecdw = new EditClassDetailsWindow(this);
 		
 		this.createdClasses = new HashMap<String,OWLClass>();
 		this.createdObjectProperties = new HashMap<String,OWLObjectProperty>();
@@ -675,8 +677,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         addClassButton.addListener(new ButtonListenerAdapter() {
         	@Override
         	public void onClick(final Button button, final EventObject e) {
-        		cdw.reset();
-        		cdw.show();
+        		ncdw.reset();
+        		ncdw.show();
         	}
         });
         classModificationControls.add(addClassButton);
@@ -687,12 +689,11 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         modifyClassButton.addListener(new ButtonListenerAdapter() {
         	@Override
         	public void onClick(final Button button, final EventObject e) {
-        		cdw.reset();
-        		cdw.show();
-        		// TODO: cdw.load()...
+        		ecdw.reset();
+        		ecdw.loadClass();
+        		ecdw.show();
         	}
         });
-        modifyClassButton.setDisabled(true);
         classModificationControls.add(modifyClassButton);
         
         classSpecialisationPanel.add(classModificationControls, new ColumnLayoutData(.1));
