@@ -1,7 +1,9 @@
 package edu.stanford.bmir.protege.web.server.chgpwd;
 
+import com.google.common.base.Optional;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
+import edu.stanford.bmir.protege.web.server.metaproject.HasGetUserByUserIdOrEmail;
 import edu.stanford.bmir.protege.web.server.metaproject.UserDetailsManager;
 import edu.stanford.bmir.protege.web.shared.chgpwd.ResetPasswordAction;
 import edu.stanford.bmir.protege.web.shared.chgpwd.ResetPasswordData;
@@ -29,7 +31,7 @@ public class ResetPasswordActionHandler_TestCase {
     private final String EMAIL_ADDRESS = "EMAIL.address";
 
     @Mock
-    private UserDetailsManager mpm;
+    private HasGetUserByUserIdOrEmail mpm;
 
     @Mock
     private User user;
@@ -60,14 +62,14 @@ public class ResetPasswordActionHandler_TestCase {
 
     @Test
     public void shouldReturnInvalidEmailAddressIfCannotFindAnyUser() {
-        when(mpm.getUser(any(String.class))).thenReturn(null);
+        when(mpm.getUserByUserIdOrEmail(any(String.class))).thenReturn(Optional.<User>absent());
         ResetPasswordResult result = handler.execute(action, context);
         assertThat(result.getResultCode(), is(ResetPasswordResultCode.INVALID_EMAIL_ADDRESS));
     }
 
     @Test
     public void shouldReturnInvalidEmailAddressIfUserEmailAddressDoesNotExist() {
-        when(mpm.getUser(any(String.class))).thenReturn(user);
+        when(mpm.getUserByUserIdOrEmail(any(String.class))).thenReturn(Optional.of(user));
         when(user.getEmail()).thenReturn(null);
         ResetPasswordResult result = handler.execute(action, context);
         assertThat(result.getResultCode(), is(ResetPasswordResultCode.INVALID_EMAIL_ADDRESS));
@@ -75,7 +77,7 @@ public class ResetPasswordActionHandler_TestCase {
 
     @Test
     public void shouldReturnInvalidEmailAddressIfUserEmailAddressDoesEqualSuppliedEmailAddress() {
-        when(mpm.getUser(any(String.class))).thenReturn(user);
+        when(mpm.getUserByUserIdOrEmail(any(String.class))).thenReturn(Optional.of(user));
         when(user.getEmail()).thenReturn("other.address");
         ResetPasswordResult result = handler.execute(action, context);
         assertThat(result.getResultCode(), is(ResetPasswordResultCode.INVALID_EMAIL_ADDRESS));
@@ -83,7 +85,7 @@ public class ResetPasswordActionHandler_TestCase {
 
     @Test
     public void shouldReturnSuccessIfEmailAddressComparesEqualIgnoreCase() {
-        when(mpm.getUser(any(String.class))).thenReturn(user);
+        when(mpm.getUserByUserIdOrEmail(any(String.class))).thenReturn(Optional.of(user));
         when(user.getEmail()).thenReturn("email.address");
         ResetPasswordResult result = handler.execute(action, context);
         assertThat(result.getResultCode(), is(ResetPasswordResultCode.SUCCESS));
@@ -91,7 +93,7 @@ public class ResetPasswordActionHandler_TestCase {
 
     @Test
     public void shouldSendEmailOnSuccess() {
-        when(mpm.getUser(any(String.class))).thenReturn(user);
+        when(mpm.getUserByUserIdOrEmail(any(String.class))).thenReturn(Optional.of(user));
         when(user.getEmail()).thenReturn(EMAIL_ADDRESS);
         handler.execute(action, context);
         ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
@@ -102,7 +104,7 @@ public class ResetPasswordActionHandler_TestCase {
 
     @Test
     public void shouldReturnErrorOnException() {
-        when(mpm.getUser(any(String.class))).thenReturn(user);
+        when(mpm.getUserByUserIdOrEmail(any(String.class))).thenReturn(Optional.of(user));
         when(user.getEmail()).thenReturn(EMAIL_ADDRESS);
         doThrow(new RuntimeException()).when(user).setPassword(any(String.class));
         ResetPasswordResult result = handler.execute(action, context);
@@ -111,7 +113,7 @@ public class ResetPasswordActionHandler_TestCase {
 
     @Test
     public void shouldNotSendEmailOnException() {
-        when(mpm.getUser(any(String.class))).thenReturn(user);
+        when(mpm.getUserByUserIdOrEmail(any(String.class))).thenReturn(Optional.of(user));
         when(user.getEmail()).thenReturn(EMAIL_ADDRESS);
         doThrow(new RuntimeException()).when(user).setPassword(any(String.class));
         handler.execute(action, context);

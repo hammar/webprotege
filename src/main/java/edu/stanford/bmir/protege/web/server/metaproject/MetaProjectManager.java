@@ -2,7 +2,7 @@ package edu.stanford.bmir.protege.web.server.metaproject;
 
 import com.google.common.base.Optional;
 import edu.stanford.bmir.protege.web.client.rpc.data.NewProjectSettings;
-import edu.stanford.bmir.protege.web.client.rpc.data.ProjectSharingSettings;
+import edu.stanford.bmir.protege.web.shared.sharing.ProjectSharingSettings;
 import edu.stanford.bmir.protege.web.server.inject.WebProtegeInjector;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectType;
 import edu.stanford.bmir.protege.web.server.user.HasUserIds;
@@ -130,8 +130,8 @@ public final class MetaProjectManager implements HasUserIds, UserDetailsManager,
     }
 
     @Override
-    public User getUser(String userNameOrEmail) {
-        return userDetailsManager.getUser(userNameOrEmail);
+    public Optional<User> getUserByUserIdOrEmail(String userNameOrEmail) {
+        return userDetailsManager.getUserByUserIdOrEmail(userNameOrEmail);
     }
 
     @Override

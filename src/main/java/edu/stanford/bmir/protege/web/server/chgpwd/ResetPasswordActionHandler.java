@@ -1,5 +1,6 @@
 package edu.stanford.bmir.protege.web.server.chgpwd;
 
+import com.google.common.base.Optional;
 import edu.stanford.bmir.protege.web.server.IdUtil;
 import edu.stanford.bmir.protege.web.server.dispatch.ActionHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
@@ -7,6 +8,7 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
+import edu.stanford.bmir.protege.web.server.metaproject.HasGetUserByUserIdOrEmail;
 import edu.stanford.bmir.protege.web.server.metaproject.UserDetailsManager;
 import edu.stanford.bmir.protege.web.shared.chgpwd.ResetPasswordAction;
 import edu.stanford.bmir.protege.web.shared.chgpwd.ResetPasswordResult;
@@ -24,13 +26,13 @@ public class ResetPasswordActionHandler implements ActionHandler<ResetPasswordAc
     private final WebProtegeLogger logger;
 
 
-    private final UserDetailsManager userDetailsManager;
+    private final HasGetUserByUserIdOrEmail userDetailsManager;
 
     private final ResetPasswordMailer mailer;
 
     @Inject
     public ResetPasswordActionHandler(
-            UserDetailsManager userDetailsManager, ResetPasswordMailer mailer,
+            HasGetUserByUserIdOrEmail userDetailsManager, ResetPasswordMailer mailer,
             WebProtegeLogger logger) {
         this.userDetailsManager = userDetailsManager;
         this.mailer = mailer;
@@ -53,18 +55,18 @@ public class ResetPasswordActionHandler implements ActionHandler<ResetPasswordAc
             ResetPasswordAction action, ExecutionContext executionContext) {
         final String emailAddress = action.getResetPasswordData().getEmailAddress();
         try {
-            User user = userDetailsManager.getUser(emailAddress);
-            if(user == null) {
+            Optional<User> user = userDetailsManager.getUserByUserIdOrEmail(emailAddress);
+            if(!user.isPresent()) {
                 return new ResetPasswordResult(INVALID_EMAIL_ADDRESS);
             }
-            if(user.getEmail() == null) {
+            if(user.get().getEmail() == null) {
                 return new ResetPasswordResult(INVALID_EMAIL_ADDRESS);
             }
-            if(user.getEmail().compareToIgnoreCase(emailAddress) != 0) {
+            if(user.get().getEmail().compareToIgnoreCase(emailAddress) != 0) {
                 return new ResetPasswordResult(INVALID_EMAIL_ADDRESS);
             }
             String pwd = IdUtil.getBase62UUID();
-            user.setPassword(pwd);
+            user.get().setPassword(pwd);
             mailer.sendEmail(emailAddress, pwd);
             return new ResetPasswordResult(SUCCESS);
         } catch (Exception e) {

@@ -13,12 +13,10 @@ import java.util.Collection;
  * Stanford Center for Biomedical Informatics Research
  * 06/02/15
  */
-public interface UserDetailsManager extends HasUserIds {
+public interface UserDetailsManager extends HasUserIds, HasGetUserByUserIdOrEmail {
 
     @Override
     Collection<UserId> getUserIds();
-
-    User getUser(String userNameOrEmail);
 
     UserDetails getUserDetails(UserId userId);
 
