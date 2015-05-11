@@ -38,8 +38,10 @@ import com.gwtext.client.widgets.layout.CardLayout;
 import com.gwtext.client.widgets.layout.ColumnLayout;
 import com.gwtext.client.widgets.layout.ColumnLayoutData;
 import com.gwtext.client.widgets.layout.RowLayout;
+import com.gwtext.client.widgets.tree.DefaultSelectionModel;
 import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
+import com.gwtext.client.widgets.tree.TreeSelectionModel;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
@@ -116,7 +118,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	public XdSpecializationWizard(XdPatternDetailsPortlet parent) {
 		this.projectId = parent.getProjectId();
 		
-		this.cdw = new ClassDetailsWindow();
+		this.cdw = new ClassDetailsWindow(this);
 		
 		this.createdClasses = new HashMap<String,OWLClass>();
 		this.createdObjectProperties = new HashMap<String,OWLObjectProperty>();
@@ -178,6 +180,15 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
             }  
         };*/
         
+	}
+	
+	/**
+	 * Returns the currently selected class node in class hierarchy tree widget.
+	 * @return A TreeNode that is currently selected.
+	 */
+	public TreeNode getSelectedClass() {
+		DefaultSelectionModel dsm = (DefaultSelectionModel)classTreePanel.getSelectionModel();
+		return dsm.getSelectedNode();
 	}
 	
 	/**
@@ -639,21 +650,21 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         rootClassNode.setAttribute("owlClass", DataFactory.getOWLThing());
         TreeNode odpClassNode1 = new TreeNode("ODP Class 1");
         odpClassNode1.setAttribute("rdfsComment", "This is an ODP test class 1.");
-        odpClassNode1.appendChild(new TreeNode("Custom subclass 1"));
+        //odpClassNode1.appendChild(new TreeNode("Custom subclass 1"));
         rootClassNode.appendChild(odpClassNode1);
         
         TreeNode odpClassNode2 = new TreeNode("ODP Class 2");
         odpClassNode2.setAttribute("rdfsComment", "This is an ODP test class 2.");
-        odpClassNode2.appendChild(new TreeNode("Custom subclass 2a"));
-        TreeNode subClass2b = new TreeNode("Custom subclass 2b");
-        subClass2b.setAttribute("rdfsComment", "This is custom subclass 2b.");
-        odpClassNode2.appendChild(subClass2b);
+        //odpClassNode2.appendChild(new TreeNode("Custom subclass 2a"));
+        //TreeNode subClass2b = new TreeNode("Custom subclass 2b");
+        //subClass2b.setAttribute("rdfsComment", "This is custom subclass 2b.");
+        //odpClassNode2.appendChild(subClass2b);
         rootClassNode.appendChild(odpClassNode2);
         
         TreeNode odpClassNode3 = new TreeNode("ODP Class 3");
-        odpClassNode3.appendChild(new TreeNode("Custom subclass 3a"));
-        odpClassNode3.appendChild(new TreeNode("Custom subclass 3b"));
-        odpClassNode3.appendChild(new TreeNode("Custom subclass 3c"));
+        //odpClassNode3.appendChild(new TreeNode("Custom subclass 3a"));
+        //odpClassNode3.appendChild(new TreeNode("Custom subclass 3b"));
+        //odpClassNode3.appendChild(new TreeNode("Custom subclass 3c"));
         rootClassNode.appendChild(odpClassNode3);
         classTreePanel.setRootNode(rootClassNode);
         classTreePanel.expandAll();
@@ -669,7 +680,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         	}
         });
         classModificationControls.add(addClassButton);
-        classModificationControls.add(new Button("Remove"));
+        Button removeClassButton = new Button("Remove");
+        removeClassButton.setDisabled(true);
+        classModificationControls.add(removeClassButton);
         Button modifyClassButton = new Button("Modify class");
         modifyClassButton.addListener(new ButtonListenerAdapter() {
         	@Override
@@ -679,6 +692,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         		// TODO: cdw.load()...
         	}
         });
+        modifyClassButton.setDisabled(true);
         classModificationControls.add(modifyClassButton);
         
         classSpecialisationPanel.add(classModificationControls, new ColumnLayoutData(.1));
@@ -689,18 +703,18 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         objPropertySpecialisationPanel.setLayout(new ColumnLayout());
         // Tree panel
         objectPropertyTreePanel = new TreePanel();
-        objectPropertyTreePanel.setRootVisible(true);
-        final TreeNode rootObjectPropertyNode = new TreeNode("A superproperty");
+        objectPropertyTreePanel.setRootVisible(false);
+        final TreeNode rootObjectPropertyNode = new TreeNode("OWL Top Object Property");
         rootObjectPropertyNode.setAttribute("owlObjectProperty", DataFactory.getOWLObjectProperty(OWLRDFVocabulary.OWL_TOP_OBJECT_PROPERTY.getIRI()));
         
-        final TreeNode firstSubProperty = new TreeNode("A subproperty");
-        firstSubProperty.setAttribute("rdfsDomain", "Custom subclass 3c");
-        firstSubProperty.setAttribute("rdfsRange", "Custom subclass 2b");
-        firstSubProperty.setAttribute("owlInverseOf", "A third subproperty");
+        final TreeNode firstSubProperty = new TreeNode("ODP Object Property 1");
+        //firstSubProperty.setAttribute("rdfsDomain", "Custom subclass 3c");
+        //firstSubProperty.setAttribute("rdfsRange", "Custom subclass 2b");
+        //firstSubProperty.setAttribute("owlInverseOf", "A third subproperty");
         firstSubProperty.setAttribute("owlFunctionalProperty", true);
         rootObjectPropertyNode.appendChild(firstSubProperty);
-        rootObjectPropertyNode.appendChild(new TreeNode("Another subproperty"));
-        final TreeNode thirdSubObjectProperty = new TreeNode("A third subproperty");
+        rootObjectPropertyNode.appendChild(new TreeNode("ODP Object Property 2"));
+        final TreeNode thirdSubObjectProperty = new TreeNode("ODP Object Property 3");
         thirdSubObjectProperty.setAttribute("owlSymmetricProperty", true);
         thirdSubObjectProperty.setAttribute("owlTransitiveProperty", true);
         rootObjectPropertyNode.appendChild(thirdSubObjectProperty);
@@ -721,17 +735,17 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         dataPropertySpecialisationPanel.setLayout(new ColumnLayout());
         // Tree panel
         datatypePropertyTreePanel = new TreePanel();
-        datatypePropertyTreePanel.setRootVisible(true);
-        final TreeNode rootDatatypePropertyNode = new TreeNode("A superdataproperty");
+        datatypePropertyTreePanel.setRootVisible(false);
+        final TreeNode rootDatatypePropertyNode = new TreeNode("OWL Top Data Property");
         rootDatatypePropertyNode.setAttribute("owlDataProperty", DataFactory.getOWLDataProperty(OWLRDFVocabulary.OWL_TOP_DATA_PROPERTY.getIRI()));
-        rootDatatypePropertyNode.appendChild(new TreeNode("A subdataproperty"));
-        final TreeNode secondChildDataPropertyNode = new TreeNode("Another subdataproperty");
+        rootDatatypePropertyNode.appendChild(new TreeNode("ODP Data Property 1"));
+        final TreeNode secondChildDataPropertyNode = new TreeNode("ODP Data Property 2");
         secondChildDataPropertyNode.setAttribute("rdfsDomain", "ODP Class 2");
         secondChildDataPropertyNode.setAttribute("owlFunctionalProperty", true);
         secondChildDataPropertyNode.setAttribute("rdfsRange", XSDVocabulary.DATE_TIME.toString());
         rootDatatypePropertyNode.appendChild(secondChildDataPropertyNode);
         
-        final TreeNode thirdChildDataPropertyNode = new TreeNode("A third subdataproperty");
+        final TreeNode thirdChildDataPropertyNode = new TreeNode("ODP Data Property 3");
         thirdChildDataPropertyNode.setAttribute("rdfsComment", "This is a comment string on a datatype property!");
         rootDatatypePropertyNode.appendChild(thirdChildDataPropertyNode);
         datatypePropertyTreePanel.setRootNode(rootDatatypePropertyNode);
