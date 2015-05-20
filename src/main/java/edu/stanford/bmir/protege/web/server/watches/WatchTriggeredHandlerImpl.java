@@ -1,8 +1,7 @@
 package edu.stanford.bmir.protege.web.server.watches;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import edu.stanford.bmir.protege.web.server.app.App;
-import edu.stanford.bmir.protege.web.server.mail.MailManager;
 import edu.stanford.bmir.protege.web.server.mail.SendMail;
 import edu.stanford.bmir.protege.web.server.metaproject.MetaProjectManager;
 import edu.stanford.bmir.protege.web.shared.BrowserTextProvider;
@@ -51,7 +50,11 @@ public class WatchTriggeredHandlerImpl implements WatchTriggeredHandler {
         emailExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                UserDetails userDetails = MetaProjectManager.getManager().getUserDetails(userId);
+                Optional<UserDetails> userDetailsOptional = MetaProjectManager.getManager().getUserDetails(userId);
+                if(!userDetailsOptional.isPresent()) {
+                    return;
+                }
+                UserDetails userDetails = userDetailsOptional.get();
                 final String displayName = "watched project";
                 final String emailSubject = String.format("Changes made in %s by %s", displayName, userDetails.getDisplayName());
                 String message = "\nChanges were made to " + entity.getEntityType().getName() + " " + browserTextProvider.getOWLEntityBrowserText(entity) + " " + entity.getIRI().toQuotedString();

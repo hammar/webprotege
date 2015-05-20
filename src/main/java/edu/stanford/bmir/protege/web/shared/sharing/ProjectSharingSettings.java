@@ -1,10 +1,13 @@
 package edu.stanford.bmir.protege.web.shared.sharing;
 
+import com.google.common.base.Objects;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Author: Matthew Horridge<br>
@@ -16,9 +19,9 @@ public class ProjectSharingSettings implements Serializable {
 
     private ProjectId projectId;
     
-    private List<UserSharingSetting> sharingSettings = new ArrayList<UserSharingSetting>();
+    private List<SharingSetting> sharingSettings = new ArrayList<>();
 
-    private SharingSetting defaultSharingSetting;
+    private SharingPermission defaultSharingPermission;
 
     /**
      * Default no-args constructor for GWT serialization purposes.
@@ -26,38 +29,28 @@ public class ProjectSharingSettings implements Serializable {
     private ProjectSharingSettings() {
     }
 
-    public ProjectSharingSettings(ProjectId projectId) {
-        this.projectId = projectId;
-        this.defaultSharingSetting = SharingSetting.getDefaultSharingSetting();
-    }
-
-    public ProjectSharingSettings(ProjectId projectId, SharingSetting defaultSharingSetting, List<UserSharingSetting> sharingSettings) {
-        this.projectId = projectId;
-        this.defaultSharingSetting = defaultSharingSetting;
-        this.sharingSettings = new ArrayList<UserSharingSetting>();
-        for(UserSharingSetting userSharingSetting : sharingSettings) {
-            if(!userSharingSetting.getUserId().isGuest()) {
-                this.sharingSettings.add(userSharingSetting);
-            }
-        }
+    public ProjectSharingSettings(ProjectId projectId, SharingPermission defaultSharingPermission, List<SharingSetting> sharingSettings) {
+        this.projectId = checkNotNull(projectId);
+        this.defaultSharingPermission = checkNotNull(defaultSharingPermission);
+        this.sharingSettings = new ArrayList<>(checkNotNull(sharingSettings));
     }
 
     public ProjectId getProjectId() {
         return projectId;
     }
 
-    public SharingSetting getDefaultSharingSetting() {
-        return defaultSharingSetting;
+    public SharingPermission getDefaultSharingPermission() {
+        return defaultSharingPermission;
     }
 
-    public List<UserSharingSetting> getSharingSettings() {
-        return sharingSettings;
+    public List<SharingSetting> getSharingSettings() {
+        return new ArrayList<>(sharingSettings);
     }
 
 
     @Override
     public int hashCode() {
-        return projectId.hashCode() + sharingSettings.hashCode() + defaultSharingSetting.hashCode();
+        return projectId.hashCode() + sharingSettings.hashCode() + defaultSharingPermission.hashCode();
     }
 
     @Override
@@ -69,6 +62,16 @@ public class ProjectSharingSettings implements Serializable {
             return false;
         }
         ProjectSharingSettings other = (ProjectSharingSettings) obj;
-        return other.projectId.equals(this.projectId) && other.defaultSharingSetting.equals(this.defaultSharingSetting) && other.sharingSettings.equals(this.sharingSettings);
+        return other.projectId.equals(this.projectId) && other.defaultSharingPermission.equals(this.defaultSharingPermission) && other.sharingSettings.equals(this.sharingSettings);
+    }
+
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper("ProjectSharingSettings")
+                .addValue(projectId)
+                .addValue(defaultSharingPermission)
+                .add("sharingSettings", sharingSettings)
+                .toString();
     }
 }
