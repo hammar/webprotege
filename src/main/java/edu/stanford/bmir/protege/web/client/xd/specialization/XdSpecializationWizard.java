@@ -29,7 +29,6 @@ import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Position;
 import com.gwtext.client.data.Node;
 import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.Toolbar;
@@ -42,7 +41,6 @@ import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.tree.DefaultSelectionModel;
 import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
-import com.gwtext.client.widgets.tree.TreeSelectionModel;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
@@ -58,7 +56,9 @@ import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.xd.XdServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.specialization.classdetails.EditClassDetailsWindow;
 import edu.stanford.bmir.protege.web.client.xd.specialization.classdetails.NewClassDetailsWindow;
+import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.EditDatatypePropertyDetailsWindow;
 import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.EditObjectPropertyDetailsWindow;
+import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.NewDatatypePropertyDetailsWindow;
 import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.NewObjectPropertyDetailsWindow;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
@@ -104,6 +104,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private EditClassDetailsWindow ecdw;
 	private NewObjectPropertyDetailsWindow nopdw;
 	private EditObjectPropertyDetailsWindow eopdw;
+	private NewDatatypePropertyDetailsWindow ndpdw;
+	private EditDatatypePropertyDetailsWindow edpdw;
 	
 	// Progress window when performing instantiation
 	//private MessageBoxConfig instantiationProgressConf;
@@ -130,6 +132,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		this.ecdw = new EditClassDetailsWindow(this);
 		this.nopdw = new NewObjectPropertyDetailsWindow(this);
 		this.eopdw = new EditObjectPropertyDetailsWindow(this);
+		this.ndpdw = new NewDatatypePropertyDetailsWindow(this);
+		this.edpdw = new EditDatatypePropertyDetailsWindow(this);
 		
 		this.createdClasses = new HashMap<String,OWLClass>();
 		this.createdObjectProperties = new HashMap<String,OWLObjectProperty>();
@@ -746,7 +750,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         });
         objectPropertyModificationControls.add(addObjectPropertyButton);
         
-        objectPropertyModificationControls.add(new Button("Remove"));
+        Button opRemoveButton = new Button("Remove");
+        opRemoveButton.setDisabled(true);
+        objectPropertyModificationControls.add(opRemoveButton);
         
         Button editObjectPropertyButton = new Button("Modify");
         editObjectPropertyButton.addListener(new ButtonListenerAdapter() {
@@ -786,9 +792,29 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         dataPropertySpecialisationPanel.add(datatypePropertyTreePanel, new ColumnLayoutData(.9));
         // Controls
         Panel datatypePropertyModificationControls = new Panel();
-        datatypePropertyModificationControls.add(new Button("Add"));
-        datatypePropertyModificationControls.add(new Button("Remove"));
-        datatypePropertyModificationControls.add(new Button("Modify"));
+        Button addDatatypePropertyButton = new Button("Add");
+        addDatatypePropertyButton.addListener(new ButtonListenerAdapter() {
+        	@Override
+        	public void onClick(final Button button, final EventObject e) {
+        		ndpdw.reset();
+        		ndpdw.show();
+        	}
+        });
+        datatypePropertyModificationControls.add(addDatatypePropertyButton);
+        Button dpRemoveButton = new Button("Remove");
+        dpRemoveButton.setDisabled(true);
+        datatypePropertyModificationControls.add(dpRemoveButton);
+        
+        Button editDatatypePropertyButton = new Button("Modify");
+        editDatatypePropertyButton.addListener(new ButtonListenerAdapter() {
+        	@Override
+        	public void onClick(final Button button, final EventObject e) {
+        		edpdw.reset();
+        		edpdw.loadProperty();
+        		edpdw.show();
+        	}
+        });
+        datatypePropertyModificationControls.add(editDatatypePropertyButton);
         dataPropertySpecialisationPanel.add(datatypePropertyModificationControls, new ColumnLayoutData(.1));
         
         
@@ -880,6 +906,15 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	 */
 	public TreeNode getSelectedObjectProperty() {
 		DefaultSelectionModel dsm = (DefaultSelectionModel)objectPropertyTreePanel.getSelectionModel();
+		return dsm.getSelectedNode();
+	}
+
+	/**
+	 * Returns the currently selected datatype property node in datatype property hierarchy tree widget.
+	 * @return A TreeNode that is currently selected.
+	 */
+	public TreeNode getSelectedDatatypeProperty() {
+		DefaultSelectionModel dsm = (DefaultSelectionModel)datatypePropertyTreePanel.getSelectionModel();
 		return dsm.getSelectedNode();
 	}
 }

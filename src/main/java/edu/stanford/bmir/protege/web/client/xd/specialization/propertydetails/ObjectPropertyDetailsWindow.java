@@ -11,7 +11,13 @@ public abstract class ObjectPropertyDetailsWindow extends PropertyDetailsWindow 
 	}
 
 	@Override
-	protected String[] getRanges() {
-		return parentWizard.getLeafClasses();
+	protected SimpleStore getRangeStore() {
+		return new SimpleStore("label", parentWizard.getLeafClasses());
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
+		propertyRange.setValueField("label");
 	}
 }

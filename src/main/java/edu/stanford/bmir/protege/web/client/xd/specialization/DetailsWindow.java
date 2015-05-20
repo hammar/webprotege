@@ -1,7 +1,5 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
-import org.semanticweb.owlapi.model.OWLEntity;
-
 import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.widgets.Button;

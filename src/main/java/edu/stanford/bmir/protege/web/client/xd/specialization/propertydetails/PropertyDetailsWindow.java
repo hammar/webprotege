@@ -25,17 +25,17 @@ public abstract class PropertyDetailsWindow extends DetailsWindow {
 		super(parentWizard);
 	}
 	
-	protected String[] getDomains() {
-		return parentWizard.getLeafClasses();
+	protected SimpleStore getDomainStore() {
+		return new SimpleStore("label", parentWizard.getLeafClasses());
 	}
 	
-	protected abstract String[] getRanges();
+	protected abstract SimpleStore getRangeStore();
 	
 	public void show() {
-		rangeStore = new SimpleStore("classLabel",getRanges());
+		rangeStore = getRangeStore();
 		propertyRange.setStore(rangeStore);
 		
-		domainStore = new SimpleStore("classLabel", getDomains());
+		domainStore = getDomainStore();//
 		propertyDomain.setStore(domainStore);
 		super.show();
 	}
@@ -68,13 +68,13 @@ public abstract class PropertyDetailsWindow extends DetailsWindow {
 		formPanel.add(propertyComment);
 		
 		propertyDomain = new ComboBox("Domain","domain");
-		propertyDomain.setDisplayField("classLabel");  
+		propertyDomain.setDisplayField("label");  
 		propertyDomain.setMode(ComboBox.LOCAL);    
 		propertyDomain.setForceSelection(true);
 		formPanel.add(propertyDomain);
 		
 		propertyRange = new ComboBox("Range","range");
-		propertyRange.setDisplayField("classLabel");  
+		propertyRange.setDisplayField("label");
 		propertyRange.setMode(ComboBox.LOCAL);    
 		propertyRange.setForceSelection(true);
 		formPanel.add(propertyRange);
