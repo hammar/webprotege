@@ -12,8 +12,11 @@ import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.RowLayout;
 
 public abstract class DetailsWindow extends Window {
+	
+	private XdSpecializationWizard parentWizard;
 
-	public DetailsWindow() {
+	public DetailsWindow(XdSpecializationWizard parentWizard) {
+		this.parentWizard = parentWizard;
 		this.setLayout(new RowLayout());
 		this.setWidth(200);
 		this.setHeight(320);

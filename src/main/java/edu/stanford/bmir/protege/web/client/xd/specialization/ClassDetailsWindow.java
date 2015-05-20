@@ -11,8 +11,7 @@ public abstract class ClassDetailsWindow extends DetailsWindow {
 	TextField classComment;
      
 	public ClassDetailsWindow(XdSpecializationWizard parentWizard) {
-		super();
-		this.parentWizard = parentWizard;
+		super(parentWizard);
 	}
 	
 	@Override

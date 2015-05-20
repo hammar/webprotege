@@ -97,6 +97,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	// Entity specialization windows
 	private NewClassDetailsWindow ncdw;
 	private EditClassDetailsWindow ecdw;
+	private NewObjectPropertyDetailsWindow nopdw;
+	private EditObjectPropertyDetailsWindow eopdw;
 	
 	// Progress window when performing instantiation
 	//private MessageBoxConfig instantiationProgressConf;
@@ -121,6 +123,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		
 		this.ncdw = new NewClassDetailsWindow(this);
 		this.ecdw = new EditClassDetailsWindow(this);
+		this.nopdw = new NewObjectPropertyDetailsWindow(this);
+		this.eopdw = new EditObjectPropertyDetailsWindow(this);
 		
 		this.createdClasses = new HashMap<String,OWLClass>();
 		this.createdObjectProperties = new HashMap<String,OWLObjectProperty>();
@@ -181,6 +185,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 setClosable(false);  
             }  
         };*/
+        
+        // TODO: Make class/property windows modal
         
 	}
 	
@@ -725,9 +731,30 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         objPropertySpecialisationPanel.add(objectPropertyTreePanel, new ColumnLayoutData(.9));
         // Controls
         Panel objectPropertyModificationControls = new Panel();
-        objectPropertyModificationControls.add(new Button("Add"));
+        Button addObjectPropertyButton = new Button("Add");
+        addObjectPropertyButton.addListener(new ButtonListenerAdapter() {
+        	@Override
+        	public void onClick(final Button button, final EventObject e) {
+        		nopdw.reset();
+        		nopdw.show();
+        	}
+        });
+        objectPropertyModificationControls.add(addObjectPropertyButton);
+        
         objectPropertyModificationControls.add(new Button("Remove"));
-        objectPropertyModificationControls.add(new Button("Modify"));
+        
+        Button editObjectPropertyButton = new Button("Modify");
+        editObjectPropertyButton.addListener(new ButtonListenerAdapter() {
+        	@Override
+        	public void onClick(final Button button, final EventObject e) {
+        		eopdw.reset();
+        		eopdw.loadProperty();
+        		eopdw.show();
+        	}
+        });
+        objectPropertyModificationControls.add(editObjectPropertyButton);
+        
+        
         objPropertySpecialisationPanel.add(objectPropertyModificationControls, new ColumnLayoutData(.1));
         
         // The tab where we set datatype properties
