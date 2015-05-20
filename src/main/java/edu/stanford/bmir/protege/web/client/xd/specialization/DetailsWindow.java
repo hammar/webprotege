@@ -13,7 +13,7 @@ import com.gwtext.client.widgets.layout.RowLayout;
 
 public abstract class DetailsWindow extends Window {
 	
-	private XdSpecializationWizard parentWizard;
+	protected XdSpecializationWizard parentWizard;
 
 	public DetailsWindow(XdSpecializationWizard parentWizard) {
 		this.parentWizard = parentWizard;

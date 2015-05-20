@@ -1,5 +1,6 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails;
 
+import com.google.gwt.user.client.Window;
 import com.gwtext.client.data.SimpleStore;
 import com.gwtext.client.data.Store;
 import com.gwtext.client.widgets.form.ComboBox;
@@ -11,7 +12,6 @@ import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWi
 
 public abstract class PropertyDetailsWindow extends DetailsWindow {
 	
-	XdSpecializationWizard parentWizard;
 	FormPanel formPanel;
 	TextField propertyName;
 	TextField propertyComment;
@@ -25,18 +25,20 @@ public abstract class PropertyDetailsWindow extends DetailsWindow {
 		super(parentWizard);
 	}
 	
-	// TODO: fix this: make list one-dimensional and return only things that exist in parent class tree
-	protected String[][] getDomains() {
-		return new String[][]{
-				new String[]{"Any", "http://ontologydesignpatterns.orgg/wiki/Community:ANY"},  
-				new String[]{"Academy", "http://ontologydesignpatterns.org/wiki/Community:Academy"},
-				new String[]{"Agriculture", "http://ontologydesignpatterns.org/wiki/Community:Agriculture"},
-				new String[]{"Biology", "http://ontologydesignpatterns.org/wiki/Community:Biology"},
-				new String[]{"Business", "http://ontologydesignpatterns.org/wiki/Community:Business"}
-		};
+	protected String[] getDomains() {
+		return parentWizard.getLeafClasses();
 	}
 	
-	protected abstract String[][] getRanges();
+	protected abstract String[] getRanges();
+	
+	public void show() {
+		rangeStore = new SimpleStore("classLabel",getRanges());
+		propertyRange.setStore(rangeStore);
+		
+		domainStore = new SimpleStore("classLabel", getDomains());
+		propertyDomain.setStore(domainStore);
+		super.show();
+	}
 	
 	@Override
 	public void reset() {
@@ -49,8 +51,10 @@ public abstract class PropertyDetailsWindow extends DetailsWindow {
 
 	@Override
 	public void initialize() {
-		domainStore = new SimpleStore(new String[]{"name", "uri"}, getDomains());
-		rangeStore = new SimpleStore(new String[]{"name", "uri"}, getRanges());
+		
+		//domainStore.load();
+		
+		//rangeStore.load();
 		
 		formPanel = new FormPanel();
 		this.add(formPanel);
@@ -64,9 +68,15 @@ public abstract class PropertyDetailsWindow extends DetailsWindow {
 		formPanel.add(propertyComment);
 		
 		propertyDomain = new ComboBox("Domain","domain");
+		propertyDomain.setDisplayField("classLabel");  
+		propertyDomain.setMode(ComboBox.LOCAL);    
+		propertyDomain.setForceSelection(true);
 		formPanel.add(propertyDomain);
 		
 		propertyRange = new ComboBox("Range","range");
+		propertyRange.setDisplayField("classLabel");  
+		propertyRange.setMode(ComboBox.LOCAL);    
+		propertyRange.setForceSelection(true);
 		formPanel.add(propertyRange);
 	}
 }

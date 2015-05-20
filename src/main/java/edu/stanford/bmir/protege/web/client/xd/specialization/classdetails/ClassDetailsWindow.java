@@ -8,7 +8,6 @@ import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWi
 
 public abstract class ClassDetailsWindow extends DetailsWindow {
 	
-	XdSpecializationWizard parentWizard;
 	FormPanel formPanel;
 	TextField className;
 	TextField classComment;

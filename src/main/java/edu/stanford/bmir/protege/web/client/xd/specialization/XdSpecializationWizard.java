@@ -29,6 +29,7 @@ import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Position;
 import com.gwtext.client.data.Node;
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.Toolbar;
@@ -826,6 +827,39 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         return third;
 	}
 	
+	/**
+	 * Return the class labels of all leaves in the class tree hierarchy of this
+	 * specialization wizard. 
+	 * @return Array of leaf class labels
+	 */
+	public String[] getLeafClasses() {
+		Set<TreeNode> allLeaves = getChildLeafNodes(classTreePanel.getRootNode());
+		String[] classLabels = new String[allLeaves.size()];
+		int i = 0;
+		for (TreeNode node: allLeaves) {
+			classLabels[i] = node.getText();
+			i++;
+		}
+		return classLabels;
+	}
+	
+	/**
+	 * Recursive method to walk the a tree panel and return leaf nodes.
+	 * @param parentNode - starting node for each recursion.
+	 * @return lowest level TreeNodes, e.g. with no children.
+	 */
+	private Set<TreeNode> getChildLeafNodes(TreeNode parentNode) {
+		HashSet<TreeNode> leaves = new HashSet<TreeNode>();
+		if (parentNode.getChildNodes().length == 0) {
+			leaves.add(parentNode);
+		}
+		else {
+			for (final Node childNode: parentNode.getChildNodes()) {
+				leaves.addAll(getChildLeafNodes((TreeNode)childNode));
+			}
+		}
+		return leaves;
+	} 
 	
 	private String getInstantiationAxioms() {
 		// TODO: Actually implement this
@@ -838,5 +872,14 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 				"    rel:enemyOf <#green-goblin> ;\n" + 
 				"    a foaf:Person ;\n" +
 				"    foaf:name \"Spiderman\", \"Человек-паук\"@ru .";
+	}
+
+	/**
+	 * Returns the currently selected object property node in object property hierarchy tree widget.
+	 * @return A TreeNode that is currently selected.
+	 */
+	public TreeNode getSelectedObjectProperty() {
+		DefaultSelectionModel dsm = (DefaultSelectionModel)objectPropertyTreePanel.getSelectionModel();
+		return dsm.getSelectedNode();
 	}
 }
