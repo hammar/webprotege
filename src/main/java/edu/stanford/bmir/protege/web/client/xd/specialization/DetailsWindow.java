@@ -1,6 +1,10 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
+import java.util.Iterator;
+
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Panel;
@@ -9,8 +13,18 @@ import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.RowLayout;
 
-public abstract class DetailsWindow extends Window {
-	
+public abstract class DetailsWindow extends Window implements HasWidgets {
+
+	/**
+	 * This is only to hide a bug in the GWT-EXT Window class which otherwise causes compilation
+	 * warnings for every single subclass..
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Iterator<Widget> iterator() {
+		return super.iterator();
+	}
+
 	protected XdSpecializationWizard parentWizard;
 
 	public DetailsWindow(XdSpecializationWizard parentWizard) {

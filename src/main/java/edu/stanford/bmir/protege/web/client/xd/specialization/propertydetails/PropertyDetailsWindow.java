@@ -1,6 +1,5 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails;
 
-import com.google.gwt.user.client.Window;
 import com.gwtext.client.data.SimpleStore;
 import com.gwtext.client.data.Store;
 import com.gwtext.client.widgets.form.ComboBox;
