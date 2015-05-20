@@ -1,4 +1,6 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization;
+package edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails;
+
+import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
 
 public class EditObjectPropertyDetailsWindow extends
 		ObjectPropertyDetailsWindow {

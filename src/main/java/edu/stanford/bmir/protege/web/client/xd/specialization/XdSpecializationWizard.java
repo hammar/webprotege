@@ -55,6 +55,10 @@ import edu.stanford.bmir.protege.web.client.dispatch.actions.UpdateClassFrameAct
 import edu.stanford.bmir.protege.web.client.ui.frame.LabelledFrame;
 import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.xd.XdServiceManager;
+import edu.stanford.bmir.protege.web.client.xd.specialization.classdetails.EditClassDetailsWindow;
+import edu.stanford.bmir.protege.web.client.xd.specialization.classdetails.NewClassDetailsWindow;
+import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.EditObjectPropertyDetailsWindow;
+import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.NewObjectPropertyDetailsWindow;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
 import edu.stanford.bmir.protege.web.shared.dispatch.UpdateObjectAction;

@@ -1,6 +1,8 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization;
+package edu.stanford.bmir.protege.web.client.xd.specialization.classdetails;
 
 import com.gwtext.client.widgets.tree.TreeNode;
+
+import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
 
 public class NewClassDetailsWindow extends ClassDetailsWindow {
 

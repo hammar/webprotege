@@ -1,7 +1,10 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization;
+package edu.stanford.bmir.protege.web.client.xd.specialization.classdetails;
 
 import com.gwtext.client.widgets.form.FormPanel;
 import com.gwtext.client.widgets.form.TextField;
+
+import edu.stanford.bmir.protege.web.client.xd.specialization.DetailsWindow;
+import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
 
 public abstract class ClassDetailsWindow extends DetailsWindow {
 	
