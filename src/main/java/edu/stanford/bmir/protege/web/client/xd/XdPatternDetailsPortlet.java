@@ -21,8 +21,12 @@ import com.gwtext.client.widgets.layout.VerticalLayout;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
+import edu.stanford.bmir.protege.web.client.ui.selection.Selectable;
+import edu.stanford.bmir.protege.web.client.ui.selection.SelectionEvent;
+import edu.stanford.bmir.protege.web.client.ui.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
+import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 
 /***
@@ -32,7 +36,7 @@ import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
  *
  */
 @SuppressWarnings("unchecked")
-public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
+public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet implements SelectionListener {
 	
 	// Core stuff
 	private ToolbarButton useOdpButton;
@@ -54,22 +58,21 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 	//private PopupPanel wizardPopup;
 	private XdSpecializationWizard wizard;
 	
-	public XdPatternDetailsPortlet(Project project) {
-		super(project);
+	public XdPatternDetailsPortlet(SelectionModel selectionModel, Project project) {
+		super(selectionModel, project);
 		wizard = new XdSpecializationWizard(this);
 	}
 
+	
+	/* ---- SelectionListener implementation method ---- 
+	 * Called when notified by some Selectable object (e.g., the search or browsing portlets) that 
+	 * their selections have been updated and that listeners should refresh content. */
 	@Override
-	public Collection<EntityData> getSelection() {
-		return null;
-	}
-
-	protected void handleAfterSetEntity(Optional<OWLEntityData> entityData) {
-		if (entityData.isPresent()) {
-			entityData.get();
-		}
-		if (getEntity() != null) {
-			String odpUri = getEntity().getName();
+	public void selectionChanged(SelectionEvent event) {
+		Collection<EntityData> selection = event.getSelectable().getSelection();
+		if (selection.size() > 0) {
+			EntityData entityData = selection.iterator().next();
+			String odpUri = entityData.getName();
 			XdServiceManager.getInstance().getOdpDetails(odpUri, new AsyncCallback<OdpDetails>() {
 				@Override
 				public void onFailure(Throwable caught) {
@@ -83,6 +86,10 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet {
 				}
 			});
 		}
+	}
+	
+	protected void handleAfterSetEntity(Optional<OWLEntityData> entityData) {
+
 	}
 	
 	public void renderOdpDetails(OdpDetails odp) {

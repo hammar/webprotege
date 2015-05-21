@@ -1,7 +1,6 @@
 package edu.stanford.bmir.protege.web.client.xd;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.user.client.Window;
@@ -17,8 +16,8 @@ import com.gwtext.client.widgets.tree.TreePanel;
 import com.gwtext.client.widgets.tree.event.TreePanelListenerAdapter;
 
 import edu.stanford.bmir.protege.web.client.project.Project;
-import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
+import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
 
@@ -38,13 +37,8 @@ public class XdPatternInstancesPortlet extends AbstractOWLEntityPortlet {
 	private List<OdpInstantiation> instantiations;
 	private List<OdpDetails> odps;
 	
-	public XdPatternInstancesPortlet(Project project) {
-		super(project);
-	}
-
-	@Override
-	public Collection<EntityData> getSelection() {
-		return null;
+	public XdPatternInstancesPortlet(SelectionModel selectionModel, Project project) {
+		super(selectionModel, project);
 	}
 
 	// Initialization method for GUI

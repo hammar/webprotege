@@ -12,6 +12,7 @@ import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
 public class XdTab extends AbstractTab {
 
 	private XdSearchPortlet patternSearchPortlet;
+	private XdPatternDetailsPortlet patternDetailsPortlet;
 	
     public XdTab(Project project) {
         super(project);
@@ -19,11 +20,12 @@ public class XdTab extends AbstractTab {
 
 	@Override
     public void setup() {
-        super.setup();
+        super.setup();    
         
-        // Set controlling portlet: this automatically sets other portlets in this tab
-        // as listeners to selection events from patternSearchPortlet.
         patternSearchPortlet = (XdSearchPortlet) getPortletByClassName(XdSearchPortlet.class.getName());
-        setControllingPortlet(patternSearchPortlet);
+        patternDetailsPortlet = (XdPatternDetailsPortlet) getPortletByClassName(XdPatternDetailsPortlet.class.getName());
+        
+        // Hook up pattern details portlet to listen to changes in search portlet
+        patternSearchPortlet.addSelectionListener(patternDetailsPortlet);
     }
 }

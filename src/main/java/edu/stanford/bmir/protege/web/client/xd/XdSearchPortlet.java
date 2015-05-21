@@ -44,7 +44,10 @@ import com.gwtext.client.widgets.layout.RowLayoutData;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
+import edu.stanford.bmir.protege.web.client.ui.selection.Selectable;
 import edu.stanford.bmir.protege.web.client.ui.selection.SelectionEvent;
+import edu.stanford.bmir.protege.web.client.ui.selection.SelectionListener;
+import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 
@@ -54,10 +57,11 @@ import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
  *
  */
 @SuppressWarnings("unchecked")
-public class XdSearchPortlet extends AbstractOWLEntityPortlet {
+public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selectable {
 	
-	public XdSearchPortlet(Project project) {
-		super(project);
+	public XdSearchPortlet(SelectionModel selectionModel, Project project) {
+		super(selectionModel, project);
+		this.listeners = new ArrayList<SelectionListener>();
 	}
 	
 	private TextField queryField;
@@ -80,6 +84,9 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 	private ArrayReader resultsReader;
 	private GridPanel resultsGrid;
 	private ColumnModel columnModel;
+	
+	// Listeners to selection events in this portlet
+	private Collection<SelectionListener> listeners;
 	
 	@Override
 	public Collection<EntityData> getSelection() {
@@ -365,5 +372,28 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet {
 				new String[]{"Biology", "http://ontologydesignpatterns.org/wiki/Community:Biology"},
 				new String[]{"Business", "http://ontologydesignpatterns.org/wiki/Community:Business"}
 		};
+	}
+
+	/* ---- Selectable implementation methods ----*/
+	@Override
+	public void notifySelectionListeners(final SelectionEvent selectionEvent) {
+		for (SelectionListener listener: listeners) {
+			listener.selectionChanged(new SelectionEvent(this));
+		}
+	}
+	
+	@Override
+	public void addSelectionListener(SelectionListener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeSelectionListener(SelectionListener listener) {
+		listeners.remove(listener);
+	}
+
+	@Override
+	public void setSelection(Collection<EntityData> selection) {
+		// We don't allow external sources to modify the selection of this portlet.
 	}
 }
