@@ -84,10 +84,10 @@ public class UIFactory {
             return new UserDefinedTab(selectionModel, project);
         }
         else if (tabJavaClassName.equals(XdTab.class.getName())) {
-        	return new XdTab(project);
+        	return new XdTab(selectionModel, project);
         }
         else if (tabJavaClassName.equals(XdBrowseTab.class.getName())) {
-        	return new XdBrowseTab(project);
+        	return new XdBrowseTab(selectionModel, project);
         }
         return null;
     }

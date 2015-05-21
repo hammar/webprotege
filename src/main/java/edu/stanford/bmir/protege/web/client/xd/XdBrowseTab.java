@@ -2,6 +2,7 @@ package edu.stanford.bmir.protege.web.client.xd;
 
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
+import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 
 /**
  * XD ODP Browser tab view.
@@ -14,8 +15,8 @@ public class XdBrowseTab extends AbstractTab {
 	private XdBrowsePortlet patternBrowsePortlet;
 	private XdPatternDetailsPortlet patternDetailsPortlet;
 	
-    public XdBrowseTab(Project project) {
-        super(project);
+    public XdBrowseTab(SelectionModel selectionModel, Project project) {
+        super(selectionModel, project);
     }
 
 	@Override

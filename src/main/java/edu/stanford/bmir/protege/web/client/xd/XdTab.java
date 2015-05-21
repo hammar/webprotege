@@ -2,6 +2,7 @@ package edu.stanford.bmir.protege.web.client.xd;
 
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
+import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 
 /**
  * eXtreme Design tab view.
@@ -14,8 +15,8 @@ public class XdTab extends AbstractTab {
 	private XdSearchPortlet patternSearchPortlet;
 	private XdPatternDetailsPortlet patternDetailsPortlet;
 	
-    public XdTab(Project project) {
-        super(project);
+    public XdTab(SelectionModel selectionModel, Project project) {
+        super(selectionModel, project);
     }
 
 	@Override
