@@ -2,6 +2,7 @@ package edu.stanford.bmir.protege.web.server.dispatch;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
+
 import edu.stanford.bmir.protege.web.server.app.GetClientApplicationPropertiesActionHandler;
 import edu.stanford.bmir.protege.web.server.auth.ChangePasswordActionHandler;
 import edu.stanford.bmir.protege.web.server.auth.GetChapSessionActionHandler;
@@ -48,6 +49,7 @@ import edu.stanford.bmir.protege.web.server.user.GetUserIdsActionHandler;
 import edu.stanford.bmir.protege.web.server.user.LogOutUserActionHandler;
 import edu.stanford.bmir.protege.web.server.watches.AddWatchActionHandler;
 import edu.stanford.bmir.protege.web.server.watches.RemoveWatchActionHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetOdpContentsHandler;
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdCompletionsAction;
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdItemsAction;
 import edu.stanford.bmir.protege.web.shared.project.SetUIConfigurationActionHandler;
@@ -178,5 +180,7 @@ public class ActionHandlersModule extends AbstractModule {
         multibinder.addBinding().to(GetPersonIdCompletionsActionHandler.class);
         multibinder.addBinding().to(GetUserIdCompletionsActionHandler.class);
         multibinder.addBinding().to(GetPersonIdItemsActionHandler.class);
+        
+        multibinder.addBinding().to(GetOdpContentsHandler.class);
     }
 }

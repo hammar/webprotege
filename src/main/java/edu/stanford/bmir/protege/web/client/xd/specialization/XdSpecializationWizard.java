@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
@@ -18,8 +20,6 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
 import com.google.common.base.Optional;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -53,7 +53,6 @@ import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateObjectPropert
 import edu.stanford.bmir.protege.web.client.dispatch.actions.UpdateClassFrameAction;
 import edu.stanford.bmir.protege.web.client.ui.frame.LabelledFrame;
 import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
-import edu.stanford.bmir.protege.web.client.xd.XdServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.specialization.classdetails.EditClassDetailsWindow;
 import edu.stanford.bmir.protege.web.client.xd.specialization.classdetails.NewClassDetailsWindow;
 import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.EditDatatypePropertyDetailsWindow;
@@ -74,6 +73,10 @@ import edu.stanford.bmir.protege.web.shared.frame.PropertyValueState;
 import edu.stanford.bmir.protege.web.shared.frame.UpdateDataPropertyFrameAction;
 import edu.stanford.bmir.protege.web.shared.frame.UpdateObjectPropertyFrameAction;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
+import edu.stanford.bmir.protege.web.shared.xd.data.EntityMetadata;
+import edu.stanford.bmir.protege.web.shared.xd.data.XdTreeNode;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 
 public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	
@@ -181,7 +184,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         
         // These are the individual cards/screens of the wizard interface.
         this.add(makeFirstCard());  
-        this.add(makeSecondCard());  
+        this.add(makeSecondCard());
         this.add(makeThirdCard()); 
         
         // Configure the progress window shown when finishing
@@ -562,23 +565,83 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	// This is where we clear out old data, load new data required 
 	// to run the wizard, prepare fields, etc etc
 	public void loadOdp(String uri) {
-		//subClassAxioms.clear();
-		//subDataPropertyAxioms.clear();
-		//subObjectPropertyAxioms.clear();
 		
-		XdServiceManager.getInstance().getOdpImplementation(uri, new AsyncCallback<OWLClass>(){
-			@Override
-			public void onFailure(Throwable caught) {
-				Window.alert("An error occured. ODP implementation could not be retrieved from GWT back-end. Error message: " + caught.getMessage());
-			}
-
-			@Override
-			public void onSuccess(OWLClass result) {
-				//odpImplementation = result;
-			}
+		// Clear out class tree panel
+		TreeNode rootClassNode = classTreePanel.getRootNode();
+		for (Node child: rootClassNode.getChildNodes()) {
+			rootClassNode.removeChild(child);
+		}
+		
+		// Clear out object property tree panel
+		TreeNode rootObjectPropertyNode = objectPropertyTreePanel.getRootNode();
+		for (Node child: rootObjectPropertyNode.getChildNodes()) {
+			rootObjectPropertyNode.removeChild(child);
+		}
+		
+		// Clear out object property tree panel
+		TreeNode rootDataPropertyNode = datatypePropertyTreePanel.getRootNode();
+		for (Node child: rootDataPropertyNode.getChildNodes()) {
+			rootDataPropertyNode.removeChild(child);
+		}
+		
+		// TODO: clear out other fields
+		
+		// Get ODP implementation from server
+        DispatchServiceManager.get().execute(new GetOdpContentsAction(uri), new DispatchServiceCallback<GetOdpContentsResult>() {
+        	@Override
+            public void handleSuccess(GetOdpContentsResult result) {
+        		
+        		// Render classes
+        		XdTreeNode<EntityMetadata> classes = result.getClasses();
+        		TreeNode rootClassNode = classTreePanel.getRootNode();
+        		for (XdTreeNode<EntityMetadata> subClassFromServer: classes.getChildren()) {
+        			recursivelyAddNode(subClassFromServer, rootClassNode);
+        		}
+        		classTreePanel.expandAll();
+                
+        		// Render object properties
+        		XdTreeNode<EntityMetadata> objectProperties = result.getObjectProperties();
+        		TreeNode rootObjectPropertyNode = objectPropertyTreePanel.getRootNode();
+        		for (XdTreeNode<EntityMetadata> subPropertyFromServer: objectProperties.getChildren()) {
+        			recursivelyAddNode(subPropertyFromServer, rootObjectPropertyNode);
+        		}
+        		objectPropertyTreePanel.expandAll();
+        		
+                // Render Object Properties
+        		XdTreeNode<EntityMetadata> dataProperties = result.getDataProperties();
+        		TreeNode rootDataPropertyNode = datatypePropertyTreePanel.getRootNode();
+        		for (XdTreeNode<EntityMetadata> subPropertyFromServer: dataProperties.getChildren()) {
+        			recursivelyAddNode(subPropertyFromServer, rootDataPropertyNode);
+        		}
+        		objectPropertyTreePanel.expandAll();
+        		
+                // TODO: Render Datatype properties
+            }
         });
 	}
 	
+	private TreeNode makeTreeNode(EntityMetadata em) {
+		TreeNode tn = new TreeNode(em.getLabel());
+		
+		// Iterate over all the keys/values in the metadata map, and assign them as attributes on the TreeNode
+		Map<String,String> metadata = em.getMetadata();
+		Iterator<Entry<String,String>> it = metadata.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String,String> pair = (Map.Entry<String,String>)it.next();
+			tn.setAttribute(pair.getKey(), pair.getValue());
+		}
+		
+		return tn;
+	}
+	
+	private void recursivelyAddNode(XdTreeNode<EntityMetadata> nodeFromServer, TreeNode localParentNode) {
+		TreeNode newLocalChild = makeTreeNode(nodeFromServer.getData());
+		localParentNode.appendChild(newLocalChild);
+		for (XdTreeNode<EntityMetadata> nextChildFromServer: nodeFromServer.getChildren()) {
+			//Window.alert("Second level recursion over " + nextChildFromServer.getData().getLabel());
+			recursivelyAddNode(nextChildFromServer, newLocalChild);
+		}
+	}
 	
 	private ButtonListenerAdapter makeNavigationButtonsListenerAdapter() {
 		return new ButtonListenerAdapter() {  
