@@ -87,8 +87,6 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	
 	private XdTreeNode<EntityMetadata> getObjectPropertiesMetadata(OWLOntology ont, OWLReasoner reasoner) {
 		
-		//TODO: Figure out why some properties aren't included (e.g., hasIngredient in pizza ontology)
-		
         // Extract metadata from top node (i.e., OWL:TopObjectProperty)
 		Node<OWLObjectPropertyExpression> topNode = reasoner.getTopObjectPropertyNode();
         OWLObjectPropertyExpression topPropertyExpression = topNode.getRepresentativeElement();
@@ -102,11 +100,12 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
         // Recursively add child properties (but not property expressions, and not bottoms)
         for (Node<OWLObjectPropertyExpression> childNode: reasoner.getSubObjectProperties(topObjectProperty, true)) {
         	if (!childNode.isBottomNode()) {
-	        	OWLObjectPropertyExpression childPropertyExpression = childNode.getRepresentativeElement();
-	        	if (childPropertyExpression instanceof OWLObjectProperty) {
-	        		OWLObjectProperty childProperty = (OWLObjectProperty)childPropertyExpression;
-	        		addObjectPropertyToTree(childProperty,tree,reasoner, ont);
-	        	}
+        		for (OWLObjectPropertyExpression ope: childNode.getEntities()) {
+        			if (ope instanceof OWLObjectProperty) {
+        				OWLObjectProperty childProperty = (OWLObjectProperty)ope;
+        				addObjectPropertyToTree(childProperty,tree,reasoner, ont);
+        			}
+        		}
         	}
         }
         return tree;
@@ -115,10 +114,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 
 	
 	private XdTreeNode<EntityMetadata> getDatatypePropertiesMetadata(OWLOntology ont, OWLReasoner reasoner) {
-		
-		//TODO: Figure out why some properties aren't included (e.g., hasIngredient in pizza ontology)
-		
-        // Extract metadata from top node (i.e., OWL:TopDataProperty)
+		// Extract metadata from top node (i.e., OWL:TopDataProperty)
 		Node<OWLDataProperty> topNode = reasoner.getTopDataPropertyNode();
         OWLDataProperty topProperty = topNode.getRepresentativeElement();
         
@@ -130,8 +126,9 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
         // Recursively add child properties (but not property expressions, and not bottoms)
         for (Node<OWLDataProperty> childNode: reasoner.getSubDataProperties(topProperty, true)) {
         	if (!childNode.isBottomNode()) {
-	        	OWLDataProperty childProperty = childNode.getRepresentativeElement();
-	        	addDataPropertyToTree(childProperty,tree,reasoner, ont);
+        		for (OWLDataProperty childProperty: childNode.getEntities()) {
+        			addDataPropertyToTree(childProperty,tree,reasoner, ont);
+        		}
         	}
         }
         return tree;
@@ -167,6 +164,9 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @return
 	 */
 	private EntityMetadata getMetadata(OWLEntity entity, OWLOntology ont) {
+		// TODO: Handle multiple domains or ranges for properties
+		// TODO: Clean up passing of true/false metadata, passing as "true" string is ugly..
+		
 		String classLabel = getLabel(entity, ont);
 		Map<String,String> clsMetadata = new HashMap<String,String>();
 		
@@ -188,7 +188,6 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
     		Set<OWLClassExpression> domainExpressions = entityAsProperty.getDomains(ont);
     		for (OWLClassExpression oce: domainExpressions) {
     			if (oce instanceof OWLClass) {
-    				// TODO: handle multiple domains
     				String domainLabel = getLabel(((OWLClass)oce), ont);
     				clsMetadata.put("rdfsDomain", domainLabel);
     				break;
@@ -197,13 +196,11 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
     		Set<OWLClassExpression> rangeExpressions = entityAsProperty.getRanges(ont);
     		for (OWLClassExpression oce: rangeExpressions) {
     			if (oce instanceof OWLClass) {
-    				// TODO: handle multiple ranges
     				String rangeLabel = getLabel(((OWLClass)oce), ont);
     				clsMetadata.put("rdfsRange", rangeLabel);
     				break;
     			}
     		}
-    		// TODO: clean up the below, sending true as a string is ugly..
     		if (entityAsProperty.isFunctional(ont)) {
     			clsMetadata.put("owlFunctionalProperty","true");
     		}
@@ -221,7 +218,6 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
     		Set<OWLClassExpression> domainExpressions = entityAsProperty.getDomains(ont);
     		for (OWLClassExpression oce: domainExpressions) {
     			if (oce instanceof OWLClass) {
-    				// TODO: handle multiple domains
     				String domainLabel = getLabel(((OWLClass)oce), ont);
     				clsMetadata.put("rdfsDomain", domainLabel);
     				break;
@@ -230,13 +226,11 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
     		Set<OWLDataRange> rangeExpressions = entityAsProperty.getRanges(ont);
     		for (OWLDataRange dr: rangeExpressions) {
     			if (dr instanceof OWLDatatype) {
-    				// TODO: handle multiple ranges
     				String range = ((OWLDatatype) dr).getIRI().toString();
     				clsMetadata.put("rdfsRange", range);
     				break;
     			}
     		}
-    		// TODO: clean up the below, sending true as a string is ugly..
     		if (entityAsProperty.isFunctional(ont)) {
     			clsMetadata.put("owlFunctionalProperty","true");
     		}
@@ -255,11 +249,12 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 */
 	private void addClassToTree(Node<OWLClass> node, XdTreeNode<EntityMetadata> tree, OWLReasoner reasoner, OWLOntology ont) {
 		if (!node.isBottomNode()) {
-			OWLClass cls = node.getRepresentativeElement();
-			EntityMetadata em = getMetadata(cls, ont);
-			XdTreeNode<EntityMetadata> emNode = tree.addChild(em);
-			for (Node<OWLClass> childNode: reasoner.getSubClasses(node.getRepresentativeElement(), true)) {
-				addClassToTree(childNode, emNode, reasoner, ont);
+			for (OWLClass cls: node.getEntities()) {
+				EntityMetadata em = getMetadata(cls, ont);
+				XdTreeNode<EntityMetadata> emNode = tree.addChild(em);
+				for (Node<OWLClass> childNode: reasoner.getSubClasses(node.getRepresentativeElement(), true)) {
+					addClassToTree(childNode, emNode, reasoner, ont);
+				}
 			}
 		}
 	}
@@ -274,16 +269,16 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 */
 	private void addObjectPropertyToTree(OWLObjectProperty property, XdTreeNode<EntityMetadata> tree, 
 			OWLReasoner reasoner, OWLOntology ont) {
-		
 		EntityMetadata em = getMetadata(property, ont);
 		XdTreeNode<EntityMetadata> emNode = tree.addChild(em);
 		for (Node<OWLObjectPropertyExpression> childNode: reasoner.getSubObjectProperties(property, true)) {
         	if (!childNode.isBottomNode()) {
-	        	OWLObjectPropertyExpression childPropertyExpression = childNode.getRepresentativeElement();
-	        	if (childPropertyExpression instanceof OWLObjectProperty) {
-	        		OWLObjectProperty childProperty = (OWLObjectProperty)childPropertyExpression;
-	        		addObjectPropertyToTree(childProperty,emNode,reasoner, ont);
-	        	}
+        		for (OWLObjectPropertyExpression childOpe: childNode.getEntities()) {
+		        	if (childOpe instanceof OWLObjectProperty) {
+		        		OWLObjectProperty childProperty = (OWLObjectProperty)childOpe;
+		        		addObjectPropertyToTree(childProperty,emNode,reasoner, ont);
+		        	}
+        		}
         	}
 		}
 	}
@@ -303,8 +298,9 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 		XdTreeNode<EntityMetadata> emNode = tree.addChild(em);
 		for (Node<OWLDataProperty> childNode: reasoner.getSubDataProperties(property, true)) {
         	if (!childNode.isBottomNode()) {
-	        	OWLDataProperty childProperty = childNode.getRepresentativeElement();
-        		addDataPropertyToTree(childProperty,emNode,reasoner, ont);
+        		for (OWLDataProperty childProperty: childNode.getEntities()) {
+        			addDataPropertyToTree(childProperty,emNode,reasoner, ont);
+        		}
         	}
 		}
 	}
