@@ -2,14 +2,18 @@ package edu.stanford.bmir.protege.web.server.xd;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataRange;
+import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
@@ -178,7 +182,65 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
     		clsMetadata.put("rdfsComment", candidateComment);
     	}
     	
-    	// TODO: Check if entity is an object or datatype property: if so add the relevant metadata values
+    	// Get obj property specifics
+    	if (entity instanceof OWLObjectProperty) {
+    		OWLObjectProperty entityAsProperty = (OWLObjectProperty)entity;
+    		Set<OWLClassExpression> domainExpressions = entityAsProperty.getDomains(ont);
+    		for (OWLClassExpression oce: domainExpressions) {
+    			if (oce instanceof OWLClass) {
+    				// TODO: handle multiple domains
+    				String domainLabel = getLabel(((OWLClass)oce), ont);
+    				clsMetadata.put("rdfsDomain", domainLabel);
+    				break;
+    			}
+    		}
+    		Set<OWLClassExpression> rangeExpressions = entityAsProperty.getRanges(ont);
+    		for (OWLClassExpression oce: rangeExpressions) {
+    			if (oce instanceof OWLClass) {
+    				// TODO: handle multiple ranges
+    				String rangeLabel = getLabel(((OWLClass)oce), ont);
+    				clsMetadata.put("rdfsRange", rangeLabel);
+    				break;
+    			}
+    		}
+    		// TODO: clean up the below, sending true as a string is ugly..
+    		if (entityAsProperty.isFunctional(ont)) {
+    			clsMetadata.put("owlFunctionalProperty","true");
+    		}
+    		if (entityAsProperty.isTransitive(ont)) {
+    			clsMetadata.put("owlTransitiveProperty","true");
+    		}
+    		if (entityAsProperty.isSymmetric(ont)) {
+    			clsMetadata.put("owlSymmetricProperty","true");
+    		}
+    	}
+    	
+    	// Get data property specifics
+    	if (entity instanceof OWLDataProperty) {
+    		OWLDataProperty entityAsProperty = (OWLDataProperty)entity;
+    		Set<OWLClassExpression> domainExpressions = entityAsProperty.getDomains(ont);
+    		for (OWLClassExpression oce: domainExpressions) {
+    			if (oce instanceof OWLClass) {
+    				// TODO: handle multiple domains
+    				String domainLabel = getLabel(((OWLClass)oce), ont);
+    				clsMetadata.put("rdfsDomain", domainLabel);
+    				break;
+    			}
+    		}
+    		Set<OWLDataRange> rangeExpressions = entityAsProperty.getRanges(ont);
+    		for (OWLDataRange dr: rangeExpressions) {
+    			if (dr instanceof OWLDatatype) {
+    				// TODO: handle multiple ranges
+    				String range = ((OWLDatatype) dr).getIRI().toString();
+    				clsMetadata.put("rdfsRange", range);
+    				break;
+    			}
+    		}
+    		// TODO: clean up the below, sending true as a string is ugly..
+    		if (entityAsProperty.isFunctional(ont)) {
+    			clsMetadata.put("owlFunctionalProperty","true");
+    		}
+    	}
 
 		return new EntityMetadata(classLabel, clsMetadata);
 	}
@@ -249,19 +311,48 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	
 	
 	/**
-	 * Gets label and returns. If no RDFS label exists, returns local IRI fragment.
+	 * Gets label (prefixed by ODP name). If no RDFS label exists for ODP or for concept exist,
+	 * uses local IRI fragments.
 	 * @param entity
 	 * @return
 	 */
 	private String getLabel(OWLEntity entity, OWLOntology ont) {
-		// TODO: add ODP title prefix here
-		String candidateLabel = getAnnotationValue(entity, ont, rdfsLabel, "en");
-		if (candidateLabel != null) {
-			return candidateLabel;
+		String odpPrefix = getOdpPrefix(ont);
+		String entityLabel = getAnnotationValue(entity, ont, rdfsLabel, "en");
+		if (entityLabel == null) {
+			entityLabel = entity.getIRI().getFragment();
 		}
-		else {
-			return entity.getIRI().getFragment();
+		return String.format("%s: %s",odpPrefix,entityLabel);
+	}
+	
+	/**
+	 * Attempts to get a reasonable prefix to show the user for this particular ODP. 
+	 * Searches, in order, for rdfs:label annotations in English, then in any language,
+	 * then ontology IRI local fragment, and as last resort, document IRI local fragment. 
+	 * @param odp
+	 * @return
+	 */
+	private String getOdpPrefix(OWLOntology odp) {
+		String odpPrefix = null;
+		for (OWLAnnotation annotation : odp.getAnnotations()) {
+			if (annotation.getProperty() == rdfsLabel && annotation.getValue() instanceof OWLLiteral) {
+				OWLLiteral val = (OWLLiteral) annotation.getValue();
+				if (val.hasLang("en")) {
+					odpPrefix = val.getLiteral();
+					break;
+                }
+				if (!val.hasLang()) {
+					odpPrefix = val.getLiteral();
+                }
+			}
 		}
+		if (odpPrefix == null) {
+			odpPrefix = odp.getOntologyID().getOntologyIRI().getFragment();
+		}
+		if (odpPrefix == null) {
+			odpPrefix = odp.getOWLOntologyManager().getOntologyDocumentIRI(odp).getFragment();
+		}
+		return odpPrefix;
 	}
 	
 	/**

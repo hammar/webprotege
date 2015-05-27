@@ -1,7 +1,11 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails;
 
-import com.gwtext.client.data.SimpleStore;
+import com.gwtext.client.data.ArrayReader;
+import com.gwtext.client.data.FieldDef;
+import com.gwtext.client.data.Record;
+import com.gwtext.client.data.RecordDef;
 import com.gwtext.client.data.Store;
+import com.gwtext.client.data.StringFieldDef;
 import com.gwtext.client.widgets.form.ComboBox;
 import com.gwtext.client.widgets.form.FormPanel;
 import com.gwtext.client.widgets.form.TextField;
@@ -16,26 +20,44 @@ public abstract class PropertyDetailsWindow extends DetailsWindow {
 	TextField propertyComment;
 	ComboBox propertyDomain;
 	ComboBox propertyRange;
-     
+    
+	RecordDef domainRecordDef;
+	RecordDef rangeRecordDef;
 	Store domainStore;
 	Store rangeStore;
+	
+	
 	
 	public PropertyDetailsWindow(XdSpecializationWizard parentWizard) {
 		super(parentWizard);
 	}
 	
-	protected SimpleStore getDomainStore() {
-		return new SimpleStore("label", parentWizard.getLeafClasses());
+	protected String[] getDomains() {
+		return parentWizard.getDisplayedClassLabels();
 	}
 	
-	protected abstract SimpleStore getRangeStore();
+	protected abstract String[][] getRanges();
 	
 	public void show() {
-		rangeStore = getRangeStore();
-		propertyRange.setStore(rangeStore);
+		// Update range store for combobox
+		String[][] ranges = getRanges();
+		rangeStore.removeAll();
+		for (String[] range: ranges)
+		{
+			Record newRangeRecord = rangeRecordDef.createRecord(range);
+			rangeStore.add(newRangeRecord);
+		}
+		rangeStore.commitChanges();
 		
-		domainStore = getDomainStore();//
-		propertyDomain.setStore(domainStore);
+		// Update domainStore for combobox
+		String[] domains = getDomains();
+		domainStore.removeAll();
+		for (String domain: domains) {
+			Record newDomainRecard = domainRecordDef.createRecord(new String[]{domain});
+			domainStore.add(newDomainRecard);
+		}
+		domainStore.commitChanges();
+		
 		super.show();
 	}
 	
@@ -43,7 +65,6 @@ public abstract class PropertyDetailsWindow extends DetailsWindow {
 	public void reset() {
 		propertyName.setValue("");
 		propertyComment.setValue("");
-		// TODO: clean up the below?
 		propertyDomain.setValue("");
 		propertyRange.setValue("");
 	}
@@ -51,9 +72,24 @@ public abstract class PropertyDetailsWindow extends DetailsWindow {
 	@Override
 	public void initialize() {
 		
-		//domainStore.load();
+		// Two fields as datatype properties have both readable 
+		// short forms and IRI values for their ranges
+		rangeRecordDef = new RecordDef(
+                new FieldDef[]{
+                		new StringFieldDef("label"),
+                		new StringFieldDef("iri")
+                });
+		ArrayReader rangeReader = new ArrayReader(rangeRecordDef);
+		rangeStore = new Store(rangeReader);
 		
-		//rangeStore.load();
+		// One field as domain classes do not at this point 
+		// actually have IRIs in the ontology project
+		domainRecordDef = new RecordDef(
+                new FieldDef[]{
+                		new StringFieldDef("label")
+                });
+		ArrayReader domainReader = new ArrayReader(domainRecordDef);
+		domainStore = new Store(domainReader);
 		
 		formPanel = new FormPanel();
 		this.add(formPanel);
@@ -66,16 +102,34 @@ public abstract class PropertyDetailsWindow extends DetailsWindow {
 		propertyComment.setAllowBlank(true);
 		formPanel.add(propertyComment);
 		
-		propertyDomain = new ComboBox("Domain","domain");
+		propertyDomain = new ComboBox();
+		propertyDomain.setForceSelection(true);  
+		propertyDomain.setMinChars(1);
+		propertyDomain.setFieldLabel("Domain");  
+		propertyDomain.setStore(domainStore);  
 		propertyDomain.setDisplayField("label");  
-		propertyDomain.setMode(ComboBox.LOCAL);    
-		propertyDomain.setForceSelection(true);
+        propertyDomain.setMode(ComboBox.LOCAL);  
+        propertyDomain.setTriggerAction(ComboBox.ALL);  
+        propertyDomain.setEmptyText("Enter domain");  
+        propertyDomain.setLoadingText("Searching...");  
+        propertyDomain.setTypeAhead(true);  
+        propertyDomain.setSelectOnFocus(true);  
+        propertyDomain.setHideTrigger(false);
 		formPanel.add(propertyDomain);
 		
-		propertyRange = new ComboBox("Range","range");
-		propertyRange.setDisplayField("label");
-		propertyRange.setMode(ComboBox.LOCAL);    
-		propertyRange.setForceSelection(true);
+		propertyRange = new ComboBox();
+		propertyRange.setForceSelection(true);  
+		propertyRange.setMinChars(1);
+		propertyRange.setFieldLabel("Range");  
+		propertyRange.setStore(rangeStore);  
+		propertyRange.setDisplayField("label");  
+		propertyRange.setMode(ComboBox.LOCAL);  
+		propertyRange.setTriggerAction(ComboBox.ALL);  
+        propertyRange.setEmptyText("Enter range");  
+        propertyRange.setLoadingText("Searching...");  
+        propertyRange.setTypeAhead(true);  
+        propertyRange.setSelectOnFocus(true);  
+        propertyRange.setHideTrigger(false);
 		formPanel.add(propertyRange);
 	}
 }

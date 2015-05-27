@@ -110,6 +110,11 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private NewDatatypePropertyDetailsWindow ndpdw;
 	private EditDatatypePropertyDetailsWindow edpdw;
 	
+	// Toggle for whether to display all or a subset of ODP concepts for specialization.
+	private Boolean displayOnlyLeafClasses;
+	private Boolean displayOnlyLeafObjectProperties;
+	private Boolean displayOnlyLeafDataProperties;
+	
 	// Progress window when performing instantiation
 	//private MessageBoxConfig instantiationProgressConf;
 	
@@ -130,6 +135,10 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	@SuppressWarnings("deprecation")
 	public XdSpecializationWizard(XdPatternDetailsPortlet parent) {
 		this.projectId = parent.getProjectId();
+		
+		this.displayOnlyLeafClasses = false;
+		this.displayOnlyLeafObjectProperties = false;
+		this.displayOnlyLeafDataProperties = false;
 		
 		this.ncdw = new NewClassDetailsWindow(this);
 		this.ecdw = new EditClassDetailsWindow(this);
@@ -917,15 +926,38 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	}
 	
 	/**
-	 * Return the class labels of all leaves in the class tree hierarchy of this
-	 * specialization wizard. 
+	 * Returns the class labels of classes displayed for the user to customize. In the future, 
+	 * this may be all classes, or just the leaf nodes, depending on whether the user has selected
+	 * the checkbox to only show the leaf nodes (Not Yet Implemented) or not.
+	 * 
+	 * At the moment, returns all classes.
+	 * @return
+	 */
+	public String[] getDisplayedClassLabels() {
+		if (this.displayOnlyLeafClasses) {
+			return getClassLabels(true);
+		}
+		else {
+			return getClassLabels(false);
+		}
+	}
+	
+	/**
+	 * Return the labels of entries in the class tree hierarchy of this specialization wizard. 
+	 * @param onlyLeaves - If true, returns only leaf nodes
 	 * @return Array of leaf class labels
 	 */
-	public String[] getLeafClasses() {
-		Set<TreeNode> allLeaves = getChildLeafNodes(classTreePanel.getRootNode());
-		String[] classLabels = new String[allLeaves.size()];
+	private String[] getClassLabels(Boolean onlyLeaves) {
+		Set<TreeNode> classNodes;
+		if (onlyLeaves) {
+			classNodes = getChildLeafNodes(classTreePanel.getRootNode());
+		}
+		else {
+			classNodes = getChildNodes(classTreePanel.getRootNode());
+		}
+		String[] classLabels = new String[classNodes.size()];
 		int i = 0;
-		for (TreeNode node: allLeaves) {
+		for (TreeNode node: classNodes) {
 			classLabels[i] = node.getText();
 			i++;
 		}
@@ -946,6 +978,21 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			for (final Node childNode: parentNode.getChildNodes()) {
 				leaves.addAll(getChildLeafNodes((TreeNode)childNode));
 			}
+		}
+		return leaves;
+	} 
+	
+	
+	/**
+	 * Recursive method to walk the a tree panel and return all nodes.
+	 * @param parentNode - starting node for each recursion.
+	 * @return all nodes in tree
+	 */
+	private Set<TreeNode> getChildNodes(TreeNode parentNode) {
+		HashSet<TreeNode> leaves = new HashSet<TreeNode>();
+		leaves.add(parentNode);
+		for (final Node childNode: parentNode.getChildNodes()) {
+			leaves.addAll(getChildNodes((TreeNode)childNode));
 		}
 		return leaves;
 	} 
