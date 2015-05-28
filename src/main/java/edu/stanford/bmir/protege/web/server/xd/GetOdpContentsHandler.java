@@ -1,11 +1,15 @@
 package edu.stanford.bmir.protege.web.server.xd;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import org.apache.commons.io.IOUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLClass;
@@ -26,12 +30,14 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
+import org.springframework.web.client.RestTemplate;
 
 import edu.stanford.bmir.protege.web.server.dispatch.ActionHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
+import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.EntityMetadata;
 import edu.stanford.bmir.protege.web.shared.xd.data.XdTreeNode;
@@ -39,8 +45,26 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 
 public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction,GetOdpContentsResult> {
 
+	private final WebProtegeLogger log;
+	private String XdpServiceUriBase;
+	
 	private OWLAnnotationProperty rdfsLabel;
 	private OWLAnnotationProperty rdfsComment;
+	
+	@Inject
+	public GetOdpContentsHandler(WebProtegeLogger logger) {
+		super();
+		this.log = logger;
+		try {
+			Properties XdServiceProperties = new Properties();
+			XdServiceProperties.load(GetOdpContentsHandler.class.getResourceAsStream("XdpService.properties"));
+			XdpServiceUriBase = XdServiceProperties.getProperty("XdpServiceUriBase");
+		} 
+		catch (IOException e) {
+			XdpServiceUriBase = "http://localhost:8080";
+			log.info(String.format("Unable to find configuration file %s. Setting XdpServiceUriBase to default value %s.", "xdService.properties", XdpServiceUriBase));
+		}
+	}
 	
 	@Override
 	public Class<GetOdpContentsAction> getActionClass() {
@@ -57,11 +81,14 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	public GetOdpContentsResult execute(GetOdpContentsAction action,
 			ExecutionContext executionContext) {
 		try {
-			// Load ODP ontology
-			// TODO: ACTUALLY LOAD ODP FROM XDPSERVICE CALL
+			// Fetch ODP as Turtle-formatted string from XdpService via REST
+			RestTemplate restTemplate = new RestTemplate();
+			String queryUri = String.format("%s/retrieve/odpBuildingBlockTurtle?uri=%s", XdpServiceUriBase, action.getOdpUri());
+			String turtleRepresentation = restTemplate.getForObject(queryUri, String.class);
+			
+			// Load ODP as in-memory OWLOntology representation
 			OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-			IRI iri = IRI.create("http://www.dcs.bbk.ac.uk/~michael/sw/slides/pizza.owl");
-	        OWLOntology odp = manager.loadOntologyFromOntologyDocument(iri);
+	        OWLOntology odp = manager.loadOntologyFromOntologyDocument(IOUtils.toInputStream(turtleRepresentation));
 			
 			// Create often used properties
 			OWLDataFactory df = manager.getOWLDataFactory();

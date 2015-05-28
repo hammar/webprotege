@@ -63,7 +63,7 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 		this.projectManager = WebProtegeInjector.get().getInstance(OWLAPIProjectManager.class);
 		try {
 			Properties XdServiceProperties = new Properties();
-			XdServiceProperties.load(XdServiceImpl.class.getResourceAsStream("xdService.properties"));
+			XdServiceProperties.load(XdServiceImpl.class.getResourceAsStream("XdpService.properties"));
 			XdpServiceUriBase = XdServiceProperties.getProperty("XdpServiceUriBase");
 		} 
 		catch (IOException e) {
