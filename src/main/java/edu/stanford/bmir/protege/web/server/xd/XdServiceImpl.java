@@ -28,7 +28,6 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.vocab.OWLFacet;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
-import org.springframework.beans.factory.support.ManagedArray;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -38,7 +37,6 @@ import edu.stanford.bmir.protege.web.server.inject.WebProtegeInjector;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
 import edu.stanford.bmir.protege.web.server.owlapi.ImportsCacheManager;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
-import edu.stanford.bmir.protege.web.server.owlapi.manager.WebProtegeOWLManager;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.OdpInstantiation;
@@ -81,7 +79,7 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 	@Override
 	public List<OdpSearchResult> getOdpSearchContent(String queryString, OdpSearchFilterConfiguration filterConfiguration)  {
 		RestTemplate restTemplate = new RestTemplate();
-		String queryUri = String.format("%s/odpSearch?queryString=%s", XdpServiceUriBase, queryString);
+		String queryUri = String.format("%s/search/odpSearch?queryString=%s", XdpServiceUriBase, queryString);
 		OdpSearchResult[] results = restTemplate.postForObject(queryUri, filterConfiguration, OdpSearchResult[].class);
 		return Arrays.asList(results);
 	}
@@ -169,7 +167,7 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 	public OdpDetails getOdpDetails(String odpUri) {
 		// TODO: Handle what to do if the given URI is not actually a found ODP. Return null or throw exception?
 		RestTemplate restTemplate = new RestTemplate();
-		String queryUri = String.format("%s/odpDetails?uri=%s", XdpServiceUriBase, odpUri);
+		String queryUri = String.format("%s/retrieve/odpMetadata?uri=%s", XdpServiceUriBase, odpUri);
 		OdpDetails odp = restTemplate.getForObject(queryUri, OdpDetails.class);
 		return odp;
 	}
@@ -177,7 +175,7 @@ public class XdServiceImpl extends RemoteServiceServlet implements XdService {
 	@Override
 	public List<OdpDetails> getOdpsByCategory(String category) {
 		RestTemplate restTemplate = new RestTemplate();
-		String queryUri = String.format("%s/odpsByCategory?category=%s", XdpServiceUriBase, category);
+		String queryUri = String.format("%s/retrieve/odpMetadataByCategory?category=%s", XdpServiceUriBase, category);
 		OdpDetails[] results = restTemplate.getForObject(queryUri, OdpDetails[].class); 
 		return Arrays.asList(results);
 	}
