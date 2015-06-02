@@ -10,10 +10,14 @@ import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.Window;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.form.FormPanel;
+import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.RowLayout;
 
-public abstract class DetailsWindow extends Window implements HasWidgets {
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
+
+public class EntityDetailsWindow extends Window implements HasWidgets {
 
 	/**
 	 * This is only to hide a bug in the GWT-EXT Window class which otherwise causes compilation
@@ -25,15 +29,24 @@ public abstract class DetailsWindow extends Window implements HasWidgets {
 		return super.iterator();
 	}
 
-	protected XdSpecializationWizard parentWizard;
+	private OntologyEntityFrame frame;
+	private TextField labelField;
+	private TextField commentField;
 
-	public DetailsWindow(XdSpecializationWizard parentWizard) {
-		this.parentWizard = parentWizard;
+	public EntityDetailsWindow() {
 		this.setLayout(new RowLayout());
 		this.setWidth(200);
 		this.setHeight(320);
 		this.add(new Label("In this window we add or edit classes/object properties/datatype properties!"));
-		this.initialize();
+		
+		FormPanel formPanel = new FormPanel();
+		labelField = new TextField("Class name", "className");
+		labelField.setAllowBlank(false);
+		formPanel.add(labelField);  
+		commentField = new TextField("Comment", "classComment");
+		commentField.setAllowBlank(true);
+		formPanel.add(commentField);
+		this.add(formPanel);
 		
 		Panel submitClosePanel = new Panel();
 		submitClosePanel.setHeight(30);
@@ -58,12 +71,26 @@ public abstract class DetailsWindow extends Window implements HasWidgets {
 	}
 	
 	// Resets this window to empty state
-	public abstract void reset();
+	public void reset() {
+		this.frame = null;
+		this.labelField.setValue("");
+		this.commentField.setValue("");
+	}
 	
-	// Draw the custom window contents
-	public abstract void initialize();
+	// I.e., persist to parent specialization wizard, not to actual ontology!
+	public void persistAndClose() {
+		frame.setLabel(labelField.getValueAsString());
+		frame.setComment(commentField.getValueAsString());
+		this.close();
+	}
 	
-	// E.g. persist to parent specialization wizard, not to actual
-	// ontology!
-	public abstract void persistAndClose();
+	// Load the frame details
+	public void loadFrame(OntologyEntityFrame frame) {
+		this.reset();
+		this.frame = frame;
+		labelField.setValue(frame.getLabel());
+		if (frame.getComment() != null) {
+			commentField.setValue(frame.getComment());
+		}
+	}
 }

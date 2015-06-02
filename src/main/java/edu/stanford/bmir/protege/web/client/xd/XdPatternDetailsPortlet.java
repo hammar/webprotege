@@ -210,6 +210,7 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet implements
         useOdpButton.addListener(new ButtonListenerAdapter() {
             @Override
             public void onClick(final Button button, final EventObject e) {
+            	wizard.setModal(true);
             	wizard.show();
             	wizard.loadOdp(odp.getUri());
             }

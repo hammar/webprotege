@@ -50,6 +50,8 @@ import edu.stanford.bmir.protege.web.server.user.LogOutUserActionHandler;
 import edu.stanford.bmir.protege.web.server.watches.AddWatchActionHandler;
 import edu.stanford.bmir.protege.web.server.watches.RemoveWatchActionHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetOdpContentsHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetSpecializationPreviewHandler;
+import edu.stanford.bmir.protege.web.server.xd.PersistSpecializationHandler;
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdCompletionsAction;
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdItemsAction;
 import edu.stanford.bmir.protege.web.shared.project.SetUIConfigurationActionHandler;
@@ -182,5 +184,7 @@ public class ActionHandlersModule extends AbstractModule {
         multibinder.addBinding().to(GetPersonIdItemsActionHandler.class);
         
         multibinder.addBinding().to(GetOdpContentsHandler.class);
+        multibinder.addBinding().to(GetSpecializationPreviewHandler.class);
+        multibinder.addBinding().to(PersistSpecializationHandler.class);
     }
 }

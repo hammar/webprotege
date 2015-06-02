@@ -1,8 +1,8 @@
 package edu.stanford.bmir.protege.web.server.xd;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -10,6 +10,9 @@ import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.io.StreamDocumentSource;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLClass;
@@ -23,6 +26,7 @@ import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.InferenceType;
 import org.semanticweb.owlapi.reasoner.Node;
@@ -39,8 +43,12 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
-import edu.stanford.bmir.protege.web.shared.xd.data.EntityMetadata;
+import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 import edu.stanford.bmir.protege.web.shared.xd.data.XdTreeNode;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 
 public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction,GetOdpContentsResult> {
@@ -88,8 +96,12 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 			
 			// Load ODP as in-memory OWLOntology representation
 			OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-	        OWLOntology odp = manager.loadOntologyFromOntologyDocument(IOUtils.toInputStream(turtleRepresentation));
-			
+			OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration();
+	        config = config.setFollowRedirects(false);
+	        config = config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
+	        StreamDocumentSource sds = new StreamDocumentSource(IOUtils.toInputStream(turtleRepresentation));
+	        OWLOntology odp = manager.loadOntologyFromOntologyDocument(sds, config);
+	        
 			// Create often used properties
 			OWLDataFactory df = manager.getOWLDataFactory();
 			rdfsLabel = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
@@ -100,9 +112,9 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	        OWLReasoner reasoner = reasonerFactory.createNonBufferingReasoner(odp);
 	        reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY, InferenceType.OBJECT_PROPERTY_HIERARCHY, InferenceType.DATA_PROPERTY_HIERARCHY);
 	        
-	        XdTreeNode<EntityMetadata> classes = getClassesMetadata(odp, reasoner);
-	        XdTreeNode<EntityMetadata> objectProperties = getObjectPropertiesMetadata(odp, reasoner);
-	        XdTreeNode<EntityMetadata> datatypeProperties = getDatatypePropertiesMetadata(odp, reasoner);
+	        XdTreeNode<ClassFrame> classes = getClassFrames(odp, reasoner);
+	        XdTreeNode<ObjectPropertyFrame> objectProperties = getObjectPropertyFrames(odp, reasoner);
+	        XdTreeNode<DataPropertyFrame> datatypeProperties = getDatatypeFrames(odp, reasoner);
 	        
 	        return new GetOdpContentsResult(classes,objectProperties,datatypeProperties);
 		}
@@ -112,17 +124,17 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 		return null;
 	}
 	
-	private XdTreeNode<EntityMetadata> getObjectPropertiesMetadata(OWLOntology ont, OWLReasoner reasoner) {
+	private XdTreeNode<ObjectPropertyFrame> getObjectPropertyFrames(OWLOntology ont, OWLReasoner reasoner) {
 		
         // Extract metadata from top node (i.e., OWL:TopObjectProperty)
 		Node<OWLObjectPropertyExpression> topNode = reasoner.getTopObjectPropertyNode();
         OWLObjectPropertyExpression topPropertyExpression = topNode.getRepresentativeElement();
         OWLObjectProperty topObjectProperty = (OWLObjectProperty)topPropertyExpression;
         
-        EntityMetadata em = getMetadata(topObjectProperty, ont);
+        ObjectPropertyFrame opf = (ObjectPropertyFrame)getFrame(topObjectProperty, ont);
         
         // Create the tree with only OWL:TopObjectProperty in it
-        XdTreeNode<EntityMetadata> tree = new XdTreeNode<EntityMetadata>(em);
+        XdTreeNode<ObjectPropertyFrame> tree = new XdTreeNode<ObjectPropertyFrame>(opf);
         
         // Recursively add child properties (but not property expressions, and not bottoms)
         for (Node<OWLObjectPropertyExpression> childNode: reasoner.getSubObjectProperties(topObjectProperty, true)) {
@@ -140,15 +152,15 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 
 
 	
-	private XdTreeNode<EntityMetadata> getDatatypePropertiesMetadata(OWLOntology ont, OWLReasoner reasoner) {
+	private XdTreeNode<DataPropertyFrame> getDatatypeFrames(OWLOntology ont, OWLReasoner reasoner) {
 		// Extract metadata from top node (i.e., OWL:TopDataProperty)
 		Node<OWLDataProperty> topNode = reasoner.getTopDataPropertyNode();
         OWLDataProperty topProperty = topNode.getRepresentativeElement();
         
-        EntityMetadata em = getMetadata(topProperty, ont);
+        DataPropertyFrame dpf = (DataPropertyFrame)getFrame(topProperty, ont);
         
         // Create the tree with only OWL:TopDataProperty in it
-        XdTreeNode<EntityMetadata> tree = new XdTreeNode<EntityMetadata>(em);
+        XdTreeNode<DataPropertyFrame> tree = new XdTreeNode<DataPropertyFrame>(dpf);
         
         // Recursively add child properties (but not property expressions, and not bottoms)
         for (Node<OWLDataProperty> childNode: reasoner.getSubDataProperties(topProperty, true)) {
@@ -168,14 +180,14 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @param ont
 	 * @return
 	 */
-	private XdTreeNode<EntityMetadata> getClassesMetadata(OWLOntology ont, OWLReasoner reasoner) {
+	private XdTreeNode<ClassFrame> getClassFrames(OWLOntology ont, OWLReasoner reasoner) {
         // Extract metadata from top node (i.e., OWL:Thing)
 		Node<OWLClass> topNode = reasoner.getTopClassNode();
         OWLClass owlThing = topNode.getRepresentativeElement();
-        EntityMetadata em = getMetadata(owlThing, ont);
+        ClassFrame cf = (ClassFrame)getFrame(owlThing, ont);
         
         // Create the tree with only OWL:Thing in it
-        XdTreeNode<EntityMetadata> tree = new XdTreeNode<EntityMetadata>(em);
+        XdTreeNode<ClassFrame> tree = new XdTreeNode<ClassFrame>(cf);
         
         // Recursively add child classes
         for (Node<OWLClass> childNode: reasoner.getSubClasses(topNode.getRepresentativeElement(), true)) {
@@ -185,29 +197,93 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	}
 	
 	/**
-	 * Generate EntityMetadata from an OWL Entity
+	 * Generate an Ontology Entity Frame from an OWL Entity
 	 * @param cls
 	 * @param ont
 	 * @return
 	 */
-	private EntityMetadata getMetadata(OWLEntity entity, OWLOntology ont) {
-		// TODO: Handle multiple domains or ranges for properties
-		// TODO: Clean up passing of true/false metadata, passing as "true" string is ugly..
+	private OntologyEntityFrame getFrame(OWLEntity entity, OWLOntology ont) {
+		// TODO: Depending on what type of OWLEntity we get in, construct a suitable frame and return it
 		
-		String classLabel = getLabel(entity, ont);
-		Map<String,String> clsMetadata = new HashMap<String,String>();
+		String entityLabel = getLabel(entity, ont);
+		String candidateComment = getAnnotationValue(entity, ont, rdfsComment, "en");
 		
-		// Get RDFS:Label
-		String labelFromRdfs = getAnnotationValue(entity,ont,rdfsLabel,"en");
-    	if (labelFromRdfs != null) {
-    		clsMetadata.put("rdfsLabel", labelFromRdfs);
-    	}
-    	
-    	// Get comment
-    	String candidateComment = getAnnotationValue(entity,ont,rdfsComment,"en");
-    	if (candidateComment != null) {
-    		clsMetadata.put("rdfsComment", candidateComment);
-    	}
+		if (entity instanceof OWLClass) {
+			return new ClassFrame(entityLabel,candidateComment, entity.getIRI());
+		}
+		else if (entity instanceof OWLDataProperty) {
+			// Create frame
+			OWLDataProperty dataProperty = (OWLDataProperty)entity;
+			DataPropertyFrame frame = new DataPropertyFrame(entityLabel,candidateComment, dataProperty.getIRI());
+			
+			// Get domains
+			Set<OWLClassExpression> domainExpressions = dataProperty.getDomains(ont);
+			List<LabelOrIri> domains = new ArrayList<LabelOrIri>();
+    		for (OWLClassExpression oce: domainExpressions) {
+    			if (oce instanceof OWLClass) {
+    				IRI domainIri = ((OWLClass)oce).getIRI();
+    				domains.add(new LabelOrIri(domainIri));
+    			}
+    		}
+			frame.setDomains(domains.toArray(new LabelOrIri[domains.size()]));
+    		
+    		// Get ranges
+    		Set<OWLDataRange> rangeExpressions = dataProperty.getRanges(ont);
+    		List<IRI> ranges = new ArrayList<IRI>();
+    		for (OWLDataRange dr: rangeExpressions) {
+    			if (dr instanceof OWLDatatype) {
+    				IRI rangeIri = ((OWLDatatype) dr).getIRI();
+    				ranges.add(rangeIri);
+    			}
+    		}
+    		frame.setRanges(ranges.toArray(new IRI[ranges.size()]));
+    		
+    		// Set attributes
+			frame.setFunctional(dataProperty.isFunctional(ont));
+    		
+    		// Return constructed data property frame
+			return frame;
+		}
+		else if (entity instanceof OWLObjectProperty) {
+			// Create frame
+			OWLObjectProperty objectProperty = (OWLObjectProperty)entity;
+			ObjectPropertyFrame frame = new ObjectPropertyFrame(entityLabel,candidateComment, objectProperty.getIRI());
+			
+			// Get domains
+			Set<OWLClassExpression> domainExpressions = objectProperty.getDomains(ont);
+			List<LabelOrIri> domains = new ArrayList<LabelOrIri>();
+    		for (OWLClassExpression oce: domainExpressions) {
+    			if (oce instanceof OWLClass) {
+    				IRI domainIri = ((OWLClass)oce).getIRI();
+    				domains.add(new LabelOrIri(domainIri));
+    			}
+    		}
+			frame.setDomains(domains.toArray(new LabelOrIri[domains.size()]));
+    		
+    		// Get ranges
+			Set<OWLClassExpression> rangeExpressions = objectProperty.getRanges(ont);
+			List<LabelOrIri> ranges = new ArrayList<LabelOrIri>();
+    		for (OWLClassExpression oce: rangeExpressions) {
+    			if (oce instanceof OWLClass) {
+    				IRI rangeIri = ((OWLClass)oce).getIRI();
+    				ranges.add(new LabelOrIri(rangeIri));
+    			}
+    		}
+			frame.setRanges(ranges.toArray(new LabelOrIri[ranges.size()]));
+    		
+			// Set attributes
+			frame.setSymmetric(objectProperty.isSymmetric(ont));
+			frame.setFunctional(objectProperty.isFunctional(ont));
+			frame.setTransitive(objectProperty.isTransitive(ont));
+			
+			// Return constructed object property frame
+    		return frame;
+		}
+		
+		// We should never get to here.
+		return null;
+		
+		/*
     	
     	// Get obj property specifics
     	if (entity instanceof OWLObjectProperty) {
@@ -239,46 +315,22 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
     		}
     	}
     	
-    	// Get data property specifics
-    	if (entity instanceof OWLDataProperty) {
-    		OWLDataProperty entityAsProperty = (OWLDataProperty)entity;
-    		Set<OWLClassExpression> domainExpressions = entityAsProperty.getDomains(ont);
-    		for (OWLClassExpression oce: domainExpressions) {
-    			if (oce instanceof OWLClass) {
-    				String domainLabel = getLabel(((OWLClass)oce), ont);
-    				clsMetadata.put("rdfsDomain", domainLabel);
-    				break;
-    			}
-    		}
-    		Set<OWLDataRange> rangeExpressions = entityAsProperty.getRanges(ont);
-    		for (OWLDataRange dr: rangeExpressions) {
-    			if (dr instanceof OWLDatatype) {
-    				String range = ((OWLDatatype) dr).getIRI().toString();
-    				clsMetadata.put("rdfsRange", range);
-    				break;
-    			}
-    		}
-    		if (entityAsProperty.isFunctional(ont)) {
-    			clsMetadata.put("owlFunctionalProperty","true");
-    		}
-    	}
-
-		return new EntityMetadata(classLabel, clsMetadata);
+    	}*/
 	}
 	
 	/**
-	 * Recursively convert OWLClass nodes provided from reasoner to a Tree of EntityMetadata frames 
+	 * Recursively convert OWLClass nodes provided from reasoner to a Tree of ClassFrames 
 	 * suitable for sending over the wire to client.
 	 * @param node
 	 * @param tree
 	 * @param reasoner
 	 * @param ont
 	 */
-	private void addClassToTree(Node<OWLClass> node, XdTreeNode<EntityMetadata> tree, OWLReasoner reasoner, OWLOntology ont) {
+	private void addClassToTree(Node<OWLClass> node, XdTreeNode<ClassFrame> tree, OWLReasoner reasoner, OWLOntology ont) {
 		if (!node.isBottomNode()) {
 			for (OWLClass cls: node.getEntities()) {
-				EntityMetadata em = getMetadata(cls, ont);
-				XdTreeNode<EntityMetadata> emNode = tree.addChild(em);
+				ClassFrame cf = (ClassFrame)getFrame(cls, ont);
+				XdTreeNode<ClassFrame> emNode = tree.addChild(cf);
 				for (Node<OWLClass> childNode: reasoner.getSubClasses(node.getRepresentativeElement(), true)) {
 					addClassToTree(childNode, emNode, reasoner, ont);
 				}
@@ -294,10 +346,10 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @param reasoner
 	 * @param ont
 	 */
-	private void addObjectPropertyToTree(OWLObjectProperty property, XdTreeNode<EntityMetadata> tree, 
+	private void addObjectPropertyToTree(OWLObjectProperty property, XdTreeNode<ObjectPropertyFrame> tree, 
 			OWLReasoner reasoner, OWLOntology ont) {
-		EntityMetadata em = getMetadata(property, ont);
-		XdTreeNode<EntityMetadata> emNode = tree.addChild(em);
+		ObjectPropertyFrame opf = (ObjectPropertyFrame)getFrame(property, ont);
+		XdTreeNode<ObjectPropertyFrame> emNode = tree.addChild(opf);
 		for (Node<OWLObjectPropertyExpression> childNode: reasoner.getSubObjectProperties(property, true)) {
         	if (!childNode.isBottomNode()) {
         		for (OWLObjectPropertyExpression childOpe: childNode.getEntities()) {
@@ -319,10 +371,10 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @param reasoner
 	 * @param ont
 	 */
-	private void addDataPropertyToTree(OWLDataProperty property, XdTreeNode<EntityMetadata> tree, 
+	private void addDataPropertyToTree(OWLDataProperty property, XdTreeNode<DataPropertyFrame> tree, 
 			OWLReasoner reasoner, OWLOntology ont) {
-		EntityMetadata em = getMetadata(property, ont);
-		XdTreeNode<EntityMetadata> emNode = tree.addChild(em);
+		DataPropertyFrame dpf = (DataPropertyFrame)getFrame(property, ont);
+		XdTreeNode<DataPropertyFrame> emNode = tree.addChild(dpf);
 		for (Node<OWLDataProperty> childNode: reasoner.getSubDataProperties(property, true)) {
         	if (!childNode.isBottomNode()) {
         		for (OWLDataProperty childProperty: childNode.getEntities()) {

@@ -1,82 +1,44 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAnnotationProperty;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLDatatype;
-import org.semanticweb.owlapi.model.OWLLiteral;
-import org.semanticweb.owlapi.model.OWLObjectProperty;
-import org.semanticweb.owlapi.model.OWLDataProperty;
-import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
-import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
-import com.google.common.base.Optional;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.Window;
 import com.gwtext.client.core.EventObject; 
-import com.gwtext.client.core.Position;
 import com.gwtext.client.data.Node;
 import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.Panel;
-import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.CardLayout;
-import com.gwtext.client.widgets.layout.ColumnLayout;
-import com.gwtext.client.widgets.layout.ColumnLayoutData;
-import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.tree.DefaultSelectionModel;
 import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateClassAction;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateClassResult;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateDataPropertiesAction;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateDataPropertiesResult;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateObjectPropertiesAction;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.CreateObjectPropertiesResult;
-import edu.stanford.bmir.protege.web.client.dispatch.actions.UpdateClassFrameAction;
-import edu.stanford.bmir.protege.web.client.ui.frame.LabelledFrame;
 import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
-import edu.stanford.bmir.protege.web.client.xd.specialization.classdetails.EditClassDetailsWindow;
-import edu.stanford.bmir.protege.web.client.xd.specialization.classdetails.NewClassDetailsWindow;
-import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.EditDatatypePropertyDetailsWindow;
-import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.EditObjectPropertyDetailsWindow;
-import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.NewDatatypePropertyDetailsWindow;
-import edu.stanford.bmir.protege.web.client.xd.specialization.propertydetails.NewObjectPropertyDetailsWindow;
-import edu.stanford.bmir.protege.web.shared.DataFactory;
-import edu.stanford.bmir.protege.web.shared.dispatch.Result;
-import edu.stanford.bmir.protege.web.shared.dispatch.UpdateObjectAction;
-import edu.stanford.bmir.protege.web.shared.frame.ClassFrame;
-import edu.stanford.bmir.protege.web.shared.frame.DataPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.frame.ObjectPropertyCharacteristic;
-import edu.stanford.bmir.protege.web.shared.frame.ObjectPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.frame.PropertyAnnotationValue;
-import edu.stanford.bmir.protege.web.shared.frame.PropertyValue;
-import edu.stanford.bmir.protege.web.shared.frame.PropertyValueList;
-import edu.stanford.bmir.protege.web.shared.frame.PropertyValueState;
-import edu.stanford.bmir.protege.web.shared.frame.UpdateDataPropertyFrameAction;
-import edu.stanford.bmir.protege.web.shared.frame.UpdateObjectPropertyFrameAction;
+import edu.stanford.bmir.protege.web.client.xd.specialization.panels.AlignmentsPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.panels.EntitySpecializationPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PreviewPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PropertyRestrictionPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.panels.StrategySelectionPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.treenodes.ClassTreeNode;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
-import edu.stanford.bmir.protege.web.shared.xd.data.EntityMetadata;
+import edu.stanford.bmir.protege.web.shared.xd.actions.PersistSpecializationAction;
+import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
+import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.XdTreeNode;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
+import edu.stanford.bmir.protege.web.shared.xd.results.PersistSpecializationResult;
 
 public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	
@@ -85,35 +47,34 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private ToolbarButton nextButton;
 	private ToolbarButton finishButton;
 	private Toolbar navigationBar;
-	private ButtonListenerAdapter navigationButtonsListener;
+	//private ButtonListenerAdapter navigationButtonsListener;
+	private ButtonListenerAdapter backButtonListener;
+	private ButtonListenerAdapter forwardButtonListener;
 	private CardLayout cardLayout;
 	
 	// Strategy selection radio buttons
-	private RadioButton propStrategyButton;
-	private RadioButton classStrategyButton;
-	private RadioButton hybridStrategyButton;
+	//private RadioButton propStrategyButton;
+	//private RadioButton classStrategyButton;
+	//private RadioButton hybridStrategyButton;
 	
 	// TreePanels for customizing classes and properties
-	private TreePanel classTreePanel;
-	private TreePanel objectPropertyTreePanel;
-	private TreePanel datatypePropertyTreePanel;
-	
-	// Visualization and text representation fields
-	private Panel visualizationPanel;
-	private TextArea instantationAxiomsPreview;
+	//private TreePanel classTreePanel;
+	//private TreePanel objectPropertyTreePanel;
+	//private TreePanel datatypePropertyTreePanel;
+	//private TreePanel entityTreePanel;
 
 	// Entity specialization windows
-	private NewClassDetailsWindow ncdw;
+	/*private NewClassDetailsWindow ncdw;
 	private EditClassDetailsWindow ecdw;
 	private NewObjectPropertyDetailsWindow nopdw;
 	private EditObjectPropertyDetailsWindow eopdw;
 	private NewDatatypePropertyDetailsWindow ndpdw;
-	private EditDatatypePropertyDetailsWindow edpdw;
+	private EditDatatypePropertyDetailsWindow edpdw;*/
+	//private EntityDetailsWindow edWindow;
 	
 	// Toggle for whether to display all or a subset of ODP concepts for specialization.
 	private Boolean displayOnlyLeafClasses;
-	private Boolean displayOnlyLeafObjectProperties;
-	private Boolean displayOnlyLeafDataProperties;
+	
 	
 	// Progress window when performing instantiation
 	//private MessageBoxConfig instantiationProgressConf;
@@ -121,45 +82,47 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	// Reference to project ID required for service calls
 	private ProjectId projectId;
 	
-	// Used to synchronize GWT-RPC-calls so that frame updates don't occur prior to entity creation
-	private Integer requiredCreationServiceCalls;
-	private Integer requiredUpdateServiceCalls;
-	private Integer completedCreationServiceCalls;
-	private Integer completedUpdateServiceCalls;
+	// Individual screens of the specialization wizard
+	private StrategySelectionPanel strategySelectionPanel;
+	private EntitySpecializationPanel entitySpecializationPanel;
+	private PropertyRestrictionPanel propertyRestrictionPanel;
+	private AlignmentsPanel alignmentsPanel;
+	private PreviewPanel previewPanel;
+	
+	// IRI of ODP being specialized
+	private IRI odpIRI;
 	
 	// Keeps track of created entities from the first half of instantiation
-	private Map<String,OWLClass> createdClasses;
-	private Map<String, OWLObjectProperty> createdObjectProperties;
-	private Map<String, OWLDataProperty> createdDataProperties;
+	//private Map<String,OWLClass> createdClasses;
+	//private Map<String, OWLObjectProperty> createdObjectProperties;
+	//private Map<String, OWLDataProperty> createdDataProperties;
+	
+	private XdTreeNode<ClassFrame>[] specializedClasses;
+	private XdTreeNode<ObjectPropertyFrame>[] specializedObjectProperties;
+	private XdTreeNode<DataPropertyFrame>[] specializedDataProperties;
 	
 	@SuppressWarnings("deprecation")
 	public XdSpecializationWizard(XdPatternDetailsPortlet parent) {
 		this.projectId = parent.getProjectId();
 		
 		this.displayOnlyLeafClasses = false;
-		this.displayOnlyLeafObjectProperties = false;
-		this.displayOnlyLeafDataProperties = false;
+		//this.edWindow = new EntityDetailsWindow();
 		
-		this.ncdw = new NewClassDetailsWindow(this);
+		/*this.ncdw = new NewClassDetailsWindow(this);
 		this.ecdw = new EditClassDetailsWindow(this);
 		this.nopdw = new NewObjectPropertyDetailsWindow(this);
 		this.eopdw = new EditObjectPropertyDetailsWindow(this);
 		this.ndpdw = new NewDatatypePropertyDetailsWindow(this);
-		this.edpdw = new EditDatatypePropertyDetailsWindow(this);
+		this.edpdw = new EditDatatypePropertyDetailsWindow(this);*/
 		
-		this.createdClasses = new HashMap<String,OWLClass>();
-		this.createdObjectProperties = new HashMap<String,OWLObjectProperty>();
-		this.createdDataProperties = new HashMap<String,OWLDataProperty>();
-		
-		this.requiredCreationServiceCalls = 0;
-		this.requiredUpdateServiceCalls = 0;
-		this.completedCreationServiceCalls = 0;
-		this.completedUpdateServiceCalls = 0;
+		//this.createdClasses = new HashMap<String,OWLClass>();
+		//this.createdObjectProperties = new HashMap<String,OWLObjectProperty>();
+		//this.createdDataProperties = new HashMap<String,OWLDataProperty>();
 		
 		this.setTitle("ODP Specialisation Wizard");
 		this.setWidth(640);
 		this.setHeight(480);
-		this.setModal(true);
+		//this.setModal(true);
 		this.setResizable(false);
 		 
 		cardLayout = new CardLayout();
@@ -169,14 +132,16 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         // This is the toolbar at the bottom of the wizard that handles back/forward navigation
         // through the wizard interface
         navigationBar = new Toolbar();  
-        navigationButtonsListener = makeNavigationButtonsListenerAdapter();
+        //navigationButtonsListener = makeNavigationButtonsListenerAdapter();
+        forwardButtonListener = makeForwardButtonListener();
+        backButtonListener = makeBackButtonListener();
         
-        backButton = new ToolbarButton("Back", navigationButtonsListener);  
+        backButton = new ToolbarButton("Back", backButtonListener);  
         backButton.setId("move-prev");  
         navigationBar.addButton(backButton);  
         navigationBar.addFill();  
   
-        nextButton = new ToolbarButton("Next", navigationButtonsListener);  
+        nextButton = new ToolbarButton("Next", forwardButtonListener);  
         nextButton.setId("move-next");  
         navigationBar.addButton(nextButton);
         
@@ -190,11 +155,21 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         finishButton.setVisible(false);
         this.setBottomToolbar(navigationBar);  
 
+        this.strategySelectionPanel = new StrategySelectionPanel();
+        
+        this.entitySpecializationPanel = new EntitySpecializationPanel();
+        this.propertyRestrictionPanel = new PropertyRestrictionPanel();
+        this.alignmentsPanel = new AlignmentsPanel();
+        this.previewPanel = new PreviewPanel();
         
         // These are the individual cards/screens of the wizard interface.
-        this.add(makeFirstCard());  
-        this.add(makeSecondCard());
-        this.add(makeThirdCard()); 
+        // The order in which they are added is important, as is the ID that 
+        // they are assigned in their respective constructor.
+        this.add(strategySelectionPanel);  
+        this.add(entitySpecializationPanel);
+        this.add(propertyRestrictionPanel); 
+        this.add(alignmentsPanel);
+        this.add(previewPanel);
         
         // Configure the progress window shown when finishing
         /*instantiationProgressConf = new MessageBoxConfig() {  
@@ -207,40 +182,149 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
             }  
         };*/
         
-        // TODO: Make class/property windows modal
+        // Make class/property windows modal
         
 	}
 	
-	/**
-	 * Returns the currently selected class node in class hierarchy tree widget.
-	 * @return A TreeNode that is currently selected.
+	/* check whether this method makes sense or whether it (and the corresponding op/dp methods)
+	 * should be merged. If so also the details window should be merged!
 	 */
-	public TreeNode getSelectedClass() {
-		DefaultSelectionModel dsm = (DefaultSelectionModel)classTreePanel.getSelectionModel();
+	/*public TreeNode getSelectedClass() {
+		DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
 		return dsm.getSelectedNode();
-	}
+	}*/
 	
+	// Controls what happens when back button is pressed
+	private ButtonListenerAdapter makeBackButtonListener() {
+		return new ButtonListenerAdapter() {  
+            public void onClick(Button button, EventObject e) {      
+                String panelID = cardLayout.getActiveItem().getId();  
+  
+                switch (panelID) {
+                case "card-1":
+                	
+                	// Moving from entity specialization panel to strategy selection panel
+                	cardLayout.setActiveItem(0);
+                	break;
+                	
+                case "card-2":
+                	
+                	// Moving from property restriction panel to entity specialization panel
+                	cardLayout.setActiveItem(1);
+                	break;
+                	
+                case "card-3":
+                	
+                	// Moving from alignment panel to property restriction panel
+                	cardLayout.setActiveItem(2);
+                	break;
+                	
+                case "card-4":
+                	
+                	// Moving from preview panel to alignment panel
+                	cardLayout.setActiveItem(3);
+                	finishButton.setVisible(false);
+                    nextButton.setVisible(true);
+                	break;
+                } 
+            }
+        };  
+	}
+
+	// Controls what happens when forward button is pressed
+	private ButtonListenerAdapter makeForwardButtonListener() {
+		return new ButtonListenerAdapter() {  
+            public void onClick(Button button, EventObject e) {  
+                String panelID = cardLayout.getActiveItem().getId();  
+  
+                switch (panelID) {
+                case "card-0":
+                	
+                	// Moving from strategy selection panel to entity specialization panel 
+                	cardLayout.setActiveItem(1);
+                	break;
+                	
+                case "card-1":
+                	
+                	// Moving from entity specialization panel to property restriction panel
+                	specializedClasses = entitySpecializationPanel.getSpecializedClasses();
+                	specializedObjectProperties = entitySpecializationPanel.getSpecializedObjectProperties();
+                	specializedDataProperties = entitySpecializationPanel.getSpecializedDataProperties();
+                	cardLayout.setActiveItem(2);
+                	break;
+                	
+                case "card-2":
+                	
+                	// Moving from property restriction panel to alignment panel 
+                	cardLayout.setActiveItem(3);
+                	break;
+                	
+                case "card-3":
+                	
+                	// Moving from alignment panel to preview panel 
+                	cardLayout.setActiveItem(4);
+                	finishButton.setVisible(true);
+                    nextButton.setVisible(false);
+                	break;
+                }
+            }
+        };  
+	}
+
 	/**
 	 * This method stores the customized ODP instantiation into the ontology on the server side
 	 * and then closes down the wizard. 
 	 */
-	private void saveAndClose() {		
+	private void saveAndClose() {	
+		
+		// TODO: Fetch this from first screen
+		OdpSpecializationStrategy strategy = OdpSpecializationStrategy.PROPERTY_ORIENTED;
+		
+		// TODO: Fetch alignments from user selections
+		Alignment[] selectedAlignments = new Alignment[0];
+		
+		// Get Implement the below methods
+		XdTreeNode<ClassFrame>[] classFrameTrees = this.specializedClasses; 
+		XdTreeNode<ObjectPropertyFrame>[] objectPropertyFrameTrees = this.specializedObjectProperties;
+		XdTreeNode<DataPropertyFrame>[] dataPropertyFrameTrees = this.specializedDataProperties;
+		
+		// Generate ODP Specialization object and action to pass to dispach service
+		OdpSpecialization odpSpec = new OdpSpecialization(this.odpIRI, strategy, selectedAlignments, 
+				classFrameTrees, objectPropertyFrameTrees,dataPropertyFrameTrees);
+		PersistSpecializationAction psa = new PersistSpecializationAction(odpSpec);
+		
+		DispatchServiceManager.get().execute(psa, new DispatchServiceCallback<PersistSpecializationResult>() {
+        	@Override
+            public void handleSuccess(PersistSpecializationResult result) {
+        		closeAndResetSpecializationWizard();
+            }
+        });
+		
 		// 1. Calculate the total number of async service calls required
-		requiredCreationServiceCalls = calculateRequiredServiceCalls();
-		requiredUpdateServiceCalls = calculateRequiredServiceCalls();
+		//requiredCreationServiceCalls = calculateRequiredServiceCalls();
+		//requiredUpdateServiceCalls = calculateRequiredServiceCalls();
 		
 		// 2. Create class, object property, and datatype property hierarchies on server
 		// Note that each of these methods on the leaf level execute proceedIfAllEntitiesCreated()
 		// which will not proceed until all entities have been created.
-		createChildClasses(classTreePanel.getRootNode());
-		createChildObjectProperties(objectPropertyTreePanel.getRootNode());
-		createChildDatatypeProperties(datatypePropertyTreePanel.getRootNode());
+		//createChildClasses(classTreePanel.getRootNode());
+		//createChildObjectProperties(objectPropertyTreePanel.getRootNode());
+		//createChildDatatypeProperties(datatypePropertyTreePanel.getRootNode());
 		
-		// TODO: Implement messagebox with pgogress bar (this does not currently work).
+		// Implement messagebox with pgogress bar (this does not currently work).
 		//MessageBox.show(instantiationProgressConf);
 		//this.hide();
 	}
 	
+	/**
+	 * Clear all used fields and close the Specialization Wizard.
+	 */
+	private void closeAndResetSpecializationWizard() {
+		this.clearAllFields();
+		this.hide();
+	}
+	
+	/*
 	/**
 	 * Gets the number of child elements (e.g., classes or properties to create) in
 	 * the class, object property, and datatype property trees. That is to say, how
@@ -250,18 +334,21 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	 * ontology - this is future work to look for/fix.
 	 * @return Number of service 
 	 */
+	/*
 	private Integer calculateRequiredServiceCalls() {
 		return getInclusiveChildNodeCount(classTreePanel.getRootNode()) +
 				getInclusiveChildNodeCount(objectPropertyTreePanel.getRootNode()) + 
 				getInclusiveChildNodeCount(datatypePropertyTreePanel.getRootNode()) - 3;
-	}
+	}*/
 
+	/*
 	/**
 	 * Recursive method to calculate the total number of child nodes (including the
 	 * starting node) of a given subtree.
 	 * @param parentNode - the starting node
 	 * @return number of child nodes including starting node
 	 */
+	/*
 	private int getInclusiveChildNodeCount(TreeNode parentNode) {
 		Integer i = 0;
 		for (final Node childNode: parentNode.getChildNodes()) {
@@ -269,7 +356,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		}
 		return 1 + i;
 	}
+	*/
 
+	/*
 	/**
 	 *  Gate-keeper method that only proceeds with updating frames (e.g., annotations, domains and ranges)
 	 *  of created OWL entities if all of those entities have been created successfully (e.g., if every estimated
@@ -277,33 +366,38 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	 *  Thus we force GWT to act synchronously, which is perhaps not a very nice solution architecturally - but is
 	 *  required if we want to reuse existing WebProtégé dispatch APIs rather than create new ones.
 	 */
+	/*
 	private void proceedIfAllEntitiesCreated() {
 		if (requiredCreationServiceCalls == completedCreationServiceCalls) {
 			// If the above is true, then all classes, object properties, and datatype properties in the respective
 			// trees have been created successfully using GWT-RPC calls, and we can now proceed to update their
 			// frames.
 			//MessageBox.updateText("Updating entity frames...");
-			updateChildClassFrames(classTreePanel.getRootNode());
+			
+			/*updateChildClassFrames(classTreePanel.getRootNode());
 			updateChildObjectPropertyFrames(objectPropertyTreePanel.getRootNode());
 			updateChildDatatypePropertyFrames(datatypePropertyTreePanel.getRootNode());
 		} 
-	}
+	}*/
 	
-	/**
+	/*
 	 * Gate-keeper method that only closes down specialization wizard once all frame update service
 	 * calls have returned succesfully.
-	 */
+	*/
+	/*
 	private void proceedIfAllEntitiesUpdated() {
 		if (requiredUpdateServiceCalls == completedUpdateServiceCalls) {
 			this.hide();
 		}
-	}
+	}*/
 	
+	/*
 	/**
 	 * Recursive method that via GWT-RPC calls creates OWL subclasses to match the subtree
 	 * of which the input starting node is the parent.
 	 * @param parentNode - Starting node.
 	 */
+	/*
 	private void createChildClasses(TreeNode parentNode) {
 		OWLClass parentClass = (OWLClass)parentNode.getAttributeAsObject("owlClass");
 		final Node[] childNodes = parentNode.getChildNodes();
@@ -324,8 +418,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		        }
 			});
 		}
-	}
-	
+	}*/
+
 	/**
 	 * This method updates the progress bar and is called by all returning GWT-RPC handlers.
 	 * If we find that all service calls are finished executing, we hide the progress bar and 
@@ -341,6 +435,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
     	}
 	}*/
 	
+	/*
 	private void createChildObjectProperties(TreeNode parentNode) {
 		OWLObjectProperty parentProperty = (OWLObjectProperty)parentNode.getAttributeAsObject("owlObjectProperty");
 		final Node[] childNodes = parentNode.getChildNodes();
@@ -363,8 +458,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		        }
 			});
 		}
-	}
+	}*/
 	
+	/*
 	private void createChildDatatypeProperties(TreeNode parentNode) {
 		OWLDataProperty parentProperty = (OWLDataProperty)parentNode.getAttributeAsObject("owlDataProperty");
 		final Node[] childNodes = parentNode.getChildNodes();
@@ -388,8 +484,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		        }
 			});
 		}
-	}
+	}*/
 	
+	/*
 	private void updateChildClassFrames(TreeNode parentNode) {
 		final Node[] childNodes = parentNode.getChildNodes();
 		
@@ -428,7 +525,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			});
 		}
 	}
-	
+	*/
+	/*
 	private void updateChildObjectPropertyFrames(TreeNode parentNode) {
 		final Node[] childNodes = parentNode.getChildNodes();
 		
@@ -467,7 +565,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			}
 			
 			// Extract owl:inverseOf
-			// TODO: this presently does not work on server-side :(
+			// this presently does not work on server-side :(
 			Set<OWLObjectProperty> inverses = new HashSet<OWLObjectProperty>();
 			if (childTreeNode.getAttribute("owlInverseOf") != null) {
 				String inverseLabel = childTreeNode.getAttribute("owlInverseOf");
@@ -476,7 +574,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			}
 			
 			// Extract some more property characteristics
-			// TODO: Support more characteristics (reflexive, asymmetric, etc)
+			// Support more characteristics (reflexive, asymmetric, etc)
 			Set<ObjectPropertyCharacteristic> characteristics = new HashSet<ObjectPropertyCharacteristic>();
 			if (childTreeNode.getAttribute("owlTransitiveProperty") != null) {
 				characteristics.add(ObjectPropertyCharacteristic.TRANSITIVE);
@@ -505,8 +603,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		        }
 			});
 		}
-	}
-	
+	}*/
+	/*
 	private void updateChildDatatypePropertyFrames(TreeNode parentNode) {
 		final Node[] childNodes = parentNode.getChildNodes();
 		
@@ -569,12 +667,19 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		        }
 			});
 		}
-	}
+	}*/
 	
 	// This is where we clear out old data, load new data required 
 	// to run the wizard, prepare fields, etc etc
 	public void loadOdp(String uri) {
 		
+		// Empty out everything
+		this.clearAllFields();
+		
+		// Set IRI that we use
+		this.odpIRI = IRI.create(uri);
+		
+		/*
 		// Clear out class tree panel
 		TreeNode rootClassNode = classTreePanel.getRootNode();
 		for (Node child: rootClassNode.getChildNodes()) {
@@ -591,73 +696,94 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		TreeNode rootDataPropertyNode = datatypePropertyTreePanel.getRootNode();
 		for (Node child: rootDataPropertyNode.getChildNodes()) {
 			rootDataPropertyNode.removeChild(child);
-		}
-		
-		// TODO: clear out other fields
+		}*/
 		
 		// Get ODP implementation from server
         DispatchServiceManager.get().execute(new GetOdpContentsAction(uri), new DispatchServiceCallback<GetOdpContentsResult>() {
         	@Override
             public void handleSuccess(GetOdpContentsResult result) {
         		
+        		XdTreeNode<ClassFrame> odpClasses = result.getClasses();
+        		XdTreeNode<ObjectPropertyFrame> odpObjectProperties = result.getObjectProperties();
+        		XdTreeNode<DataPropertyFrame> odpDataProperties = result.getDataProperties();
+        		
+        		entitySpecializationPanel.populateEntityTree(odpClasses, odpObjectProperties, odpDataProperties);
+        		// TODO: construct TreeNode subclasses and add them to the overall entity tree view.
+        		
+        		/*
         		// Render classes
-        		XdTreeNode<EntityMetadata> classes = result.getClasses();
+        		XdTreeNode<ClassFrame> classes = result.getClasses();
         		TreeNode rootClassNode = classTreePanel.getRootNode();
-        		for (XdTreeNode<EntityMetadata> subClassFromServer: classes.getChildren()) {
+        		for (XdTreeNode<ClassFrame> subClassFromServer: classes.getChildren()) {
         			recursivelyAddNode(subClassFromServer, rootClassNode);
         		}
         		classTreePanel.expandAll();
                 
         		// Render object properties
-        		XdTreeNode<EntityMetadata> objectProperties = result.getObjectProperties();
+        		XdTreeNode<ObjectPropertyFrame> objectProperties = result.getObjectProperties();
         		TreeNode rootObjectPropertyNode = objectPropertyTreePanel.getRootNode();
-        		for (XdTreeNode<EntityMetadata> subPropertyFromServer: objectProperties.getChildren()) {
+        		for (XdTreeNode<ObjectPropertyFrame> subPropertyFromServer: objectProperties.getChildren()) {
         			recursivelyAddNode(subPropertyFromServer, rootObjectPropertyNode);
         		}
         		objectPropertyTreePanel.expandAll();
         		
                 // Render Object Properties
-        		XdTreeNode<EntityMetadata> dataProperties = result.getDataProperties();
+        		XdTreeNode<DataPropertyFrame> dataProperties = result.getDataProperties();
         		TreeNode rootDataPropertyNode = datatypePropertyTreePanel.getRootNode();
-        		for (XdTreeNode<EntityMetadata> subPropertyFromServer: dataProperties.getChildren()) {
+        		for (XdTreeNode<DataPropertyFrame> subPropertyFromServer: dataProperties.getChildren()) {
         			recursivelyAddNode(subPropertyFromServer, rootDataPropertyNode);
         		}
         		objectPropertyTreePanel.expandAll();
-        		
-                // TODO: Render Datatype properties
+        		*/
             }
         });
 	}
 	
-	private TreeNode makeTreeNode(EntityMetadata em) {
-		TreeNode tn = new TreeNode(em.getLabel());
+	private void clearAllFields() {
+		// TODO Auto-generated method stub
 		
+	}
+
+	private TreeNode makeTreeNode(OntologyEntityFrame oef) {
 		// Iterate over all the keys/values in the metadata map, and assign them as attributes on the TreeNode
-		Map<String,String> metadata = em.getMetadata();
+		// TODO: Fix this to render custom subclasses of GWT TreeNode
+		if (oef instanceof ClassFrame) {
+			ClassFrame cf = (ClassFrame)oef;
+			new ClassTreeNode(oef.getLabel(), cf.getIri());
+		}
+		else if (oef instanceof DataPropertyFrame) {
+		}
+		else if (oef instanceof ObjectPropertyFrame) {
+		}
+		/*Map<String,String> metadata = em.getMetadata();
 		Iterator<Entry<String,String>> it = metadata.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<String,String> pair = (Map.Entry<String,String>)it.next();
 			tn.setAttribute(pair.getKey(), pair.getValue());
-		}
+		}*/
 		
-		return tn;
+		// We should never get here!
+		return null;
 	}
 	
-	private void recursivelyAddNode(XdTreeNode<EntityMetadata> nodeFromServer, TreeNode localParentNode) {
+	/*
+	private void recursivelyAddNode(XdTreeNode<OntologyEntityFrame> nodeFromServer, TreeNode localParentNode) {
 		TreeNode newLocalChild = makeTreeNode(nodeFromServer.getData());
 		localParentNode.appendChild(newLocalChild);
-		for (XdTreeNode<EntityMetadata> nextChildFromServer: nodeFromServer.getChildren()) {
-			//Window.alert("Second level recursion over " + nextChildFromServer.getData().getLabel());
+		for (XdTreeNode<OntologyEntityFrame> nextChildFromServer: nodeFromServer.getChildren()) {
 			recursivelyAddNode(nextChildFromServer, newLocalChild);
 		}
-	}
+	}*/
 	
+	/*
 	private ButtonListenerAdapter makeNavigationButtonsListenerAdapter() {
 		return new ButtonListenerAdapter() {  
             public void onClick(Button button, EventObject e) {  
                 String btnID = button.getId();    
                 String panelID = cardLayout.getActiveItem().getId();  
   
+                // TODO: restructure this entirely based on new workflow! 
+                
                 if (btnID.equals("move-prev")) {
                     if (panelID.equals("card-2")) {
                     	// From last to middle card
@@ -689,9 +815,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 }
             }
         };  
-	}
+	}*/
 	
-	private Panel makeFirstCard() {
+	/*private Panel makeFirstCard() {
         Panel first = new Panel();  
         first.setBorder(false);
         first.setId("card-0");
@@ -712,23 +838,31 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
        strategyPanel.add(hybridStrategyButton);
        first.add(strategyPanel);
        return first;
-	}
+	}*/
 	
+	/*
 	private Panel makeSecondCard() {
         Panel second = new Panel();
         second.setBorder(false);  
         second.setId("card-1");
-        second.setTitle("Specialise Classes and Properties");
+        second.setTitle("Entity Specialization");
         second.add(new Label("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean in rhoncus sapien. Phasellus vitae magna at enim molestie auctor et at est. Nullam consequat odio eu varius venenatis. Etiam aliquet ligula ac posuere lacinia. Curabitur aliquet elit a viverra fringilla. "));
         
+        entityTreePanel = new TreePanel();
+        entityTreePanel.setRootVisible(false);
+        second.add(entityTreePanel);
+        
+        /*
         TabPanel tabPanel = new TabPanel();
         tabPanel.setTabPosition(Position.TOP);  
         tabPanel.setResizeTabs(true);  
         tabPanel.setMinTabWidth(115);
         tabPanel.setTabWidth(135);
         tabPanel.setActiveTab(0);
+        */
         
         // The tab where we set classes
+        /*
         Panel classSpecialisationPanel = new Panel();  
         classSpecialisationPanel.setTitle("Classes");
         classSpecialisationPanel.setLayout(new ColumnLayout());
@@ -893,12 +1027,13 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         tabPanel.add(classSpecialisationPanel);
         tabPanel.add(objPropertySpecialisationPanel);
         tabPanel.add(dataPropertySpecialisationPanel);
-        second.add(tabPanel);
-        
+        second.add(tabPanel);*/
+        /*
         return second;
-	}
+	}*/
 	
-	private Panel makeThirdCard() {
+	/*
+	private Panel makeTshirdCard() {
         Panel third = new Panel();
         third.setLayout(new RowLayout());
         third.setBorder(false);  
@@ -918,13 +1053,15 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         instantiationAxiomsPanel.setLayout(new RowLayout());
         instantationAxiomsPreview = new TextArea();
         instantationAxiomsPreview.setEnabled(false);
-        instantationAxiomsPreview.setText(getInstantiationAxioms());
+        // TODO: make this call the remote preview service
+        instantationAxiomsPreview.setText("OY");
         instantiationAxiomsPanel.add(instantationAxiomsPreview);
         third.add(instantiationAxiomsPanel);
           
         return third;
-	}
+	}*/
 	
+	/*
 	/**
 	 * Returns the class labels of classes displayed for the user to customize. In the future, 
 	 * this may be all classes, or just the leaf nodes, depending on whether the user has selected
@@ -933,6 +1070,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	 * At the moment, returns all classes.
 	 * @return
 	 */
+	/*
 	public String[] getDisplayedClassLabels() {
 		if (this.displayOnlyLeafClasses) {
 			return getClassLabels(true);
@@ -940,13 +1078,14 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		else {
 			return getClassLabels(false);
 		}
-	}
+	}*7
 	
 	/**
 	 * Return the labels of entries in the class tree hierarchy of this specialization wizard. 
 	 * @param onlyLeaves - If true, returns only leaf nodes
 	 * @return Array of leaf class labels
 	 */
+	/*
 	private String[] getClassLabels(Boolean onlyLeaves) {
 		Set<TreeNode> classNodes;
 		if (onlyLeaves) {
@@ -962,7 +1101,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			i++;
 		}
 		return classLabels;
-	}
+	}*/
 	
 	/**
 	 * Recursive method to walk the a tree panel and return leaf nodes.
@@ -997,6 +1136,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		return leaves;
 	} 
 	
+	/*
 	private String getInstantiationAxioms() {
 		// TODO: Actually implement this
 		return "<#green-goblin>\n" + 
@@ -1008,23 +1148,28 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 				"    rel:enemyOf <#green-goblin> ;\n" + 
 				"    a foaf:Person ;\n" +
 				"    foaf:name \"Spiderman\", \"Человек-паук\"@ru .";
-	}
+	}*/
 
+	/*
 	/**
 	 * Returns the currently selected object property node in object property hierarchy tree widget.
 	 * @return A TreeNode that is currently selected.
 	 */
+	/*
 	public TreeNode getSelectedObjectProperty() {
-		DefaultSelectionModel dsm = (DefaultSelectionModel)objectPropertyTreePanel.getSelectionModel();
+		DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
 		return dsm.getSelectedNode();
-	}
+	}*/
 
+	/*
 	/**
 	 * Returns the currently selected datatype property node in datatype property hierarchy tree widget.
 	 * @return A TreeNode that is currently selected.
 	 */
+	/*
 	public TreeNode getSelectedDatatypeProperty() {
-		DefaultSelectionModel dsm = (DefaultSelectionModel)datatypePropertyTreePanel.getSelectionModel();
+		DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
 		return dsm.getSelectedNode();
 	}
+	*/
 }
