@@ -4,22 +4,23 @@ import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.Node;
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.Panel;
+import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.layout.RowLayoutData;
+import com.gwtext.client.widgets.tree.DefaultSelectionModel;
 import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
 import com.gwtext.client.widgets.tree.event.TreePanelListenerAdapter;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.EntityDetailsWindow;
-import edu.stanford.bmir.protege.web.client.xd.specialization.treenodes.ClassTreeNode;
-import edu.stanford.bmir.protege.web.client.xd.specialization.treenodes.DataPropertyTreeNode;
-import edu.stanford.bmir.protege.web.client.xd.specialization.treenodes.ObjectPropertyTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.XdTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 public class EntitySpecializationPanel extends Panel {
 
@@ -52,19 +53,7 @@ public class EntitySpecializationPanel extends Panel {
         entityTreePanel = new TreePanel();
         entityTreePanel.addListener(new TreePanelListenerAdapter() {
         	public void onClick(TreeNode node, EventObject e) {
-        		// The below if blocks are because GWT does not seem to play nicely with casting
-        		// TreeNode to joiny OntologyEntityTreeNode superclass :-(
-        		boolean hasIri = true;
-        		if (node instanceof ClassTreeNode) {
-        			hasIri = ((ClassTreeNode)node).hasIri();
-        		}
-        		if (node instanceof ObjectPropertyTreeNode) {
-        			hasIri = ((ObjectPropertyTreeNode)node).hasIri();
-        		}
-        		if (node instanceof DataPropertyTreeNode) {
-        			hasIri = ((DataPropertyTreeNode)node).hasIri();
-        		}
-        		if (hasIri) {
+        		if (node.getAttributeAsObject("iri") != null) {
         			modifyButton.setDisabled(true);
         			deleteButton.setDisabled(true);
         		}
@@ -84,11 +73,38 @@ public class EntitySpecializationPanel extends Panel {
         specializationButtonsPanel.setBodyStyle("border-top: 1px solid #99bbe8;");  
         specializationButtonsPanel.setPaddings(10);
         specializationButtonsPanel.setLayout(new HorizontalLayout(15));
-        // TODO: Add button listeners and wire up functionality of the below buttons
-        // to show edWindow.
         specializeButton = new Button("Specialize");
+        specializeButton.addListener(new ButtonListenerAdapter() {  
+            public void onClick(Button button, EventObject e) {
+            	DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
+            	edWindow.newFrameAndShow(dsm.getSelectedNode());
+            }
+        });
         modifyButton = new Button("Modify");
+        modifyButton.addListener(new ButtonListenerAdapter() {  
+            public void onClick(Button button, EventObject e) {
+            	DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
+            	TreeNode selectedNode = dsm.getSelectedNode();
+            	if (selectedNode.getAttributeAsObject("frame")!=null) {
+            		OntologyEntityFrame selectedFrame = (OntologyEntityFrame)selectedNode.getAttributeAsObject("frame");
+            		edWindow.loadFrameAndShow(selectedFrame);
+            	}
+            }
+        });
         deleteButton = new Button("Delete");
+        deleteButton.addListener(new ButtonListenerAdapter() {  
+            public void onClick(Button button, EventObject e) {
+            	MessageBox.confirm("Confirm Deletion", "Are you sure you want to delete the selected entity?", new MessageBox.ConfirmCallback() {
+            		public void execute(String btnID) {
+            			if (btnID.equalsIgnoreCase("yes")) {
+            				DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
+            				TreeNode selectedNode = dsm.getSelectedNode();
+            				selectedNode.getParentNode().removeChild(selectedNode);
+            			}
+            		}
+            	});  
+            }
+        });
         specializationButtonsPanel.add(specializeButton);
         specializationButtonsPanel.add(modifyButton);
         specializationButtonsPanel.add(deleteButton);
@@ -156,7 +172,19 @@ public class EntitySpecializationPanel extends Panel {
 	 */
 	private void recursivelyAddClassNode(XdTreeNode<ClassFrame> childNodeFromServer, TreeNode parentNode) {
 		ClassFrame childClassFrame = childNodeFromServer.getData();
-		ClassTreeNode newChildNode = new ClassTreeNode(childClassFrame.getLabel(), childClassFrame.getIri());
+		TreeNode newChildNode = new TreeNode(childClassFrame.getLabel(),"owlClassTreeNode");
+		newChildNode.setAttribute("type", "owlClassTreeNode");
+		
+		// If an IRI exists in frame from server, add to node
+		if (childClassFrame.getIri().isPresent()) {
+			newChildNode.setAttribute("iri", childClassFrame.getIri().get());
+		}
+		
+		// If a comment exists in frame from server, set as tooltip
+		if (childClassFrame.getComment().isPresent()) {
+			newChildNode.setTooltip(childClassFrame.getComment().get());
+		}
+		
 		parentNode.appendChild(newChildNode);
 		for (XdTreeNode<ClassFrame> nextChild: childNodeFromServer.getChildren()) {
 			recursivelyAddClassNode(nextChild, newChildNode);
@@ -170,7 +198,19 @@ public class EntitySpecializationPanel extends Panel {
 	 */
 	private void recursivelyAddObjectPropertyNode(XdTreeNode<ObjectPropertyFrame> childNodeFromServer, TreeNode parentNode) {
 		ObjectPropertyFrame childObjectPropertyFrame = childNodeFromServer.getData();
-		ObjectPropertyTreeNode newChildNode = new ObjectPropertyTreeNode(childObjectPropertyFrame.getLabel(), childObjectPropertyFrame.getIri());
+		TreeNode newChildNode = new TreeNode(childObjectPropertyFrame.getLabel(),"owlObjectPropertyTreeNode");
+		newChildNode.setAttribute("type", "owlObjectPropertyTreeNode");
+		
+		// If IRI exists in frame from server, set it for node
+		if (childObjectPropertyFrame.getIri().isPresent()) {
+			newChildNode.setAttribute("iri", childObjectPropertyFrame.getIri().get());
+		}
+		
+		// If a comment exists in frame from server, set as tooltip
+		if (childObjectPropertyFrame.getComment().isPresent()) {
+			newChildNode.setTooltip(childObjectPropertyFrame.getComment().get());
+		}
+
 		parentNode.appendChild(newChildNode);
 		for (XdTreeNode<ObjectPropertyFrame> nextChild: childNodeFromServer.getChildren()) {
 			recursivelyAddObjectPropertyNode(nextChild, newChildNode);
@@ -184,7 +224,19 @@ public class EntitySpecializationPanel extends Panel {
 	 */
 	private void recursivelyAddDataPropertyNode(XdTreeNode<DataPropertyFrame> childNodeFromServer, TreeNode parentNode) {
 		DataPropertyFrame childDataPropertyFrame = childNodeFromServer.getData();
-		DataPropertyTreeNode newChildNode = new DataPropertyTreeNode(childDataPropertyFrame.getLabel(), childDataPropertyFrame.getIri());
+		TreeNode newChildNode = new TreeNode(childDataPropertyFrame.getLabel(), "owlDataPropertyTreeNode");
+		newChildNode.setAttribute("type", "owlDataPropertyTreeNode");
+		
+		// If IRI exists in frame from server, set it for node
+		if (childDataPropertyFrame.getIri().isPresent()) {
+			newChildNode.setAttribute("iri", childDataPropertyFrame.getIri().get());
+		}
+		
+		// If a comment exists in frame from server, set as tooltip
+		if (childDataPropertyFrame.getComment().isPresent()) {
+			newChildNode.setTooltip(childDataPropertyFrame.getComment().get());
+		}
+		
 		parentNode.appendChild(newChildNode);
 		for (XdTreeNode<DataPropertyFrame> nextChild: childNodeFromServer.getChildren()) {
 			recursivelyAddDataPropertyNode(nextChild, newChildNode);

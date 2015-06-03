@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
 
-import com.google.gwt.user.client.Window;
 import com.gwtext.client.core.EventObject; 
 import com.gwtext.client.data.Node;
 import com.gwtext.client.widgets.Button;
@@ -13,10 +12,7 @@ import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.CardLayout;
-import com.gwtext.client.widgets.tree.DefaultSelectionModel;
 import com.gwtext.client.widgets.tree.TreeNode;
-import com.gwtext.client.widgets.tree.TreePanel;
-
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
@@ -25,7 +21,6 @@ import edu.stanford.bmir.protege.web.client.xd.specialization.panels.EntitySpeci
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PreviewPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PropertyRestrictionPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.StrategySelectionPanel;
-import edu.stanford.bmir.protege.web.client.xd.specialization.treenodes.ClassTreeNode;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.PersistSpecializationAction;
@@ -36,7 +31,6 @@ import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 import edu.stanford.bmir.protege.web.shared.xd.results.PersistSpecializationResult;
 
@@ -744,6 +738,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		
 	}
 
+	/*
 	private TreeNode makeTreeNode(OntologyEntityFrame oef) {
 		// Iterate over all the keys/values in the metadata map, and assign them as attributes on the TreeNode
 		// TODO: Fix this to render custom subclasses of GWT TreeNode
@@ -763,8 +758,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		}*/
 		
 		// We should never get here!
+	/*
 		return null;
-	}
+	}*/
 	
 	/*
 	private void recursivelyAddNode(XdTreeNode<OntologyEntityFrame> nodeFromServer, TreeNode localParentNode) {

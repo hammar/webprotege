@@ -18,6 +18,10 @@ public abstract class PropertyFrame extends OntologyEntityFrame {
 	protected PropertyFrame() {
 	}
 	
+	public PropertyFrame(String label) {
+		super(label);
+	}
+	
 	// No-OWL-entity constructor
 	public PropertyFrame(String label, String comment, IRI iri) {
 		super(label, comment, iri);

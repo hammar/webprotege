@@ -14,11 +14,11 @@ public class ClassFrame extends OntologyEntityFrame {
 	}
 	
 	public ClassFrame(String label) {
-		this(label, null);
+		super(label);
 	}
 	
 	public ClassFrame(String label, String comment) {
-		this(label, comment, null);
+		super(label, comment);
 	}
 	
 	public ClassFrame(String label, String comment, IRI iri) {

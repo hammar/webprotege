@@ -22,6 +22,10 @@ public class ObjectPropertyFrame extends PropertyFrame implements Serializable {
 	private ObjectPropertyFrame() {
 	}
 	
+	public ObjectPropertyFrame(String label) {
+		super(label);
+	}
+	
 	// No-OWL-entity constructor
 	public ObjectPropertyFrame(String label, String comment) {
 		this(label, comment, null);

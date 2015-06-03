@@ -16,6 +16,10 @@ public class DataPropertyFrame extends PropertyFrame {
 	private DataPropertyFrame() {
 	}
 	
+	public DataPropertyFrame(String label) {
+		super(label);
+	}
+	
 	// No-OWL-entity constructor
 	public DataPropertyFrame(String label, String comment) {
 		this(label, comment, null);

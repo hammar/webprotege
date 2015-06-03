@@ -4,14 +4,16 @@ import java.io.Serializable;
 
 import org.semanticweb.owlapi.model.IRI;
 
+import com.google.common.base.Optional;
+
 // Parent class of class frames, property frames, etc.
-public abstract class OntologyEntityFrame implements Serializable {
+public class OntologyEntityFrame implements Serializable {
 	
 	private static final long serialVersionUID = 3210642949486447600L;
 	
 	private String label;
-	private String comment;
-	private IRI iri;
+	private Optional<String> comment;
+	private Optional<IRI> iri;
 	
 	// GWT-RPC empty constructor
 	protected OntologyEntityFrame() {
@@ -19,18 +21,20 @@ public abstract class OntologyEntityFrame implements Serializable {
 	
 	// Co-comment no-OWL-entity constructor
 	public OntologyEntityFrame(String label) {
-		this(label, null);
+		this.label = label;
+		this.comment = Optional.absent();
+		this.iri = Optional.absent();
 	}
 	
 	// -entity constructor
 	public OntologyEntityFrame(String label, String comment) {
-		this(label,comment,null);
+		this(label);
+		this.setComment(comment);
 	}
 	
 	public OntologyEntityFrame(String label, String comment, IRI iri) {
-		this.label = label;
-		this.comment = comment;
-		this.iri = iri;
+		this(label, comment);
+		this.setIri(iri);
 	}
 
 	// Access methods
@@ -38,7 +42,7 @@ public abstract class OntologyEntityFrame implements Serializable {
 		return label;
 	}
 
-	public String getComment() {
+	public Optional<String> getComment() {
 		return comment;
 	}
 	
@@ -47,15 +51,15 @@ public abstract class OntologyEntityFrame implements Serializable {
 	}
 
 	public void setComment(String comment) {
-		this.comment = comment;
+		this.comment = Optional.of(comment);
 	}
 	
-	public IRI getIri() {
+	public Optional<IRI> getIri() {
 		return iri;
 	}	
 	
 	public void setIri(IRI iri) {
-		this.iri = iri;
+		this.iri = Optional.of(iri);
 	}
 
 	public Boolean hasIri() {

@@ -36,6 +36,8 @@ import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import org.springframework.web.client.RestTemplate;
 
+import com.google.common.base.Optional;
+
 import edu.stanford.bmir.protege.web.server.dispatch.ActionHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
@@ -206,15 +208,25 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 		// TODO: Depending on what type of OWLEntity we get in, construct a suitable frame and return it
 		
 		String entityLabel = getLabel(entity, ont);
-		String candidateComment = getAnnotationValue(entity, ont, rdfsComment, "en");
+		Optional<String> entityComment = getAnnotationValue(entity, ont, rdfsComment, "en");
 		
 		if (entity instanceof OWLClass) {
-			return new ClassFrame(entityLabel,candidateComment, entity.getIRI());
+			ClassFrame cf = new ClassFrame(entityLabel);
+			cf.setIri(entity.getIRI());
+			if (entityComment.isPresent()) {
+				cf.setComment(entityComment.get());
+			}
+			return cf;
 		}
 		else if (entity instanceof OWLDataProperty) {
 			// Create frame
 			OWLDataProperty dataProperty = (OWLDataProperty)entity;
-			DataPropertyFrame frame = new DataPropertyFrame(entityLabel,candidateComment, dataProperty.getIRI());
+			DataPropertyFrame frame = new DataPropertyFrame(entityLabel);
+			frame.setIri(dataProperty.getIRI());
+			if (entityComment.isPresent()) {
+				frame.setComment(entityComment.get());
+			}
+			
 			
 			// Get domains
 			Set<OWLClassExpression> domainExpressions = dataProperty.getDomains(ont);
@@ -247,7 +259,11 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 		else if (entity instanceof OWLObjectProperty) {
 			// Create frame
 			OWLObjectProperty objectProperty = (OWLObjectProperty)entity;
-			ObjectPropertyFrame frame = new ObjectPropertyFrame(entityLabel,candidateComment, objectProperty.getIRI());
+			ObjectPropertyFrame frame = new ObjectPropertyFrame(entityLabel);
+			frame.setIri(objectProperty.getIRI());
+			if (entityComment.isPresent()) {
+				frame.setComment(entityComment.get());
+			}
 			
 			// Get domains
 			Set<OWLClassExpression> domainExpressions = objectProperty.getDomains(ont);
@@ -393,11 +409,13 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 */
 	private String getLabel(OWLEntity entity, OWLOntology ont) {
 		String odpPrefix = getOdpPrefix(ont);
-		String entityLabel = getAnnotationValue(entity, ont, rdfsLabel, "en");
-		if (entityLabel == null) {
-			entityLabel = entity.getIRI().getFragment();
+		Optional<String> entityLabel = getAnnotationValue(entity, ont, rdfsLabel, "en");
+		if (entityLabel.isPresent()) {
+			return String.format("%s: %s",odpPrefix,entityLabel.get());
 		}
-		return String.format("%s: %s",odpPrefix,entityLabel);
+		else {
+			return entity.getIRI().getFragment();
+		}
 	}
 	
 	/**
@@ -440,19 +458,19 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @param lang
 	 * @return
 	 */
-	private String getAnnotationValue(OWLEntity entity,OWLOntology ont,OWLAnnotationProperty annotationProperty,String lang) {
+	private Optional<String> getAnnotationValue(OWLEntity entity,OWLOntology ont,OWLAnnotationProperty annotationProperty,String lang) {
 		String candidateAnswer = null;
 		for (OWLAnnotation annotation : entity.getAnnotations(ont, annotationProperty)) {
             if (annotation.getValue() instanceof OWLLiteral) {
             	OWLLiteral val = (OWLLiteral) annotation.getValue();
                 if (val.hasLang(lang)) {
-                	return val.getLiteral();
+                	return Optional.of(val.getLiteral());
                 }
                 if (!val.hasLang()) {
                 	candidateAnswer = val.getLiteral();
                 }
             }
         }
-		return candidateAnswer;
+		return Optional.fromNullable(candidateAnswer);
 	}
 }

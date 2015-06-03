@@ -1,10 +1,7 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
-import java.util.Iterator;
-
-import com.google.gwt.user.client.ui.HasWidgets;
+import com.google.common.base.Optional;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Panel;
@@ -14,24 +11,19 @@ import com.gwtext.client.widgets.form.FormPanel;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.RowLayout;
+import com.gwtext.client.widgets.tree.TreeNode;
 
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
-public class EntityDetailsWindow extends Window implements HasWidgets {
+public class EntityDetailsWindow extends Window {
 
-	/**
-	 * This is only to hide a bug in the GWT-EXT Window class which otherwise causes compilation
-	 * warnings for every single subclass..
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public Iterator<Widget> iterator() {
-		return super.iterator();
-	}
-
-	private OntologyEntityFrame frame;
+	private Optional<OntologyEntityFrame> frame;
 	private TextField labelField;
 	private TextField commentField;
+	private TreeNode parentTreeNode;
 
 	public EntityDetailsWindow() {
 		this.setLayout(new RowLayout());
@@ -72,25 +64,65 @@ public class EntityDetailsWindow extends Window implements HasWidgets {
 	
 	// Resets this window to empty state
 	public void reset() {
-		this.frame = null;
+		this.parentTreeNode = null;
+		this.frame = Optional.absent();
 		this.labelField.setValue("");
 		this.commentField.setValue("");
 	}
 	
 	// I.e., persist to parent specialization wizard, not to actual ontology!
 	public void persistAndClose() {
-		frame.setLabel(labelField.getValueAsString());
-		frame.setComment(commentField.getValueAsString());
-		this.close();
+		
+		// If the frame exists already, then we are editing it. Simply update
+		// the fields.
+		if (this.frame.isPresent()) {
+			OntologyEntityFrame frame = this.frame.get();
+			frame.setLabel(labelField.getValueAsString());
+			frame.setComment(commentField.getValueAsString());
+		}
+		// Otherwise, we need to create the frame and wire it up against a new
+		// OntologyEntityTreeNode in the parent SpecializationWizard
+		else {
+			// For some reason parentTreeNode.getIconCls() always returns null, so 
+			// we also store icon in attribute when creating them.
+			String nodeType = parentTreeNode.getAttribute("type");
+			TreeNode newTreeNode = new TreeNode(labelField.getValueAsString(), nodeType);
+			OntologyEntityFrame newFrame;
+			if (nodeType.equalsIgnoreCase("owlClassTreeNode")) {
+				newFrame = new ClassFrame(labelField.getValueAsString());
+			}
+			else if (nodeType.equalsIgnoreCase("owlDataPropertyTreeNode")) {
+				newFrame = new DataPropertyFrame(labelField.getValueAsString());
+			}
+			else {
+				newFrame = new ObjectPropertyFrame(labelField.getValueAsString());
+			}
+			if(commentField.getValueAsString() != "") {
+				newFrame.setComment(commentField.getValueAsString());
+			}
+			newTreeNode.setAttribute("frame", newFrame);
+			parentTreeNode.appendChild(newTreeNode);
+		}
+		
+		this.hide();
+	}
+	
+	public void show() {
+		// Overridden and deactivated - show should never be run on its own for this window!
+	}
+	
+	public void newFrameAndShow(TreeNode parentTreeNode) {
+		this.reset();
+		this.parentTreeNode = parentTreeNode;
+		super.show();
 	}
 	
 	// Load the frame details
-	public void loadFrame(OntologyEntityFrame frame) {
+	public void loadFrameAndShow(OntologyEntityFrame frame) {
 		this.reset();
-		this.frame = frame;
+		this.frame = Optional.of(frame);
 		labelField.setValue(frame.getLabel());
-		if (frame.getComment() != null) {
-			commentField.setValue(frame.getComment());
-		}
+		commentField.setValue(frame.getComment().or(""));
+		super.show();
 	}
 }
