@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.semanticweb.owlapi.model.IRI;
 
+import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
@@ -19,11 +20,13 @@ public class OdpSpecialization implements Serializable {
 	private OdpSpecialization() {
 	}
 	
-	public OdpSpecialization(IRI odpIri,
+	public OdpSpecialization(ProjectId projectId,
+			IRI odpIri,
 			OdpSpecializationStrategy specializationStrategy,
 			Alignment[] alignments, XdTreeNode<ClassFrame>[] classFrameTrees,
 			XdTreeNode<ObjectPropertyFrame>[] objectPropertyFrameTrees,
 			XdTreeNode<DataPropertyFrame>[] dataPropertyFrameTrees) {
+		this.projectId = projectId;
 		this.odpIri = odpIri;
 		this.specializationStrategy = specializationStrategy;
 		this.alignments = alignments;
@@ -33,6 +36,7 @@ public class OdpSpecialization implements Serializable {
 	}
 	
 	// Private fields
+	private ProjectId projectId;
 	private IRI odpIri;
 	private OdpSpecializationStrategy specializationStrategy;
 	private Alignment[] alignments;
@@ -41,6 +45,9 @@ public class OdpSpecialization implements Serializable {
 	private XdTreeNode<DataPropertyFrame>[] dataPropertyFrameTrees;
 	
 	// Access methods
+	public ProjectId getProjectId() {
+		return this.projectId;
+	}
 	public IRI getOdpIri() {
 		return this.odpIri;
 	}

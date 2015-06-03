@@ -1,5 +1,8 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.Node;
@@ -16,6 +19,8 @@ import com.gwtext.client.widgets.tree.TreePanel;
 import com.gwtext.client.widgets.tree.event.TreePanelListenerAdapter;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.EntityDetailsWindow;
+import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
+import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.XdTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
@@ -32,9 +37,12 @@ public class EntitySpecializationPanel extends Panel {
 	private Button modifyButton;
 	private Button deleteButton;
 	
-	public EntitySpecializationPanel() {
+	private XdSpecializationWizard parentWizard;
+	
+	public EntitySpecializationPanel(XdSpecializationWizard parent) {
 		super();
 		
+		this.parentWizard = parent;
 		this.edWindow = new EntityDetailsWindow();
 		
 		this.setLayout(new RowLayout());  
@@ -45,7 +53,8 @@ public class EntitySpecializationPanel extends Panel {
         instructionPanel.setPaddings(10);
         Label instruction = new Label("Please select the classes, object properties, and datatype properties from "
         		+ "the ontology design pattern that you wish to specialize for your modeling need from the list "
-        		+ "below.");
+        		+ "below. Note that if using the class-oriented strategy you will be prevented from specialising "
+        		+ "properties.");
         instructionPanel.add(instruction);
         instructionPanel.setBodyStyle("border-bottom: 1px solid #99bbe8; padding: 15px;");
         this.add(instructionPanel, new RowLayoutData(50));
@@ -60,6 +69,17 @@ public class EntitySpecializationPanel extends Panel {
         		else {
         			modifyButton.setDisabled(false);
         			deleteButton.setDisabled(false);
+        		}
+        		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.CLASS_ORIENTED) {
+        			if (node.getAttribute("type").equalsIgnoreCase("owlClassTreeNode")) {
+        				specializeButton.setDisabled(false);
+        			}
+        			else {
+        				specializeButton.setDisabled(true);
+        			}
+        		}
+        		else {
+        			specializeButton.setDisabled(false);
         		}
         	}
         });
@@ -136,6 +156,24 @@ public class EntitySpecializationPanel extends Panel {
 	}
 	
 	/**
+	 * Recursive method for removing all subtrees that do not have
+	 * IRIs defined, e.g. that are specializations that have not
+	 * yet been persisted to the ontology and had IRIs minted.
+	 * @param root
+	 */
+	private void deleteSpecializedSubTrees(TreeNode root) {
+		// Recurse into child trees
+		for (Node childNode: root.getChildNodes()) {
+			TreeNode childTreeNode = (TreeNode)childNode;
+			this.deleteSpecializedSubTrees(childTreeNode);
+		}
+		// Remove self if self does not have IRI defined
+		if (root.getAttribute("iri") == null) {
+			root.getParentNode().removeChild(root);
+		}
+	}
+	
+	/**
 	 * Populate the entity tree with content.
 	 * @param classes
 	 * @param objectProperties
@@ -174,6 +212,7 @@ public class EntitySpecializationPanel extends Panel {
 		ClassFrame childClassFrame = childNodeFromServer.getData();
 		TreeNode newChildNode = new TreeNode(childClassFrame.getLabel(),"owlClassTreeNode");
 		newChildNode.setAttribute("type", "owlClassTreeNode");
+		newChildNode.setAttribute("frame", childClassFrame);
 		
 		// If an IRI exists in frame from server, add to node
 		if (childClassFrame.getIri().isPresent()) {
@@ -200,6 +239,7 @@ public class EntitySpecializationPanel extends Panel {
 		ObjectPropertyFrame childObjectPropertyFrame = childNodeFromServer.getData();
 		TreeNode newChildNode = new TreeNode(childObjectPropertyFrame.getLabel(),"owlObjectPropertyTreeNode");
 		newChildNode.setAttribute("type", "owlObjectPropertyTreeNode");
+		newChildNode.setAttribute("frame", childObjectPropertyFrame);
 		
 		// If IRI exists in frame from server, set it for node
 		if (childObjectPropertyFrame.getIri().isPresent()) {
@@ -226,6 +266,7 @@ public class EntitySpecializationPanel extends Panel {
 		DataPropertyFrame childDataPropertyFrame = childNodeFromServer.getData();
 		TreeNode newChildNode = new TreeNode(childDataPropertyFrame.getLabel(), "owlDataPropertyTreeNode");
 		newChildNode.setAttribute("type", "owlDataPropertyTreeNode");
+		newChildNode.setAttribute("frame", childDataPropertyFrame);
 		
 		// If IRI exists in frame from server, set it for node
 		if (childDataPropertyFrame.getIri().isPresent()) {
@@ -243,9 +284,34 @@ public class EntitySpecializationPanel extends Panel {
 		}
 	}
 	
+	public void resetSpecializations() {
+		for (Node childNode: rootNode.getChildNodes()) {
+			TreeNode treeNode = (TreeNode)childNode;
+			this.deleteSpecializedSubTrees(treeNode);
+		}
+		entityTreePanel.getSelectionModel().clearSelections();
+	}
+	
 	public XdTreeNode<ClassFrame>[] getSpecializedClasses() {
+		// TODO: Implement this, too tired to continue coding right now
+		for (Node childNode: rootNode.getChildNodes()) {
+			TreeNode treeNode = (TreeNode)childNode;
+			if (treeNode.getAttribute("type").equalsIgnoreCase("owlClassTreeNode")) {
+				
+			}
+		}
 		// TODO: Implement this
 		return null;
+	}
+	
+	
+	private Set<TreeNode> getChildNodes(TreeNode parentNode) {
+		HashSet<TreeNode> children = new HashSet<TreeNode>();
+		children.add(parentNode);
+		for (final Node childNode: parentNode.getChildNodes()) {
+			children.addAll(getChildNodes((TreeNode)childNode));
+		}
+		return children;
 	}
 	
 	public XdTreeNode<ObjectPropertyFrame>[] getSpecializedObjectProperties() {
