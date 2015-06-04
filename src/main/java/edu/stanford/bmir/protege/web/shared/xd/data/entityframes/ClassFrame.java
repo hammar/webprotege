@@ -2,7 +2,7 @@ package edu.stanford.bmir.protege.web.shared.xd.data.entityframes;
 
 import org.semanticweb.owlapi.model.IRI;
 
-public class ClassFrame extends OntologyEntityFrame {
+public class ClassFrame extends AbstractOntologyEntityFrame {
 	
 	private static final long serialVersionUID = -6646680694888948769L;
 

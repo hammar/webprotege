@@ -4,7 +4,7 @@ import org.semanticweb.owlapi.model.IRI;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 
-public abstract class PropertyFrame extends OntologyEntityFrame {
+public abstract class PropertyFrame extends AbstractOntologyEntityFrame {
 
 	private static final long serialVersionUID = -108525613727114368L;
 	

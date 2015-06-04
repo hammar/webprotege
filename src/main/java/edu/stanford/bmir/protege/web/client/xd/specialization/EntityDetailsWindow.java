@@ -16,11 +16,11 @@ import com.gwtext.client.widgets.tree.TreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.AbstractOntologyEntityFrame;
 
 public class EntityDetailsWindow extends Window {
 
-	private Optional<OntologyEntityFrame> frame;
+	private Optional<AbstractOntologyEntityFrame> frame;
 	private TextField labelField;
 	private TextField commentField;
 	private TreeNode parentTreeNode;
@@ -76,7 +76,7 @@ public class EntityDetailsWindow extends Window {
 		// If the frame exists already, then we are editing it. Simply update
 		// the fields.
 		if (this.frame.isPresent()) {
-			OntologyEntityFrame frame = this.frame.get();
+			AbstractOntologyEntityFrame frame = this.frame.get();
 			frame.setLabel(labelField.getValueAsString());
 			frame.setComment(commentField.getValueAsString());
 		}
@@ -87,7 +87,7 @@ public class EntityDetailsWindow extends Window {
 			// we also store icon in attribute when creating them.
 			String nodeType = parentTreeNode.getAttribute("type");
 			TreeNode newTreeNode = new TreeNode(labelField.getValueAsString(), nodeType);
-			OntologyEntityFrame newFrame;
+			AbstractOntologyEntityFrame newFrame;
 			if (nodeType.equalsIgnoreCase("owlClassTreeNode")) {
 				newFrame = new ClassFrame(labelField.getValueAsString());
 			}
@@ -101,7 +101,9 @@ public class EntityDetailsWindow extends Window {
 				newFrame.setComment(commentField.getValueAsString());
 			}
 			newTreeNode.setAttribute("frame", newFrame);
+			newTreeNode.setAttribute("type", nodeType);
 			parentTreeNode.appendChild(newTreeNode);
+			parentTreeNode.expand();
 		}
 		
 		this.hide();
@@ -118,7 +120,7 @@ public class EntityDetailsWindow extends Window {
 	}
 	
 	// Load the frame details
-	public void loadFrameAndShow(OntologyEntityFrame frame) {
+	public void loadFrameAndShow(AbstractOntologyEntityFrame frame) {
 		this.reset();
 		this.frame = Optional.of(frame);
 		labelField.setValue(frame.getLabel());

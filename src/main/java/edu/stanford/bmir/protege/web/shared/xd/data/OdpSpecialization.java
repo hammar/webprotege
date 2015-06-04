@@ -1,6 +1,7 @@
 package edu.stanford.bmir.protege.web.shared.xd.data;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
 
@@ -9,6 +10,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 public class OdpSpecialization implements Serializable {
 	private static final long serialVersionUID = 3079727766627945835L;
@@ -23,9 +25,9 @@ public class OdpSpecialization implements Serializable {
 	public OdpSpecialization(ProjectId projectId,
 			IRI odpIri,
 			OdpSpecializationStrategy specializationStrategy,
-			Alignment[] alignments, XdTreeNode<ClassFrame>[] classFrameTrees,
-			XdTreeNode<ObjectPropertyFrame>[] objectPropertyFrameTrees,
-			XdTreeNode<DataPropertyFrame>[] dataPropertyFrameTrees) {
+			Alignment[] alignments, Set<FrameTreeNode<OntologyEntityFrame>> classFrameTrees,
+			Set<FrameTreeNode<OntologyEntityFrame>> objectPropertyFrameTrees,
+			Set<FrameTreeNode<OntologyEntityFrame>> dataPropertyFrameTrees) {
 		this.projectId = projectId;
 		this.odpIri = odpIri;
 		this.specializationStrategy = specializationStrategy;
@@ -40,9 +42,9 @@ public class OdpSpecialization implements Serializable {
 	private IRI odpIri;
 	private OdpSpecializationStrategy specializationStrategy;
 	private Alignment[] alignments;
-	private XdTreeNode<ClassFrame>[] classFrameTrees;
-	private XdTreeNode<ObjectPropertyFrame>[] objectPropertyFrameTrees;
-	private XdTreeNode<DataPropertyFrame>[] dataPropertyFrameTrees;
+	private Set<FrameTreeNode<OntologyEntityFrame>> classFrameTrees;
+	private Set<FrameTreeNode<OntologyEntityFrame>> objectPropertyFrameTrees;
+	private Set<FrameTreeNode<OntologyEntityFrame>> dataPropertyFrameTrees;
 	
 	// Access methods
 	public ProjectId getProjectId() {
@@ -57,13 +59,13 @@ public class OdpSpecialization implements Serializable {
 	public Alignment[] getAlignments() {
 		return this.alignments;
 	}
-	public XdTreeNode<ClassFrame>[] getClassFrameTrees() {
+	public Set<FrameTreeNode<OntologyEntityFrame>> getClassFrameTrees() {
 		return classFrameTrees;
 	}
-	public XdTreeNode<ObjectPropertyFrame>[] getObjectPropertyFrameTrees() {
+	public Set<FrameTreeNode<OntologyEntityFrame>> getObjectPropertyFrameTrees() {
 		return objectPropertyFrameTrees;
 	}
-	public XdTreeNode<DataPropertyFrame>[] getDataPropertyFrameTrees() {
+	public Set<FrameTreeNode<OntologyEntityFrame>> getDataPropertyFrameTrees() {
 		return dataPropertyFrameTrees;
 	}
 }

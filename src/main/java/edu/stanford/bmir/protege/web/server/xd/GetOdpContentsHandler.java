@@ -46,11 +46,11 @@ import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
-import edu.stanford.bmir.protege.web.shared.xd.data.XdTreeNode;
+import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.AbstractOntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 
 public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction,GetOdpContentsResult> {
@@ -114,9 +114,9 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	        OWLReasoner reasoner = reasonerFactory.createNonBufferingReasoner(odp);
 	        reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY, InferenceType.OBJECT_PROPERTY_HIERARCHY, InferenceType.DATA_PROPERTY_HIERARCHY);
 	        
-	        XdTreeNode<ClassFrame> classes = getClassFrames(odp, reasoner);
-	        XdTreeNode<ObjectPropertyFrame> objectProperties = getObjectPropertyFrames(odp, reasoner);
-	        XdTreeNode<DataPropertyFrame> datatypeProperties = getDatatypeFrames(odp, reasoner);
+	        FrameTreeNode<ClassFrame> classes = getClassFrames(odp, reasoner);
+	        FrameTreeNode<ObjectPropertyFrame> objectProperties = getObjectPropertyFrames(odp, reasoner);
+	        FrameTreeNode<DataPropertyFrame> datatypeProperties = getDatatypeFrames(odp, reasoner);
 	        
 	        return new GetOdpContentsResult(classes,objectProperties,datatypeProperties);
 		}
@@ -126,7 +126,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 		return null;
 	}
 	
-	private XdTreeNode<ObjectPropertyFrame> getObjectPropertyFrames(OWLOntology ont, OWLReasoner reasoner) {
+	private FrameTreeNode<ObjectPropertyFrame> getObjectPropertyFrames(OWLOntology ont, OWLReasoner reasoner) {
 		
         // Extract metadata from top node (i.e., OWL:TopObjectProperty)
 		Node<OWLObjectPropertyExpression> topNode = reasoner.getTopObjectPropertyNode();
@@ -136,7 +136,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
         ObjectPropertyFrame opf = (ObjectPropertyFrame)getFrame(topObjectProperty, ont);
         
         // Create the tree with only OWL:TopObjectProperty in it
-        XdTreeNode<ObjectPropertyFrame> tree = new XdTreeNode<ObjectPropertyFrame>(opf);
+        FrameTreeNode<ObjectPropertyFrame> tree = new FrameTreeNode<ObjectPropertyFrame>(opf);
         
         // Recursively add child properties (but not property expressions, and not bottoms)
         for (Node<OWLObjectPropertyExpression> childNode: reasoner.getSubObjectProperties(topObjectProperty, true)) {
@@ -154,7 +154,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 
 
 	
-	private XdTreeNode<DataPropertyFrame> getDatatypeFrames(OWLOntology ont, OWLReasoner reasoner) {
+	private FrameTreeNode<DataPropertyFrame> getDatatypeFrames(OWLOntology ont, OWLReasoner reasoner) {
 		// Extract metadata from top node (i.e., OWL:TopDataProperty)
 		Node<OWLDataProperty> topNode = reasoner.getTopDataPropertyNode();
         OWLDataProperty topProperty = topNode.getRepresentativeElement();
@@ -162,7 +162,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
         DataPropertyFrame dpf = (DataPropertyFrame)getFrame(topProperty, ont);
         
         // Create the tree with only OWL:TopDataProperty in it
-        XdTreeNode<DataPropertyFrame> tree = new XdTreeNode<DataPropertyFrame>(dpf);
+        FrameTreeNode<DataPropertyFrame> tree = new FrameTreeNode<DataPropertyFrame>(dpf);
         
         // Recursively add child properties (but not property expressions, and not bottoms)
         for (Node<OWLDataProperty> childNode: reasoner.getSubDataProperties(topProperty, true)) {
@@ -182,14 +182,14 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @param ont
 	 * @return
 	 */
-	private XdTreeNode<ClassFrame> getClassFrames(OWLOntology ont, OWLReasoner reasoner) {
+	private FrameTreeNode<ClassFrame> getClassFrames(OWLOntology ont, OWLReasoner reasoner) {
         // Extract metadata from top node (i.e., OWL:Thing)
 		Node<OWLClass> topNode = reasoner.getTopClassNode();
         OWLClass owlThing = topNode.getRepresentativeElement();
         ClassFrame cf = (ClassFrame)getFrame(owlThing, ont);
         
         // Create the tree with only OWL:Thing in it
-        XdTreeNode<ClassFrame> tree = new XdTreeNode<ClassFrame>(cf);
+        FrameTreeNode<ClassFrame> tree = new FrameTreeNode<ClassFrame>(cf);
         
         // Recursively add child classes
         for (Node<OWLClass> childNode: reasoner.getSubClasses(topNode.getRepresentativeElement(), true)) {
@@ -204,7 +204,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @param ont
 	 * @return
 	 */
-	private OntologyEntityFrame getFrame(OWLEntity entity, OWLOntology ont) {
+	private AbstractOntologyEntityFrame getFrame(OWLEntity entity, OWLOntology ont) {
 		// TODO: Depending on what type of OWLEntity we get in, construct a suitable frame and return it
 		
 		String entityLabel = getLabel(entity, ont);
@@ -342,11 +342,11 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @param reasoner
 	 * @param ont
 	 */
-	private void addClassToTree(Node<OWLClass> node, XdTreeNode<ClassFrame> tree, OWLReasoner reasoner, OWLOntology ont) {
+	private void addClassToTree(Node<OWLClass> node, FrameTreeNode<ClassFrame> tree, OWLReasoner reasoner, OWLOntology ont) {
 		if (!node.isBottomNode()) {
 			for (OWLClass cls: node.getEntities()) {
 				ClassFrame cf = (ClassFrame)getFrame(cls, ont);
-				XdTreeNode<ClassFrame> emNode = tree.addChild(cf);
+				FrameTreeNode<ClassFrame> emNode = tree.addChild(cf);
 				for (Node<OWLClass> childNode: reasoner.getSubClasses(node.getRepresentativeElement(), true)) {
 					addClassToTree(childNode, emNode, reasoner, ont);
 				}
@@ -362,10 +362,10 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @param reasoner
 	 * @param ont
 	 */
-	private void addObjectPropertyToTree(OWLObjectProperty property, XdTreeNode<ObjectPropertyFrame> tree, 
+	private void addObjectPropertyToTree(OWLObjectProperty property, FrameTreeNode<ObjectPropertyFrame> tree, 
 			OWLReasoner reasoner, OWLOntology ont) {
 		ObjectPropertyFrame opf = (ObjectPropertyFrame)getFrame(property, ont);
-		XdTreeNode<ObjectPropertyFrame> emNode = tree.addChild(opf);
+		FrameTreeNode<ObjectPropertyFrame> emNode = tree.addChild(opf);
 		for (Node<OWLObjectPropertyExpression> childNode: reasoner.getSubObjectProperties(property, true)) {
         	if (!childNode.isBottomNode()) {
         		for (OWLObjectPropertyExpression childOpe: childNode.getEntities()) {
@@ -387,10 +387,10 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 * @param reasoner
 	 * @param ont
 	 */
-	private void addDataPropertyToTree(OWLDataProperty property, XdTreeNode<DataPropertyFrame> tree, 
+	private void addDataPropertyToTree(OWLDataProperty property, FrameTreeNode<DataPropertyFrame> tree, 
 			OWLReasoner reasoner, OWLOntology ont) {
 		DataPropertyFrame dpf = (DataPropertyFrame)getFrame(property, ont);
-		XdTreeNode<DataPropertyFrame> emNode = tree.addChild(dpf);
+		FrameTreeNode<DataPropertyFrame> emNode = tree.addChild(dpf);
 		for (Node<OWLDataProperty> childNode: reasoner.getSubDataProperties(property, true)) {
         	if (!childNode.isBottomNode()) {
         		for (OWLDataProperty childProperty: childNode.getEntities()) {

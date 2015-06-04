@@ -3,7 +3,7 @@ package edu.stanford.bmir.protege.web.shared.xd.results;
 import java.io.Serializable;
 
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
-import edu.stanford.bmir.protege.web.shared.xd.data.XdTreeNode;
+import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
@@ -29,29 +29,29 @@ public class GetOdpContentsResult implements Result, Serializable {
 	 * @param objectPropertyFrames
 	 * @param dataPropertyFrames
 	 */
-	public GetOdpContentsResult(XdTreeNode<ClassFrame> classes,
-			XdTreeNode<ObjectPropertyFrame> objectProperties,
-			XdTreeNode<DataPropertyFrame> dataProperties) {
+	public GetOdpContentsResult(FrameTreeNode<ClassFrame> classes,
+			FrameTreeNode<ObjectPropertyFrame> objectProperties,
+			FrameTreeNode<DataPropertyFrame> dataProperties) {
 		this.classes = classes;
 		this.objectProperties = objectProperties;
 		this.dataProperties = dataProperties;
 	}
 	
 	// Data fields
-	private XdTreeNode<ClassFrame> classes;
-	private XdTreeNode<ObjectPropertyFrame> objectProperties;
-	private XdTreeNode<DataPropertyFrame> dataProperties;
+	private FrameTreeNode<ClassFrame> classes;
+	private FrameTreeNode<ObjectPropertyFrame> objectProperties;
+	private FrameTreeNode<DataPropertyFrame> dataProperties;
 	
 	// Access methods
-	public XdTreeNode<ClassFrame> getClasses() {
+	public FrameTreeNode<ClassFrame> getClasses() {
 		return classes;
 	}
 
-	public XdTreeNode<ObjectPropertyFrame> getObjectProperties() {
+	public FrameTreeNode<ObjectPropertyFrame> getObjectProperties() {
 		return objectProperties;
 	}
 
-	public XdTreeNode<DataPropertyFrame> getDataProperties() {
+	public FrameTreeNode<DataPropertyFrame> getDataProperties() {
 		return dataProperties;
 	}
 }

@@ -1,15 +1,17 @@
 package edu.stanford.bmir.protege.web.shared.xd.data.alignment;
 
+import com.gwtext.client.util.Format;
+
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 
-public class SubclassAlignment extends Alignment {
+public class SubClassAlignment implements Alignment {
 	
 	private static final long serialVersionUID = 8496915564455099583L;
 	
 	private ClassFrame superClass;
 	private ClassFrame subClass;
 	
-	public SubclassAlignment(ClassFrame superClass, ClassFrame subClass) {
+	public SubClassAlignment(ClassFrame superClass, ClassFrame subClass) {
 		this.superClass = superClass;
 		this.subClass = subClass;
 	}
@@ -22,9 +24,8 @@ public class SubclassAlignment extends Alignment {
 		return subClass;
 	}
 
-	@Override
 	public String toString() {
-		return String.format("%s is a subclass of %s", subClass.getLabel(), superClass.getLabel());
+		return Format.format("{0} is a subclass of {1}", subClass.getLabel(), superClass.getLabel());
 	}
 
 }

@@ -4,27 +4,27 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class XdTreeNode<T> implements Serializable {
+public class FrameTreeNode<T> implements Serializable {
 
 	private static final long serialVersionUID = -854633460435488865L;
 	
 	private T data;
-	private XdTreeNode<T> parent;
-	private List<XdTreeNode<T>> children;
+	private FrameTreeNode<T> parent;
+	private List<FrameTreeNode<T>> children;
 
     /**
 	 * GWT-RPC-required constructor
 	 */
-    public XdTreeNode() {
+    public FrameTreeNode() {
     }
     
-    public XdTreeNode(T data) {
+    public FrameTreeNode(T data) {
         this.data = data;
-        this.children = new LinkedList<XdTreeNode<T>>();
+        this.children = new LinkedList<FrameTreeNode<T>>();
     }
 
-    public XdTreeNode<T> addChild(T child) {
-        XdTreeNode<T> childNode = new XdTreeNode<T>(child);
+    public FrameTreeNode<T> addChild(T child) {
+        FrameTreeNode<T> childNode = new FrameTreeNode<T>(child);
         childNode.parent = this;
         this.children.add(childNode);
         return childNode;
@@ -34,11 +34,11 @@ public class XdTreeNode<T> implements Serializable {
 		return data;
 	}
 
-	public XdTreeNode<T> getParent() {
+	public FrameTreeNode<T> getParent() {
 		return parent;
 	}
 
-	public List<XdTreeNode<T>> getChildren() {
+	public List<FrameTreeNode<T>> getChildren() {
 		return children;
 	}
 }
