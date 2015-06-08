@@ -1,7 +1,5 @@
 package edu.stanford.bmir.protege.web.shared.xd.data.entityframes;
 
-import java.io.Serializable;
-
 import org.semanticweb.owlapi.model.IRI;
 
 import com.google.common.base.Optional;

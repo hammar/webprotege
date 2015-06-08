@@ -1,20 +1,16 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
 
 import com.google.gwt.user.client.Window;
 import com.gwtext.client.core.EventObject; 
-import com.gwtext.client.data.Node;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.CardLayout;
-import com.gwtext.client.widgets.tree.TreeNode;
-
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
@@ -30,7 +26,6 @@ import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubClassAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
@@ -61,9 +56,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	// IRI of ODP being specialized
 	private IRI odpIRI;
 	
-	private Set<FrameTreeNode<OntologyEntityFrame>> specializedClasses;
-	private Set<FrameTreeNode<OntologyEntityFrame>> specializedObjectProperties;
-	private Set<FrameTreeNode<OntologyEntityFrame>> specializedDataProperties;
+	private Set<FrameTreeNode<OntologyEntityFrame>> allClasses;
+	private Set<FrameTreeNode<OntologyEntityFrame>> allObjectProperties;
+	private Set<FrameTreeNode<OntologyEntityFrame>> allDataProperties;
 	private Set<Alignment> alignments;
 	
 	private OdpSpecializationStrategy specializationStrategy;
@@ -108,7 +103,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 
         this.strategySelectionPanel = new StrategySelectionPanel();
         this.entitySpecializationPanel = new EntitySpecializationPanel(this);
-        this.propertyRestrictionPanel = new PropertyRestrictionPanel();
+        this.propertyRestrictionPanel = new PropertyRestrictionPanel(this);
         this.alignmentsPanel = new AlignmentsPanel();
         this.previewPanel = new PreviewPanel();
         
@@ -140,6 +135,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 case "card-2":
                 	
                 	// Moving from property restriction panel to entity specialization panel
+                	propertyRestrictionPanel.resetRestrictions();
                 	cardLayout.setActiveItem(1);
                 	break;
                 	
@@ -160,7 +156,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
             }
         };  
 	}
-	/*
+	
+	// DEBUG code can be removed
 	private String printFrameTree(FrameTreeNode<OntologyEntityFrame> classes, String prefix) {
 		String ret = prefix + " " + classes.getData().getLabel();
 		for (FrameTreeNode<OntologyEntityFrame> childFrameTreeNode: classes.getChildren()) {
@@ -168,7 +165,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		}
 		return ret;
 	}
-	*/
+	
 	// Controls what happens when forward button is pressed
 	private ButtonListenerAdapter makeForwardButtonListener() {
 		return new ButtonListenerAdapter() {  
@@ -184,24 +181,26 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 	
                 case "card-1":
                 	// Moving from entity specialization panel to property restriction panel
-                	specializedClasses = entitySpecializationPanel.getSpecializedClasses();
-                	specializedObjectProperties = entitySpecializationPanel.getSpecializedObjectProperties();
-                	specializedDataProperties = entitySpecializationPanel.getSpecializedDataProperties();
+                	allClasses = entitySpecializationPanel.getAllClasses();
+                	allObjectProperties = entitySpecializationPanel.getAllObjectProperties();
+                	allDataProperties = entitySpecializationPanel.getAllDataProperties();
                 	alignments = entitySpecializationPanel.getAlignments();
 
+                	propertyRestrictionPanel.loadEntities();
+                	
                 	//This is test code to ensure that the way specialziedClasses is generated makes sense.
                 	// Remove once done testing.
-                	String alignmentsString = "";
+                	/*String alignmentsString = "";
                 	for (Alignment a: alignments) {
                 		alignmentsString += (a.toString() + "\n");
                 	}
-                	Window.alert(alignmentsString);
+                	Window.alert(alignmentsString);*/
                 	/*String classTree = "";
-                	for (FrameTreeNode<OntologyEntityFrame> tree: specializedClasses) {
+                	for (FrameTreeNode<OntologyEntityFrame> tree: allClasses) {
                 		classTree += printFrameTree(tree,"|") + "\n";
                 	}
-                	Window.alert(classTree);
-                	
+                	Window.alert(classTree);*/
+                	/*
                 	String dataPropertyTree = "";
                 	for (FrameTreeNode<OntologyEntityFrame> tree: specializedDataProperties) {
                 		dataPropertyTree += printFrameTree(tree,"|") + "\n";
@@ -234,6 +233,15 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
             }
         };  
 	}
+	
+	// Returns a filtered subset of the input set of class or property trees, containing
+	// only those that have been specialized in this wizard (e.g., those that do not have
+	// any minted IRI).
+	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedEntityTrees(Set<FrameTreeNode<OntologyEntityFrame>> inputFrameTrees) {
+		// TODO: Implement this
+		return null;
+		
+	}
 
 	/**
 	 * This method stores the customized ODP instantiation into the ontology on the server side
@@ -245,9 +253,12 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		Alignment[] selectedAlignments = new Alignment[0];
 		
 		// Generate ODP Specialization object and action to pass to dispach service
+		Set<FrameTreeNode<OntologyEntityFrame>> specializedClasses = getSpecializedEntityTrees(this.allClasses);
+		Set<FrameTreeNode<OntologyEntityFrame>> specializedObjectProperties = getSpecializedEntityTrees(this.allObjectProperties);
+		Set<FrameTreeNode<OntologyEntityFrame>> specializedDataProperties = getSpecializedEntityTrees(this.allDataProperties);
 		OdpSpecialization odpSpec = new OdpSpecialization(this.projectId, this.odpIRI, this.specializationStrategy, 
-				selectedAlignments, this.specializedClasses, this.specializedObjectProperties, 
-				this.specializedDataProperties);
+				selectedAlignments, specializedClasses, specializedObjectProperties, 
+				specializedDataProperties);
 		PersistSpecializationAction psa = new PersistSpecializationAction(odpSpec);
 		
 		DispatchServiceManager.get().execute(psa, new DispatchServiceCallback<PersistSpecializationResult>() {
@@ -295,11 +306,12 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		
 	}
 	
-	/**
+	/*
 	 * Recursive method to walk the a tree panel and return leaf nodes.
 	 * @param parentNode - starting node for each recursion.
 	 * @return lowest level TreeNodes, e.g. with no children.
 	 */
+	/*
 	private Set<TreeNode> getChildLeafNodes(TreeNode parentNode) {
 		HashSet<TreeNode> leaves = new HashSet<TreeNode>();
 		if (parentNode.getChildNodes().length == 0) {
@@ -311,14 +323,15 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			}
 		}
 		return leaves;
-	} 
+	}*/ 
 	
 	
-	/**
+	/*
 	 * Recursive method to walk the a tree panel and return all nodes.
 	 * @param parentNode - starting node for each recursion.
 	 * @return all nodes in tree
 	 */
+	/*
 	private Set<TreeNode> getChildNodes(TreeNode parentNode) {
 		HashSet<TreeNode> leaves = new HashSet<TreeNode>();
 		leaves.add(parentNode);
@@ -326,9 +339,21 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 			leaves.addAll(getChildNodes((TreeNode)childNode));
 		}
 		return leaves;
-	}
+	}*/
 
 	public OdpSpecializationStrategy getSpecializationStrategy() {
 		return specializationStrategy;
+	}
+
+	public Set<FrameTreeNode<OntologyEntityFrame>> getAllClasses() {
+		return allClasses;
+	}
+
+	public Set<FrameTreeNode<OntologyEntityFrame>> getAllObjectProperties() {
+		return allObjectProperties;
+	}
+
+	public Set<FrameTreeNode<OntologyEntityFrame>> getAllDataProperties() {
+		return allDataProperties;
 	} 
 }

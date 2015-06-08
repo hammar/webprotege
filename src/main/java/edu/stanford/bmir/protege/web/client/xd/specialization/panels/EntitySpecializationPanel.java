@@ -3,6 +3,9 @@ package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.semanticweb.owlapi.model.IRI;
+
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.Node;
@@ -133,6 +136,33 @@ public class EntitySpecializationPanel extends Panel {
         specializationButtonsPanel.add(specializeButton);
         specializationButtonsPanel.add(modifyButton);
         specializationButtonsPanel.add(deleteButton);
+        
+        Button testButton = new Button("Test");
+        testButton.addListener(new ButtonListenerAdapter() {  
+            public void onClick(Button button, EventObject e) {
+            	ClassFrame cf = new ClassFrame("TestLabel","TestComment");
+            	DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
+            	TreeNode selectedNode = dsm.getSelectedNode();
+            	selectedNode.setAttribute("frame", cf);
+            	cf.setLabel("ChangedLabel");
+            	cf.setComment("ChangedComment");
+            	ClassFrame frameFromNode = (ClassFrame)selectedNode.getAttributeAsObject("frame");
+            	Window.alert("Label from node = " + frameFromNode.getLabel());
+            }
+        });
+        specializationButtonsPanel.add(testButton);
+        
+        Button testButton2 = new Button("Check class");
+        testButton2.addListener(new ButtonListenerAdapter() {  
+            public void onClick(Button button, EventObject e) {
+            	DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
+            	TreeNode selectedNode = dsm.getSelectedNode();
+            	Object frameFromNode = selectedNode.getAttributeAsObject("frame");
+            	Window.alert("Type of frame = " + frameFromNode.getClass().toString());
+            }
+        });
+        specializationButtonsPanel.add(testButton2);
+        
         this.add(specializationButtonsPanel, new RowLayoutData(50));
 	}
 	
@@ -262,14 +292,13 @@ public class EntitySpecializationPanel extends Panel {
 		}
 	}
 	
-	/**
+	/*
 	 * Returns a 
 	 * @param rootNode
 	 * @return
 	 */
+	/*
 	private Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedFrames(TreeNode rootNode) {
-		// TODO: check whether interfaces can be used to cut down on amount of duplicate code, e.g., 
-		// so that I do not have to copy this entire block for object properties, datatype properties..
 		Set<FrameTreeNode<OntologyEntityFrame>> specializedEntityRoots = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
 		if (rootNode.getAttribute("iri") == null) {
 			// This node has no IRI, e.g. is a newly specialized node.
@@ -287,7 +316,7 @@ public class EntitySpecializationPanel extends Panel {
 			}
 		}
 		return specializedEntityRoots;
-	}
+	}*/
 	
 	private Set<Alignment> getChildAlignments(TreeNode rootNode) {
 		Set<Alignment> alignments = new HashSet<Alignment>();
@@ -326,7 +355,6 @@ public class EntitySpecializationPanel extends Panel {
 				}
 			}
 		}
-		// TODO: implement this
 		return alignments;
 	}
 	
@@ -349,6 +377,9 @@ public class EntitySpecializationPanel extends Panel {
 	 */
 	private FrameTreeNode<OntologyEntityFrame> getChildFrameTrees(TreeNode rootClassNode) {
 		OntologyEntityFrame rootEntityFrame = (OntologyEntityFrame)rootClassNode.getAttributeAsObject("frame");
+		if (rootClassNode.getAttribute("iri") != null) {
+			rootEntityFrame.setIri(IRI.create(rootClassNode.getAttribute("iri")));
+		}
 		FrameTreeNode<OntologyEntityFrame> rootTreeNodeToServer = new FrameTreeNode<OntologyEntityFrame>(rootEntityFrame);
 		for (Node childTreeNode: rootClassNode.getChildNodes()) {
 			TreeNode childClassTreeNode = (TreeNode)childTreeNode;
@@ -356,24 +387,6 @@ public class EntitySpecializationPanel extends Panel {
 		}
 		return rootTreeNodeToServer;
 	}
-	
-	//TODO: Implement this?!? 
-	/*private XdTreeNode<ClassFrame> recursivelyGetClassFrames(TreeNode rootNode) {
-		if (rootNode.getAttribute("iri") == null) {
-			// This is a specialized node
-		}
-		else {
-			// This is an existing node
-		}
-		
-		Set<XdTreeNode<ClassFrame>> childTrees;
-		HashSet<TreeNode> children = new HashSet<TreeNode>();
-		children.add(parentNode);
-		for (final Node childNode: parentNode.getChildNodes()) {
-			children.addAll(getChildNodes((TreeNode)childNode));
-		}
-		return children;
-	}*/
 	
 	/**
 	 * Recursively creates and adds DataPropertyTreeNodes to the entityTreePanel.
@@ -410,11 +423,11 @@ public class EntitySpecializationPanel extends Panel {
 		entityTreePanel.getSelectionModel().clearSelections();
 	}
 	
-	/**
+	/*
 	 * Returns a set of trees holding the ClassFrames that were specialized by the user.  
 	 * @return
 	 */
-	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedClasses() {
+	/*public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedClasses() {
 		Set<FrameTreeNode<OntologyEntityFrame>> trees = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
 		
 		// For those root tree nodes that are classes
@@ -426,9 +439,9 @@ public class EntitySpecializationPanel extends Panel {
 			}
 		}
 		return trees;
-	}
+	}*/
 	
-	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedObjectProperties() {
+	/*public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedObjectProperties() {
 		Set<FrameTreeNode<OntologyEntityFrame>> trees = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
 		
 		// For those root tree nodes that are object properties
@@ -440,10 +453,11 @@ public class EntitySpecializationPanel extends Panel {
 			}
 		}
 		return trees;
-	}
+	}*/
 	
+	/*
 	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedDataProperties() {
-Set<FrameTreeNode<OntologyEntityFrame>> trees = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
+		Set<FrameTreeNode<OntologyEntityFrame>> trees = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
 		
 		// For those root tree nodes that are datatype properties
 		for (Node childNode: rootNode.getChildNodes()) {
@@ -451,6 +465,45 @@ Set<FrameTreeNode<OntologyEntityFrame>> trees = new HashSet<FrameTreeNode<Ontolo
 			if (treeNode.getAttribute("type").equalsIgnoreCase("owlDataPropertyTreeNode")) {
 				// Get and add all specialized class subtrees that exist below those tree nodes 
 				trees.addAll(getSpecializedFrames(treeNode));
+			}
+		}
+		return trees;
+	}*/
+
+	public Set<FrameTreeNode<OntologyEntityFrame>> getAllClasses() {
+		Set<FrameTreeNode<OntologyEntityFrame>> trees = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
+		
+		// For those root tree nodes that are object properties
+		for (Node childNode: rootNode.getChildNodes()) {
+			TreeNode treeNode = (TreeNode)childNode;
+			if (treeNode.getAttributeAsObject("frame").getClass() == ClassFrame.class) {
+				trees.add(getChildFrameTrees(treeNode));
+			}
+		}
+		return trees;
+	}
+
+	public Set<FrameTreeNode<OntologyEntityFrame>> getAllObjectProperties() {
+		Set<FrameTreeNode<OntologyEntityFrame>> trees = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
+		
+		// For those root tree nodes that are object properties
+		for (Node childNode: rootNode.getChildNodes()) {
+			TreeNode treeNode = (TreeNode)childNode;
+			if (treeNode.getAttributeAsObject("frame").getClass() == ObjectPropertyFrame.class) {
+				trees.add(getChildFrameTrees(treeNode));
+			}
+		}
+		return trees;
+	}
+
+	public Set<FrameTreeNode<OntologyEntityFrame>> getAllDataProperties() {
+		Set<FrameTreeNode<OntologyEntityFrame>> trees = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
+		
+		// For those root tree nodes that are object properties
+		for (Node childNode: rootNode.getChildNodes()) {
+			TreeNode treeNode = (TreeNode)childNode;
+			if (treeNode.getAttributeAsObject("frame").getClass() == DataPropertyFrame.class) {
+				trees.add(getChildFrameTrees(treeNode));
 			}
 		}
 		return trees;

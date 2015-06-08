@@ -15,7 +15,8 @@ public class FrameTreeNode<T> implements Serializable {
     /**
 	 * GWT-RPC-required constructor
 	 */
-    public FrameTreeNode() {
+    @SuppressWarnings("unused")
+	private FrameTreeNode() {
     }
     
     public FrameTreeNode(T data) {

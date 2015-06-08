@@ -8,6 +8,11 @@ import com.google.common.base.Optional;
 
 public interface OntologyEntityFrame extends Serializable {
 	public String getLabel();
+	public void setLabel(String label);
+	
 	public Optional<String> getComment();
+	public void setComment(String comment);
+	
 	public Optional<IRI> getIri();
+	public void setIri(IRI iri);
 }
