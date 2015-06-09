@@ -7,6 +7,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 /**
  * 
@@ -29,29 +30,29 @@ public class GetOdpContentsResult implements Result, Serializable {
 	 * @param objectPropertyFrames
 	 * @param dataPropertyFrames
 	 */
-	public GetOdpContentsResult(FrameTreeNode<ClassFrame> classes,
-			FrameTreeNode<ObjectPropertyFrame> objectProperties,
-			FrameTreeNode<DataPropertyFrame> dataProperties) {
+	public GetOdpContentsResult(FrameTreeNode<OntologyEntityFrame> classes,
+			FrameTreeNode<OntologyEntityFrame> objectProperties,
+			FrameTreeNode<OntologyEntityFrame> dataProperties) {
 		this.classes = classes;
 		this.objectProperties = objectProperties;
 		this.dataProperties = dataProperties;
 	}
 	
 	// Data fields
-	private FrameTreeNode<ClassFrame> classes;
-	private FrameTreeNode<ObjectPropertyFrame> objectProperties;
-	private FrameTreeNode<DataPropertyFrame> dataProperties;
+	private FrameTreeNode<OntologyEntityFrame> classes;
+	private FrameTreeNode<OntologyEntityFrame> objectProperties;
+	private FrameTreeNode<OntologyEntityFrame> dataProperties;
 	
 	// Access methods
-	public FrameTreeNode<ClassFrame> getClasses() {
+	public FrameTreeNode<OntologyEntityFrame> getClasses() {
 		return classes;
 	}
 
-	public FrameTreeNode<ObjectPropertyFrame> getObjectProperties() {
+	public FrameTreeNode<OntologyEntityFrame> getObjectProperties() {
 		return objectProperties;
 	}
 
-	public FrameTreeNode<DataPropertyFrame> getDataProperties() {
+	public FrameTreeNode<OntologyEntityFrame> getDataProperties() {
 		return dataProperties;
 	}
 }

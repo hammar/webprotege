@@ -1,6 +1,8 @@
 package edu.stanford.bmir.protege.web.shared.xd.data.entityframes;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
 
@@ -11,7 +13,7 @@ public class ObjectPropertyFrame extends PropertyFrame implements Serializable {
 	private static final long serialVersionUID = -108525613727114368L;
 	
 	// Private fields
-	private LabelOrIri[] ranges;
+	private Set<LabelOrIri> ranges;
 	private boolean symmetric;
 	private boolean transitive;
 
@@ -24,23 +26,29 @@ public class ObjectPropertyFrame extends PropertyFrame implements Serializable {
 	
 	public ObjectPropertyFrame(String label) {
 		super(label);
+		this.symmetric = false;
+		this.transitive = false;
+		this.ranges = new HashSet<LabelOrIri>();
 	}
 	
 	// No-OWL-entity constructor
-	public ObjectPropertyFrame(String label, String comment) {
+	/*public ObjectPropertyFrame(String label, String comment) {
 		this(label, comment, null);
-	}
+	}*/
 	
 	// OWL-entity constructor
 	public ObjectPropertyFrame(String label, String comment, IRI iri) {
 		super(label, comment, iri);
+		this.symmetric = false;
+		this.transitive = false;
+		this.ranges = new HashSet<LabelOrIri>();
 	}
 	
-	public void setRanges(LabelOrIri[] ranges) {
+	public void setRanges(Set<LabelOrIri> ranges) {
 		this.ranges = ranges;
 	}
 	
-	public LabelOrIri[] getRanges() {
+	public Set<LabelOrIri> getRanges() {
 		return this.ranges;
 	}
 

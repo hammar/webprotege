@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import org.semanticweb.owlapi.model.IRI;
 
+import com.google.common.base.Optional;
+
 // Represents an object that client code does not necessarily know whether it is
 // persisted and has received an IRI yet or not. If no IRI exists, then client
 // code will have to check (either against the ontology project manager, or against
@@ -14,8 +16,8 @@ public class LabelOrIri implements Serializable {
 	private static final long serialVersionUID = -5591044130131535746L;
 
 	// Member fields
-	private String label;
-	private IRI iri;
+	private Optional<String> label;
+	private Optional<IRI> iri;
 	
 	/**
 	 * GWT-RPC constructor
@@ -26,36 +28,30 @@ public class LabelOrIri implements Serializable {
 	
 	// String constructor
 	public LabelOrIri(String label) {
-		this.label = label;
+		this.label = Optional.of(label);
 	}
 	
 	// IRI constructor
 	public LabelOrIri(IRI iri) {
-		this.iri = iri;
+		this.iri = Optional.of(iri);
 	}
-	
-	// What type is this?
-	public Boolean isLabel() {
-		if (label != null) {
-			return true;
+
+	// Access methods
+	public Optional<String> getLabel() {
+		return label;
+	}
+
+	public Optional<IRI> getIri() {
+		return iri;
+	}
+
+	@Override
+	public String toString() {
+		if (iri.isPresent()) {
+			return iri.get().toString();
 		}
 		else {
-			return false;
-		}
-	}
-	
-	// If not label, then it must be IRI..
-	public Boolean isIri() {
-		return !isLabel();
-	}
-	
-	// Access method
-	public Object getValue() {
-		if (isLabel()) {
-			return this.label;
-		}
-		else {
-			return this.iri;
+			return label.get().toString();
 		}
 	}
 }

@@ -30,6 +30,11 @@ public class FrameTreeNode<T> implements Serializable {
         this.children.add(childNode);
         return childNode;
     }
+    
+    public void addChildTree(FrameTreeNode<T> childTree) {
+    	childTree.parent = this;
+    	this.children.add(childTree);
+    }
 
 	public T getData() {
 		return data;

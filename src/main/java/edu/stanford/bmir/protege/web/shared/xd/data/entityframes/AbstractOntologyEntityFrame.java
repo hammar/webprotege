@@ -59,4 +59,9 @@ public class AbstractOntologyEntityFrame implements OntologyEntityFrame {
 	public void setIri(IRI iri) {
 		this.iri = Optional.of(iri);
 	}
+
+	@Override
+	public String toString() {
+		return this.label;
+	}
 }

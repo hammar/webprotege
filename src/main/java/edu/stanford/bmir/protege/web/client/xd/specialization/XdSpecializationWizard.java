@@ -4,13 +4,13 @@ import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
 
-import com.google.gwt.user.client.Window;
 import com.gwtext.client.core.EventObject; 
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.CardLayout;
+
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
@@ -26,9 +26,6 @@ import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 import edu.stanford.bmir.protege.web.shared.xd.results.PersistSpecializationResult;
@@ -56,9 +53,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	// IRI of ODP being specialized
 	private IRI odpIRI;
 	
-	private Set<FrameTreeNode<OntologyEntityFrame>> allClasses;
-	private Set<FrameTreeNode<OntologyEntityFrame>> allObjectProperties;
-	private Set<FrameTreeNode<OntologyEntityFrame>> allDataProperties;
+	private FrameTreeNode<OntologyEntityFrame> allClasses;
+	private FrameTreeNode<OntologyEntityFrame> allObjectProperties;
+	private FrameTreeNode<OntologyEntityFrame> allDataProperties;
 	private Set<Alignment> alignments;
 	
 	private OdpSpecializationStrategy specializationStrategy;
@@ -157,15 +154,6 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         };  
 	}
 	
-	// DEBUG code can be removed
-	private String printFrameTree(FrameTreeNode<OntologyEntityFrame> classes, String prefix) {
-		String ret = prefix + " " + classes.getData().getLabel();
-		for (FrameTreeNode<OntologyEntityFrame> childFrameTreeNode: classes.getChildren()) {
-			ret += ("\n" +  printFrameTree(childFrameTreeNode, prefix + "|"));
-		}
-		return ret;
-	}
-	
 	// Controls what happens when forward button is pressed
 	private ButtonListenerAdapter makeForwardButtonListener() {
 		return new ButtonListenerAdapter() {  
@@ -186,6 +174,11 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 	allDataProperties = entitySpecializationPanel.getAllDataProperties();
                 	alignments = entitySpecializationPanel.getAlignments();
 
+                	//String classTree = printFrameTree(allClasses,"");
+                	//String objPropTree = printFrameTree(allObjectProperties,"");
+                	//String joint = Format.format("Class hierarchy:\n\n{0}\n----------\nObject Property hierarchy:\n\n{1}", classTree, objPropTree);
+                	//Window.alert(objPropTree);
+                	
                 	propertyRestrictionPanel.loadEntities();
                 	
                 	//This is test code to ensure that the way specialziedClasses is generated makes sense.
@@ -195,11 +188,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 		alignmentsString += (a.toString() + "\n");
                 	}
                 	Window.alert(alignmentsString);*/
-                	/*String classTree = "";
-                	for (FrameTreeNode<OntologyEntityFrame> tree: allClasses) {
-                		classTree += printFrameTree(tree,"|") + "\n";
-                	}
-                	Window.alert(classTree);*/
+
                 	/*
                 	String dataPropertyTree = "";
                 	for (FrameTreeNode<OntologyEntityFrame> tree: specializedDataProperties) {
@@ -237,7 +226,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	// Returns a filtered subset of the input set of class or property trees, containing
 	// only those that have been specialized in this wizard (e.g., those that do not have
 	// any minted IRI).
-	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedEntityTrees(Set<FrameTreeNode<OntologyEntityFrame>> inputFrameTrees) {
+	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedEntityTrees(FrameTreeNode<OntologyEntityFrame> inputFrameTrees) {
 		// TODO: Implement this
 		return null;
 		
@@ -292,9 +281,11 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         	@Override
             public void handleSuccess(GetOdpContentsResult result) {
         		
-        		FrameTreeNode<ClassFrame> odpClasses = result.getClasses();
-        		FrameTreeNode<ObjectPropertyFrame> odpObjectProperties = result.getObjectProperties();
-        		FrameTreeNode<DataPropertyFrame> odpDataProperties = result.getDataProperties();
+        		FrameTreeNode<OntologyEntityFrame> odpClasses = result.getClasses();
+        		FrameTreeNode<OntologyEntityFrame> odpObjectProperties = result.getObjectProperties();
+        		//Window.alert(printFrameTree(odpObjectProperties,""));
+        		//Window.alert(printFrameTree(odpObjectProperties,""));
+        		FrameTreeNode<OntologyEntityFrame> odpDataProperties = result.getDataProperties();
         		
         		entitySpecializationPanel.populateEntityTree(odpClasses, odpObjectProperties, odpDataProperties);
             }
@@ -345,15 +336,15 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		return specializationStrategy;
 	}
 
-	public Set<FrameTreeNode<OntologyEntityFrame>> getAllClasses() {
+	public FrameTreeNode<OntologyEntityFrame> getAllClasses() {
 		return allClasses;
 	}
 
-	public Set<FrameTreeNode<OntologyEntityFrame>> getAllObjectProperties() {
+	public FrameTreeNode<OntologyEntityFrame> getAllObjectProperties() {
 		return allObjectProperties;
 	}
 
-	public Set<FrameTreeNode<OntologyEntityFrame>> getAllDataProperties() {
+	public FrameTreeNode<OntologyEntityFrame> getAllDataProperties() {
 		return allDataProperties;
 	} 
 }
