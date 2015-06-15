@@ -234,14 +234,14 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 			
 			// Get domains
 			Set<OWLClassExpression> domainExpressions = dataProperty.getDomains(ontologyClosure);
-			List<LabelOrIri> domains = new ArrayList<LabelOrIri>();
+			Set<LabelOrIri> domains = new HashSet<LabelOrIri>();
     		for (OWLClassExpression oce: domainExpressions) {
     			if (oce instanceof OWLClass) {
     				IRI domainIri = ((OWLClass)oce).getIRI();
     				domains.add(new LabelOrIri(domainIri));
     			}
     		}
-			frame.setDomains(domains.toArray(new LabelOrIri[domains.size()]));
+			frame.setDomains(domains);
     		
     		// Get ranges
     		Set<OWLDataRange> rangeExpressions = dataProperty.getRanges(ontologyClosure);
@@ -271,14 +271,14 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 			
 			// Get domains
 			Set<OWLClassExpression> domainExpressions = objectProperty.getDomains(ontologyClosure);
-			List<LabelOrIri> domains = new ArrayList<LabelOrIri>();
+			Set<LabelOrIri> domains = new HashSet<LabelOrIri>();
     		for (OWLClassExpression oce: domainExpressions) {
     			if (oce instanceof OWLClass) {
     				IRI domainIri = ((OWLClass)oce).getIRI();
     				domains.add(new LabelOrIri(domainIri));
     			}
     		}
-			frame.setDomains(domains.toArray(new LabelOrIri[domains.size()]));
+			frame.setDomains(domains);
     		
     		// Get ranges
 			Set<OWLClassExpression> rangeExpressions = objectProperty.getRanges(ontologyClosure);

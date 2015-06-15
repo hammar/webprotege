@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gwt.user.client.Window;
 import com.gwtext.client.core.SortDir;
 import com.gwtext.client.data.ArrayReader;
 import com.gwtext.client.data.FieldDef;
@@ -24,7 +23,9 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 import com.gwtext.client.widgets.grid.ColumnModel;
 import com.gwtext.client.widgets.grid.GridPanel;
 import com.gwtext.client.widgets.grid.GroupingView;
+
 import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.DomainRestriction;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.ObjectPropertyRangeRestriction;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.Restriction;
 import edu.stanford.bmir.protege.web.client.xd.util.UUID;
@@ -34,6 +35,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.PropertyFrame;
 
 public class PropertyRestrictionPanel extends Panel {
 	
@@ -102,6 +104,7 @@ public class PropertyRestrictionPanel extends Panel {
         grid.setView(gridView);  
         grid.setFrame(true);   
         grid.setAnimCollapse(false);
+        grid.setAutoScroll(true);
         
         this.add(grid);
 	}
@@ -134,6 +137,9 @@ public class PropertyRestrictionPanel extends Panel {
 	public void loadEntities() {
 		
 		this.classLookupMap.clear();
+		this.restrictionsMap.clear();
+		this.store.removeAll();
+		this.store.commitChanges();
 		
         this.classes = parentWizard.getAllClasses();
         this.objectProperties = parentWizard.getAllObjectProperties();
@@ -143,7 +149,7 @@ public class PropertyRestrictionPanel extends Panel {
 		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.PROPERTY_ORIENTED ||
 				parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.HYBRID) {
 			
-			// Build map of labels or IRIs to classes, needed for looking up class frames from 
+			// Build map of labels or IRIs to specialized classes, needed for looking up class frames from 
 			// property ranges later on. Use strings so as to avoid having to overload equals() and hashCode()
 			// in LabelOrIri class.
 			Set<OntologyEntityFrame> classFramesSet = getFramesAsSet(this.classes, false);
@@ -158,60 +164,112 @@ public class PropertyRestrictionPanel extends Panel {
 				classLookupMap.put(classLookupKey, classFrame);
 			}
 			
-			// Iterate over all specialized object properties
-			Set<OntologyEntityFrame> specializedObjectProperties = new HashSet<OntologyEntityFrame>();
-			specializedObjectProperties.addAll(getFramesAsSet(this.objectProperties, true));
-			for (OntologyEntityFrame property: specializedObjectProperties) {
-				
-				// Get parent ranges and translate from LabelOrIri objects to class frames
-				// using lookup map established earlier
-				Set<LabelOrIri> candidateRanges = getParentRanges(property, this.objectProperties);
-				Set<OntologyEntityFrame> candidateRangeFrames = new HashSet<OntologyEntityFrame>();
-				for (LabelOrIri loi: candidateRanges) {
-					//Window.alert("Candidate range for " + property.toString() + ": " + loi.toString());
-					if (classLookupMap.containsKey(loi.toString())) {
-						OntologyEntityFrame lookedUpFrame = classLookupMap.get(loi.toString());
-						//Window.alert("Found matching frame: " + lookedUpFrame + " of type " + lookedUpFrame.getClass().toString());
-						candidateRangeFrames.add(lookedUpFrame);
-					}
-				}
-				
-				// For each candidate range class, also get all subclasses (potential ranges for subproperty)
-				for (OntologyEntityFrame classFrame: candidateRangeFrames) {
-					Set<OntologyEntityFrame> subClassFrames = getSpecializedSubEntitiesOf(classFrame, this.classes);
-					candidateRangeFrames.addAll(subClassFrames);
-				}
-				
-				// Now, for all candidate range classes, generate suggestion restrictions for user to accept or reject
-				for (OntologyEntityFrame classFrame: candidateRangeFrames) {
-					ObjectPropertyRangeRestriction restriction = new ObjectPropertyRangeRestriction((ObjectPropertyFrame)property, (ClassFrame)classFrame);
-					String restrictionKey = UUID.uuid();
-					// Put into map for later reference
-					restrictionsMap.put(restrictionKey, restriction);
-					// Create record and put in store for display to user
-					Record record = recordDef.createRecord(new Object[]{restriction.toString(), property.toString(), restrictionKey});
-					Window.alert(record.toString());
-					store.add(record);
-					store.commitChanges();
-				}
-			}
-			
-			
-			
-			// TODO: Build Restrictions according to strategy, add to map and grid store, reload grid
-			
-			//restrictionsFormPanel.add(new Checkbox("asdf","asdfasdf2"));
-			//for (FrameTreeNode<OntologyEntityFrame> fn: parentWizard.getAllClasses()) {
-			//	// TODO ACTUALLY BUILD
-			//	//this.add(new Label("oy!"));
-			//	//this.add(new Label(fn.getData().getLabel()));
-			//}
+			generateObjectPropertyRangeRestrictions();
+			generatePropertyDomainRestrictions(this.objectProperties);
+			generatePropertyDomainRestrictions(this.dataProperties);
 		}
 		
 		// Render class-oriented restrictions
 		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.CLASS_ORIENTED ||
 				parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.HYBRID) {
 			// TODO: Build Restrictions according to strategy, add to map and grid store, reload grid
+		}
+	}
+	
+	/**
+	 * Generates candidate restrictions for the user to accept/reject based on the input frame tree 
+	 * (expected to hold property nodes). Restrictions are also added to the restrictionsMap for future
+	 * reference when persisting selected references, and are added to the gridview datastore so
+	 * that users may select them.
+	 * @param frameTree tree of PropertyFrame objects
+	 */
+	private void generatePropertyDomainRestrictions(FrameTreeNode<OntologyEntityFrame> frameTree) {
+		// Iterate over all specialized object properties
+		Set<OntologyEntityFrame> specializedProperties = new HashSet<OntologyEntityFrame>();
+		specializedProperties.addAll(getFramesAsSet(frameTree, true));
+		for (OntologyEntityFrame property: specializedProperties) {
+			
+			// Get parent domains and translate from LabelOrIri objects to class frames
+			// using lookup map established earlier
+			Set<LabelOrIri> candidateDomains = getParentDomains(property, frameTree);
+			Set<OntologyEntityFrame> candidateDomainFrames = new HashSet<OntologyEntityFrame>();
+			for (LabelOrIri loi: candidateDomains) {
+				if (classLookupMap.containsKey(loi.toString())) {
+					OntologyEntityFrame lookedUpFrame = classLookupMap.get(loi.toString());
+					candidateDomainFrames.add(lookedUpFrame);
+				}
+			}
+			
+			// For each candidate domain class, also get all subclasses (potential domains for subproperty)
+			Set<OntologyEntityFrame> additionalCandidates = new HashSet<OntologyEntityFrame>();
+			for (OntologyEntityFrame classFrame: candidateDomainFrames) {
+				Set<OntologyEntityFrame> subClassFrames = getSpecializedSubEntitiesOf(classFrame, this.classes);
+				additionalCandidates.addAll(subClassFrames);
+			}
+			candidateDomainFrames.addAll(additionalCandidates);
+			
+			// Now, for all candidate domain classes, generate suggestion restrictions for user to accept or reject
+			// Only generate suggestions for classes that are specialized, e.g. do not have minted IRIs
+			for (OntologyEntityFrame classFrame: candidateDomainFrames) {
+				if (!classFrame.getIri().isPresent()) {
+					DomainRestriction restriction = new DomainRestriction((PropertyFrame)property, (ClassFrame)classFrame);
+					String restrictionKey = UUID.uuid();
+					// Put into map for later reference
+					restrictionsMap.put(restrictionKey, restriction);
+					// Create record and put in store for display to user
+					Record record = recordDef.createRecord(new Object[]{restriction.toString(), property.toString(), restrictionKey});
+					store.add(record);
+					store.commitChanges();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Generates candidate restrictions for the user to accept/reject based on the specialized object
+	 * properties from the last screen. Restrictions are also added to the restrictionsMap for future
+	 * reference when persisting selected references, and are added to the gridview datastore so
+	 * that users may select them.
+	 */
+	private void generateObjectPropertyRangeRestrictions() {
+		// Iterate over all specialized object properties
+		Set<OntologyEntityFrame> specializedObjectProperties = new HashSet<OntologyEntityFrame>();
+		specializedObjectProperties.addAll(getFramesAsSet(this.objectProperties, true));
+		for (OntologyEntityFrame property: specializedObjectProperties) {
+			
+			// Get parent ranges and translate from LabelOrIri objects to class frames
+			// using lookup map established earlier
+			Set<LabelOrIri> candidateRanges = getParentRanges(property, this.objectProperties);
+			Set<OntologyEntityFrame> candidateRangeFrames = new HashSet<OntologyEntityFrame>();
+			for (LabelOrIri loi: candidateRanges) {
+				if (classLookupMap.containsKey(loi.toString())) {
+					OntologyEntityFrame lookedUpFrame = classLookupMap.get(loi.toString());
+					candidateRangeFrames.add(lookedUpFrame);
+				}
+			}
+			
+			// For each candidate range class, also get all subclasses (potential ranges for subproperty)
+			Set<OntologyEntityFrame> additionalCandidates = new HashSet<OntologyEntityFrame>();
+			for (OntologyEntityFrame classFrame: candidateRangeFrames) {
+				Set<OntologyEntityFrame> subClassFrames = getSpecializedSubEntitiesOf(classFrame, this.classes);
+				additionalCandidates.addAll(subClassFrames);
+			}
+			candidateRangeFrames.addAll(additionalCandidates);
+			
+			// Now, for all candidate range classes, generate suggestion restrictions for user to accept or reject
+			// Only generate suggestions for classes that are specialized, e.g. do not have minted IRIs
+			for (OntologyEntityFrame classFrame: candidateRangeFrames) {
+				if (!classFrame.getIri().isPresent()) {
+					ObjectPropertyRangeRestriction restriction = new ObjectPropertyRangeRestriction((ObjectPropertyFrame)property, (ClassFrame)classFrame);
+					String restrictionKey = UUID.uuid();
+					// Put into map for later reference
+					restrictionsMap.put(restrictionKey, restriction);
+					// Create record and put in store for display to user
+					Record record = recordDef.createRecord(new Object[]{restriction.toString(), property.toString(), restrictionKey});
+					store.add(record);
+					store.commitChanges();
+				}
+			}
 		}
 	}
 	
@@ -282,6 +340,43 @@ public class PropertyRestrictionPanel extends Panel {
 		}
 		return retVal;
 	}
+	
+	
+	/**
+	 * Wraps {@link getParentDomains(FrameTreeNode<OntologyEntityFrame>)} for when we don't have a tree node to begin 
+	 * with but have to find it first from an input object property frame. If we cannot find the tree node, returns
+	 * an empty set.
+	 * @param Property frame whose parents ranges we are looking for
+	 * @param Tree of property frames
+	 * @return Set of LabelOrIri objects representing ranges of all parent object properties. If 
+	 */
+	private Set<LabelOrIri> getParentDomains(OntologyEntityFrame property, FrameTreeNode<OntologyEntityFrame> tree) {
+		FrameTreeNode<OntologyEntityFrame> startingNode = findNodeForFrame(property, tree);
+		if (startingNode == null) {
+			return Collections.emptySet();
+		}
+		return getParentDomains(startingNode);
+	}
+	
+	/**
+	 * Return any domains defined in property frames held by parent tree nodes to this one recursively.
+	 * @param propertyNode starting node
+	 * @return set of labelOrIri objects that are ranges of parent properties
+	 */
+	private Set<LabelOrIri> getParentDomains(FrameTreeNode<OntologyEntityFrame> propertyNode) {
+		Set<LabelOrIri> retVal = new HashSet<LabelOrIri>();
+		if (propertyNode.getParent() != null) {
+			if (propertyNode.getParent().getData() instanceof PropertyFrame) {
+				PropertyFrame parentPropertyFrame = (PropertyFrame)propertyNode.getParent().getData();				
+				retVal.addAll(parentPropertyFrame.getDomains());
+				
+			}
+			// recurse
+			retVal.addAll(getParentDomains(propertyNode.getParent()));
+		}
+		return retVal;
+	}
+	
 	
 	
 	// Store user-selected restrictions to the classes, dataproperties, and object properties

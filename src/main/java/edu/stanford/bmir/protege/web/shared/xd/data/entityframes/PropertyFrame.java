@@ -1,5 +1,7 @@
 package edu.stanford.bmir.protege.web.shared.xd.data.entityframes;
 
+import java.util.Set;
+
 import org.semanticweb.owlapi.model.IRI;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
@@ -10,7 +12,7 @@ public abstract class PropertyFrame extends AbstractOntologyEntityFrame {
 	
 	// Private fields
 	private boolean functional;
-	private LabelOrIri[] domains;
+	private Set<LabelOrIri> domains;
 
 	/**
 	 * GWT-RPC constructor
@@ -36,11 +38,11 @@ public abstract class PropertyFrame extends AbstractOntologyEntityFrame {
 		this.functional = functional;
 	}
 
-	public void setDomains(LabelOrIri[] domains) {
+	public void setDomains(Set<LabelOrIri> domains) {
 		this.domains = domains;
 	}
 
-	public LabelOrIri[] getDomains() {
+	public Set<LabelOrIri> getDomains() {
 		return this.domains;
 	}
 }
