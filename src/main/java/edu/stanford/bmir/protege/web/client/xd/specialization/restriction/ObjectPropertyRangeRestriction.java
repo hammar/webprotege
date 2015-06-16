@@ -19,4 +19,9 @@ public class ObjectPropertyRangeRestriction implements Restriction {
 	public String toString() {
 		return Format.format("The property \"{0}\" can only have members of \"{1}\" as values", property.toString(), range.toString());
 	}
+
+	@Override
+	public String getEntityLabel() {
+		return this.property.getLabel();
+	}
 }

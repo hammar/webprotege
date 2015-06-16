@@ -147,6 +147,8 @@ public class PropertyRestrictionPanel extends Panel {
         this.objectProperties = parentWizard.getAllObjectProperties();
         this.dataProperties = parentWizard.getAllDataProperties();
 		
+        Set<Restriction> allRestrictions = new HashSet<Restriction>();
+        
 		// Render property-oriented restrictions
 		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.PROPERTY_ORIENTED ||
 				parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.HYBRID) {
@@ -166,15 +168,24 @@ public class PropertyRestrictionPanel extends Panel {
 				classLookupMap.put(classLookupKey, classFrame);
 			}
 			
-			generateObjectPropertyRangeRestrictions();
-			generatePropertyDomainRestrictions(this.objectProperties);
-			generatePropertyDomainRestrictions(this.dataProperties);
+			allRestrictions.addAll(generateObjectPropertyRangeRestrictions());
+			allRestrictions.addAll(generatePropertyDomainRestrictions(this.objectProperties));
+			allRestrictions.addAll(generatePropertyDomainRestrictions(this.dataProperties));
 		}
 		
 		// Render class-oriented restrictions
 		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.CLASS_ORIENTED ||
 				parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.HYBRID) {
-			// TODO: Build Restrictions according to strategy, add to map and grid store, reload grid
+			// TODO: Build Restrictions according to strategy, add to allRestrictions set
+		}
+		
+		for (Restriction restriction: allRestrictions) {
+			String restrictionKey = UUID.uuid();
+			// Put into map for later reference
+			restrictionsMap.put(restrictionKey, restriction);
+			// Create record and put in store for display to user
+			Record record = recordDef.createRecord(new Object[]{restriction.toString(), restriction.getEntityLabel(), restrictionKey});
+			store.add(record);
 		}
 		
 		store.groupBy("entity", true);
@@ -188,7 +199,9 @@ public class PropertyRestrictionPanel extends Panel {
 	 * that users may select them.
 	 * @param frameTree tree of PropertyFrame objects
 	 */
-	private void generatePropertyDomainRestrictions(FrameTreeNode<OntologyEntityFrame> frameTree) {
+	private Set<Restriction> generatePropertyDomainRestrictions(FrameTreeNode<OntologyEntityFrame> frameTree) {
+		Set<Restriction> domainRestrictions = new HashSet<Restriction>();
+		
 		// Iterate over all specialized object properties
 		Set<OntologyEntityFrame> specializedProperties = new HashSet<OntologyEntityFrame>();
 		specializedProperties.addAll(getFramesAsSet(frameTree, true));
@@ -218,16 +231,11 @@ public class PropertyRestrictionPanel extends Panel {
 			for (OntologyEntityFrame classFrame: candidateDomainFrames) {
 				if (!classFrame.getIri().isPresent()) {
 					DomainRestriction restriction = new DomainRestriction((PropertyFrame)property, (ClassFrame)classFrame);
-					String restrictionKey = UUID.uuid();
-					// Put into map for later reference
-					restrictionsMap.put(restrictionKey, restriction);
-					// Create record and put in store for display to user
-					Record record = recordDef.createRecord(new Object[]{restriction.toString(), property.toString(), restrictionKey});
-					store.add(record);
-					store.commitChanges();
+					domainRestrictions.add(restriction);
 				}
 			}
 		}
+		return domainRestrictions;
 	}
 	
 	/**
@@ -236,7 +244,9 @@ public class PropertyRestrictionPanel extends Panel {
 	 * reference when persisting selected references, and are added to the gridview datastore so
 	 * that users may select them.
 	 */
-	private void generateObjectPropertyRangeRestrictions() {
+	private Set<Restriction> generateObjectPropertyRangeRestrictions() {
+		Set<Restriction> rangeRestrictions = new HashSet<Restriction>();
+		
 		// Iterate over all specialized object properties
 		Set<OntologyEntityFrame> specializedObjectProperties = new HashSet<OntologyEntityFrame>();
 		specializedObjectProperties.addAll(getFramesAsSet(this.objectProperties, true));
@@ -266,16 +276,12 @@ public class PropertyRestrictionPanel extends Panel {
 			for (OntologyEntityFrame classFrame: candidateRangeFrames) {
 				if (!classFrame.getIri().isPresent()) {
 					ObjectPropertyRangeRestriction restriction = new ObjectPropertyRangeRestriction((ObjectPropertyFrame)property, (ClassFrame)classFrame);
-					String restrictionKey = UUID.uuid();
-					// Put into map for later reference
-					restrictionsMap.put(restrictionKey, restriction);
-					// Create record and put in store for display to user
-					Record record = recordDef.createRecord(new Object[]{restriction.toString(), property.toString(), restrictionKey});
-					store.add(record);
-					store.commitChanges();
+					rangeRestrictions.add(restriction);
 				}
 			}
 		}
+		
+		return rangeRestrictions;
 	}
 	
 	/**

@@ -19,4 +19,9 @@ public class DomainRestriction implements Restriction {
 	public String toString() {
 		return Format.format("The property \"{0}\" is only applicable to members of \"{1}\"", property.toString(), domain.toString());
 	}
+
+	@Override
+	public String getEntityLabel() {
+		return this.property.toString();
+	}
 }
