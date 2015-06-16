@@ -1,5 +1,6 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
@@ -92,7 +93,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         	public void onClick(Button button, EventObject e) {
         		saveAndClose();
         	}
-        });  
+        });
         finishButton.setId("move-finish");  
         navigationBar.addButton(finishButton);
         finishButton.setVisible(false);
@@ -102,7 +103,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         this.entitySpecializationPanel = new EntitySpecializationPanel(this);
         this.propertyRestrictionPanel = new PropertyRestrictionPanel(this);
         this.alignmentsPanel = new AlignmentsPanel();
-        this.previewPanel = new PreviewPanel();
+        this.previewPanel = new PreviewPanel(this);
         
         // These are the individual cards/screens of the wizard interface.
         // The order in which they are added is important, as is the ID that 
@@ -223,13 +224,38 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         };  
 	}
 	
-	// Returns a filtered subset of the input set of class or property trees, containing
-	// only those that have been specialized in this wizard (e.g., those that do not have
-	// any minted IRI).
-	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedEntityTrees(FrameTreeNode<OntologyEntityFrame> inputFrameTrees) {
-		// TODO: Implement this
-		return null;
-		
+	/**
+	 *  Returns a filtered subset of the input set of class or property trees, containing
+	 *  only those that have been specialized in this wizard (e.g., those that do not have
+	 *  any minted IRI), flattened to a set of root nodes.
+	 * @param inputFrameTreeRoot - root node to search through
+	 * @return
+	 */
+	private Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedEntityTrees(FrameTreeNode<OntologyEntityFrame> inputFrameTreeRoot) {
+		Set<FrameTreeNode<OntologyEntityFrame>> specializedEntityRoots = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
+		// This node has an IRI, e.g., is a pre-existing concept in the ontology, e.g., recurse deeper into child nodes.
+		if (inputFrameTreeRoot.getData().getIri().isPresent()) {
+			for (FrameTreeNode<OntologyEntityFrame> childNode: inputFrameTreeRoot.getChildren()) {
+				specializedEntityRoots.addAll(getSpecializedEntityTrees(childNode));
+			}
+		}
+		// This node has no IRI so it is a specialized subtree. Add it to the set to be returned.
+		else {
+			specializedEntityRoots.add(inputFrameTreeRoot);
+		}
+		return specializedEntityRoots;
+	}
+	
+	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedClasses() {
+		return getSpecializedEntityTrees(this.allClasses);
+	}
+	
+	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedObjectProperties() {
+		return getSpecializedEntityTrees(this.allObjectProperties);
+	}
+	
+	public Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedDataProperties() {
+		return getSpecializedEntityTrees(this.allDataProperties);
 	}
 
 	/**
@@ -239,7 +265,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private void saveAndClose() {	
 		
 		// TODO: Fetch alignments from user selections
-		Alignment[] selectedAlignments = new Alignment[0];
+		Set<Alignment> selectedAlignments = new HashSet<Alignment>();
 		
 		// Generate ODP Specialization object and action to pass to dispach service
 		Set<FrameTreeNode<OntologyEntityFrame>> specializedClasses = getSpecializedEntityTrees(this.allClasses);
@@ -346,5 +372,12 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 
 	public FrameTreeNode<OntologyEntityFrame> getAllDataProperties() {
 		return allDataProperties;
-	} 
+	}
+	
+	public OdpSpecialization getSpecialization() {
+		return new OdpSpecialization(projectId, odpIRI, specializationStrategy, alignments,
+    			this.getSpecializedClasses(),
+    			this.getSpecializedObjectProperties(),
+    			this.getSpecializedDataProperties());
+	}
 }

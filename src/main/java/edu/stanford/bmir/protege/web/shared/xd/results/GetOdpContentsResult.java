@@ -4,9 +4,6 @@ import java.io.Serializable;
 
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 /**

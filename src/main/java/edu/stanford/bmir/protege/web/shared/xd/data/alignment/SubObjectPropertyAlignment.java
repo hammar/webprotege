@@ -11,6 +11,13 @@ public class SubObjectPropertyAlignment implements Alignment {
 	private ObjectPropertyFrame superProperty;
 	private ObjectPropertyFrame subProperty;
 	
+	/**
+	 * GWT-RPC constructor
+	 */
+	@SuppressWarnings("unused")
+	private SubObjectPropertyAlignment() {
+	}
+	
 	public SubObjectPropertyAlignment(ObjectPropertyFrame superProperty, ObjectPropertyFrame subProperty) {
 		this.superProperty = superProperty;
 		this.subProperty = subProperty;

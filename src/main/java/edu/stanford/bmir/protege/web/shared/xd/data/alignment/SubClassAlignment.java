@@ -11,6 +11,13 @@ public class SubClassAlignment implements Alignment {
 	private ClassFrame superClass;
 	private ClassFrame subClass;
 	
+	/**
+	 * GWT-RPC constructor
+	 */
+	@SuppressWarnings("unused")
+	private SubClassAlignment() {
+	}
+	
 	public SubClassAlignment(ClassFrame superClass, ClassFrame subClass) {
 		this.superClass = superClass;
 		this.subClass = subClass;

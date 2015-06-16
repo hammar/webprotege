@@ -7,9 +7,6 @@ import org.semanticweb.owlapi.model.IRI;
 
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 public class OdpSpecialization implements Serializable {
@@ -25,7 +22,8 @@ public class OdpSpecialization implements Serializable {
 	public OdpSpecialization(ProjectId projectId,
 			IRI odpIri,
 			OdpSpecializationStrategy specializationStrategy,
-			Alignment[] alignments, Set<FrameTreeNode<OntologyEntityFrame>> classFrameTrees,
+			Set<Alignment> alignments, 
+			Set<FrameTreeNode<OntologyEntityFrame>> classFrameTrees,
 			Set<FrameTreeNode<OntologyEntityFrame>> objectPropertyFrameTrees,
 			Set<FrameTreeNode<OntologyEntityFrame>> dataPropertyFrameTrees) {
 		this.projectId = projectId;
@@ -41,7 +39,7 @@ public class OdpSpecialization implements Serializable {
 	private ProjectId projectId;
 	private IRI odpIri;
 	private OdpSpecializationStrategy specializationStrategy;
-	private Alignment[] alignments;
+	private Set<Alignment> alignments;
 	private Set<FrameTreeNode<OntologyEntityFrame>> classFrameTrees;
 	private Set<FrameTreeNode<OntologyEntityFrame>> objectPropertyFrameTrees;
 	private Set<FrameTreeNode<OntologyEntityFrame>> dataPropertyFrameTrees;
@@ -56,7 +54,7 @@ public class OdpSpecialization implements Serializable {
 	public OdpSpecializationStrategy getSpecializationStrategy() {
 		return this.specializationStrategy;
 	}
-	public Alignment[] getAlignments() {
+	public Set<Alignment> getAlignments() {
 		return this.alignments;
 	}
 	public Set<FrameTreeNode<OntologyEntityFrame>> getClassFrameTrees() {

@@ -11,6 +11,13 @@ public class SubDataPropertyAlignment implements Alignment {
 	private DataPropertyFrame superProperty;
 	private DataPropertyFrame subProperty;
 	
+	/**
+	 * GWT-RPC constructor
+	 */
+	@SuppressWarnings("unused")
+	private SubDataPropertyAlignment() {
+	}
+	
 	public SubDataPropertyAlignment(DataPropertyFrame superProperty, DataPropertyFrame subProperty) {
 		this.superProperty = superProperty;
 		this.subProperty = subProperty;
