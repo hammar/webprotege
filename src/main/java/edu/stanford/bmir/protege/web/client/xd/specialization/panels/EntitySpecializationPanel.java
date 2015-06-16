@@ -113,8 +113,7 @@ public class EntitySpecializationPanel extends Panel {
             	DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
             	TreeNode selectedNode = dsm.getSelectedNode();
             	if (selectedNode.getAttributeAsObject("frame")!=null) {
-            		AbstractOntologyEntityFrame selectedFrame = (AbstractOntologyEntityFrame)selectedNode.getAttributeAsObject("frame");
-            		edWindow.loadFrameAndShow(selectedFrame);
+            		edWindow.loadFrameAndShow(selectedNode);
             	}
             }
         });

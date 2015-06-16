@@ -24,6 +24,7 @@ public class EntityDetailsWindow extends Window {
 	private TextField labelField;
 	private TextField commentField;
 	private TreeNode parentTreeNode;
+	private TreeNode currentNode;
 
 	public EntityDetailsWindow() {
 		this.setLayout(new RowLayout());
@@ -65,6 +66,7 @@ public class EntityDetailsWindow extends Window {
 	// Resets this window to empty state
 	public void reset() {
 		this.parentTreeNode = null;
+		this.currentNode = null;
 		this.frame = Optional.absent();
 		this.labelField.setValue("");
 		this.commentField.setValue("");
@@ -79,6 +81,7 @@ public class EntityDetailsWindow extends Window {
 			AbstractOntologyEntityFrame frame = this.frame.get();
 			frame.setLabel(labelField.getValueAsString());
 			frame.setComment(commentField.getValueAsString());
+			this.currentNode.setText(labelField.getValueAsString());
 		}
 		// Otherwise, we need to create the frame and wire it up against a new
 		// OntologyEntityTreeNode in the parent SpecializationWizard
@@ -100,6 +103,7 @@ public class EntityDetailsWindow extends Window {
 			if(commentField.getValueAsString() != "") {
 				newFrame.setComment(commentField.getValueAsString());
 			}
+			newTreeNode.setCls("specializedNode");
 			newTreeNode.setAttribute("frame", newFrame);
 			newTreeNode.setAttribute("type", nodeType);
 			parentTreeNode.appendChild(newTreeNode);
@@ -120,11 +124,12 @@ public class EntityDetailsWindow extends Window {
 	}
 	
 	// Load the frame details
-	public void loadFrameAndShow(AbstractOntologyEntityFrame frame) {
+	public void loadFrameAndShow(TreeNode currentNode) {
 		this.reset();
-		this.frame = Optional.of(frame);
-		labelField.setValue(frame.getLabel());
-		commentField.setValue(frame.getComment().or(""));
+		this.currentNode = currentNode;
+		this.frame = Optional.of((AbstractOntologyEntityFrame)currentNode.getAttributeAsObject("frame"));
+		labelField.setValue(frame.get().getLabel());
+		commentField.setValue(frame.get().getComment().or(""));
 		super.show();
 	}
 }

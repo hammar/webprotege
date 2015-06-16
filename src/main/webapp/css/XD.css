@@ -15,3 +15,7 @@
 	background-size: 18px 16px;
     background-repeat: no-repeat;
 }
+
+div.specializedNode a.x-tree-node-anchor span {
+	color: green;
+}  
