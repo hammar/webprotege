@@ -23,6 +23,7 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 import com.gwtext.client.widgets.grid.ColumnModel;
 import com.gwtext.client.widgets.grid.GridPanel;
 import com.gwtext.client.widgets.grid.GroupingView;
+import com.gwtext.client.widgets.layout.FitLayout;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.DomainRestriction;
@@ -60,6 +61,7 @@ public class PropertyRestrictionPanel extends Panel {
         this.setBorder(false);  
         this.setId("card-2");
         this.setTitle("Property Restriction");
+        this.setLayout(new FitLayout());
         
         this.classLookupMap = new HashMap<String, OntologyEntityFrame>();
         this.restrictionsMap = new HashMap<String,Restriction>();
@@ -174,6 +176,9 @@ public class PropertyRestrictionPanel extends Panel {
 				parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.HYBRID) {
 			// TODO: Build Restrictions according to strategy, add to map and grid store, reload grid
 		}
+		
+		store.groupBy("entity", true);
+		store.commitChanges();
 	}
 	
 	/**
