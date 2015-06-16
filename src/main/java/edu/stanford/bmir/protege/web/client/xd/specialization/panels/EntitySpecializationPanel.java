@@ -9,8 +9,9 @@ import com.gwtext.client.data.Node;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.Panel;
+import com.gwtext.client.widgets.Toolbar;
+import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.layout.RowLayoutData;
 import com.gwtext.client.widgets.tree.DefaultSelectionModel;
@@ -38,9 +39,9 @@ public class EntitySpecializationPanel extends Panel {
 	private EntityDetailsWindow edWindow;
 	private TreeNode rootNode;
 	
-	private Button specializeButton;
-	private Button modifyButton;
-	private Button deleteButton;
+	private ToolbarButton specializeButton;
+	private ToolbarButton modifyButton;
+	private ToolbarButton deleteButton;
 	
 	private FrameTreeNode<OntologyEntityFrame> allClasses;
 	private FrameTreeNode<OntologyEntityFrame> allObjectProperties;
@@ -59,16 +60,16 @@ public class EntitySpecializationPanel extends Panel {
         this.setTitle("Entity Specialization");
         
         Panel instructionPanel = new Panel();
-        instructionPanel.setPaddings(10);
+        instructionPanel.setPaddings(5);
         Label instruction = new Label("Please select the classes, object properties, and datatype properties from "
         		+ "the ontology design pattern that you wish to specialize for your modeling need from the list "
         		+ "below. Note that if using the class-oriented strategy you will be prevented from specialising "
         		+ "properties.");
         instructionPanel.add(instruction);
-        instructionPanel.setBodyStyle("border-bottom: 1px solid #99bbe8; padding: 15px;");
         this.add(instructionPanel, new RowLayoutData(50));
         
         entityTreePanel = new TreePanel();
+        entityTreePanel.setTitle("ODP Entities");
         entityTreePanel.addListener(new TreePanelListenerAdapter() {
         	public void onClick(TreeNode node, EventObject e) {
         		if (node.getAttributeAsObject("iri") != null) {
@@ -97,19 +98,16 @@ public class EntitySpecializationPanel extends Panel {
         rootNode = new TreeNode();
         entityTreePanel.setRootNode(rootNode);
         this.add(entityTreePanel);
-        
-        Panel specializationButtonsPanel = new Panel();
-        specializationButtonsPanel.setBodyStyle("border-top: 1px solid #99bbe8;");  
-        specializationButtonsPanel.setPaddings(10);
-        specializationButtonsPanel.setLayout(new HorizontalLayout(15));
-        specializeButton = new Button("Specialize");
+
+        Toolbar specializationControlsToolbar = new Toolbar();
+        specializeButton = new ToolbarButton("Specialise");
         specializeButton.addListener(new ButtonListenerAdapter() {  
             public void onClick(Button button, EventObject e) {
             	DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
             	edWindow.newFrameAndShow(dsm.getSelectedNode());
             }
         });
-        modifyButton = new Button("Modify");
+        modifyButton = new ToolbarButton("Modify");
         modifyButton.addListener(new ButtonListenerAdapter() {  
             public void onClick(Button button, EventObject e) {
             	DefaultSelectionModel dsm = (DefaultSelectionModel)entityTreePanel.getSelectionModel();
@@ -120,7 +118,7 @@ public class EntitySpecializationPanel extends Panel {
             	}
             }
         });
-        deleteButton = new Button("Delete");
+        deleteButton = new ToolbarButton("Delete");
         deleteButton.addListener(new ButtonListenerAdapter() {  
             public void onClick(Button button, EventObject e) {
             	MessageBox.confirm("Confirm Deletion", "Are you sure you want to delete the selected entity?", new MessageBox.ConfirmCallback() {
@@ -134,11 +132,10 @@ public class EntitySpecializationPanel extends Panel {
             	});  
             }
         });
-        specializationButtonsPanel.add(specializeButton);
-        specializationButtonsPanel.add(modifyButton);
-        specializationButtonsPanel.add(deleteButton);
-        
-        this.add(specializationButtonsPanel, new RowLayoutData(50));
+        specializationControlsToolbar.addButton(specializeButton);
+        specializationControlsToolbar.addButton(modifyButton);
+        specializationControlsToolbar.addButton(deleteButton);
+        entityTreePanel.setTopToolbar(specializationControlsToolbar);
 	}
 	
 	/**
