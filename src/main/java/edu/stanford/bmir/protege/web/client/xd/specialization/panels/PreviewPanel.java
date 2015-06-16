@@ -6,11 +6,12 @@ import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.MessageBoxConfig;
 import com.gwtext.client.widgets.Panel;
+import com.gwtext.client.widgets.Toolbar;
+import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.WaitConfig;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.RowLayout;
-import com.gwtext.client.widgets.layout.RowLayoutData;
-
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
@@ -28,13 +29,21 @@ public class PreviewPanel extends Panel {
 		
 		this.parentWizard = parent;
 		
-        this.setLayout(new RowLayout());
+        this.setLayout(new FitLayout());
         this.setBorder(false);  
         this.setId("card-4");
-        this.setTitle("Specialisation Overview");
+        this.setTitle("ODP Specialisation Preview");
         
-        Panel buttonPanel = new Panel();
-        final Button buildPreviewButton = new Button("Preview generated axioms");
+        // Axioms list
+        Panel instantiationAxiomsPanel = new Panel();
+        instantiationAxiomsPanel.setLayout(new RowLayout());
+        instantationAxiomsPreview = new TextArea();
+        instantationAxiomsPreview.setEnabled(false);
+        instantiationAxiomsPanel.add(instantationAxiomsPreview);
+        
+        // Toolbar with preview generation button 
+        Toolbar previewButtonToolbar = new Toolbar();
+        final ToolbarButton buildPreviewButton = new ToolbarButton("Generate preview");
         buildPreviewButton.addListener(new ButtonListenerAdapter() {
             public void onClick(Button button, EventObject e) {
             	
@@ -65,17 +74,9 @@ public class PreviewPanel extends Panel {
                 });
             }
         });
-        buttonPanel.add(buildPreviewButton);
-        this.add(buttonPanel, new RowLayoutData(21));
+        previewButtonToolbar.addButton(buildPreviewButton);
+        instantiationAxiomsPanel.setTopToolbar(previewButtonToolbar);
         
-        // Axioms list
-        Panel instantiationAxiomsPanel = new Panel();
-        instantiationAxiomsPanel.setTitle("ODP Instantiation Axioms");
-        instantiationAxiomsPanel.setLayout(new RowLayout());
-        instantationAxiomsPreview = new TextArea();
-        instantationAxiomsPreview.setEnabled(false);
-        instantationAxiomsPreview.setText("OY");
-        instantiationAxiomsPanel.add(instantationAxiomsPreview);
         this.add(instantiationAxiomsPanel);
 	}
 	
