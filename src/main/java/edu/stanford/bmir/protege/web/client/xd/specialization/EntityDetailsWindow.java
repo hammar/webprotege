@@ -1,16 +1,16 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
 import com.google.common.base.Optional;
-import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.Panel;
+import com.gwtext.client.widgets.Toolbar;
+import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.Window;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.FormPanel;
+import com.gwtext.client.widgets.form.TextArea;
 import com.gwtext.client.widgets.form.TextField;
-import com.gwtext.client.widgets.layout.HorizontalLayout;
-import com.gwtext.client.widgets.layout.RowLayout;
+import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.tree.TreeNode;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
@@ -27,40 +27,47 @@ public class EntityDetailsWindow extends Window {
 	private TreeNode currentNode;
 
 	public EntityDetailsWindow() {
-		this.setLayout(new RowLayout());
-		this.setWidth(200);
-		this.setHeight(320);
-		this.add(new Label("In this window we add or edit classes/object properties/datatype properties!"));
+		this.setCloseAction(HIDE);
+		this.setTitle("Specialised Entity Details");
+		this.setLayout(new FitLayout());
+		this.setWidth(335);
+		this.setHeight(200);
 		
 		FormPanel formPanel = new FormPanel();
+		formPanel.setPaddings(5);
+		
+		formPanel.setBorder(true);
 		labelField = new TextField("Class name", "className");
+		labelField.setWidth(180);
 		labelField.setAllowBlank(false);
 		formPanel.add(labelField);  
-		commentField = new TextField("Comment", "classComment");
+		commentField = new TextArea("Comment", "classComment");
+		commentField.setWidth(180);
+		commentField.setHeight(100);
 		commentField.setAllowBlank(true);
 		formPanel.add(commentField);
-		this.add(formPanel);
 		
-		Panel submitClosePanel = new Panel();
-		submitClosePanel.setHeight(30);
-		submitClosePanel.setLayout(new HorizontalLayout(0));
-		Button submitButton = new Button("Submit");
-		submitButton.addListener(new ButtonListenerAdapter(){
-			@Override
-			public void onClick(Button button, EventObject e) {
-				persistAndClose();
-			}
-		});
-		submitClosePanel.add(submitButton);
-		Button closeButton = new Button("Cancel");
+		Toolbar submitCloseToolbar = new Toolbar();
+		ToolbarButton closeButton = new ToolbarButton("Cancel");
 		closeButton.addListener(new ButtonListenerAdapter(){
 			@Override
 			public void onClick(Button button, EventObject e) {
 				hide();
 			}
 		});
-		submitClosePanel.add(closeButton);
-		this.add(submitClosePanel);
+		submitCloseToolbar.addButton(closeButton);
+		submitCloseToolbar.addFill();
+		ToolbarButton submitButton = new ToolbarButton("Submit");
+		submitButton.addListener(new ButtonListenerAdapter(){
+			@Override
+			public void onClick(Button button, EventObject e) {
+				persistAndClose();
+			}
+		});
+		submitCloseToolbar.addButton(submitButton);
+
+		formPanel.setBottomToolbar(submitCloseToolbar);
+		this.add(formPanel);
 	}
 	
 	// Resets this window to empty state
@@ -123,7 +130,7 @@ public class EntityDetailsWindow extends Window {
 		super.show();
 	}
 	
-	// Load the frame details
+	// Load the existing node details
 	public void loadFrameAndShow(TreeNode currentNode) {
 		this.reset();
 		this.currentNode = currentNode;

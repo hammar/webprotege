@@ -66,6 +66,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	
 	@SuppressWarnings("deprecation")
 	public XdSpecializationWizard(XdPatternDetailsPortlet parent) {
+		this.setCloseAction(HIDE);
+		
 		this.projectId = parent.getProjectId();
 		
 		this.setTitle("ODP Specialisation Wizard");
