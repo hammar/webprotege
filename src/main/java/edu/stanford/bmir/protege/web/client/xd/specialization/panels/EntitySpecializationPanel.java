@@ -273,32 +273,6 @@ public class EntitySpecializationPanel extends Panel {
 		}
 	}
 	
-	/*
-	 * Returns a 
-	 * @param rootNode
-	 * @return
-	 */
-	/*
-	private Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedFrames(TreeNode rootNode) {
-		Set<FrameTreeNode<OntologyEntityFrame>> specializedEntityRoots = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
-		if (rootNode.getAttribute("iri") == null) {
-			// This node has no IRI, e.g. is a newly specialized node.
-			// Get a tree of class frames starting from this node. 
-			if (rootNode.getAttributeAsObject("frame") != null) {
-				specializedEntityRoots.add(getChildFrameTrees(rootNode));
-			}
-		}
-		else {
-			// This node has an IRI, e.g. is not a specialized node. Consequently
-			// we must recurse into child nodes and return specialized ones.
-			for (Node childNode: rootNode.getChildNodes()) {
-				TreeNode childTreeNode = (TreeNode)childNode;
-				specializedEntityRoots.addAll(getSpecializedFrames(childTreeNode));
-			}
-		}
-		return specializedEntityRoots;
-	}*/
-	
 	private Set<Alignment> getChildAlignments(TreeNode rootNode) {
 		Set<Alignment> alignments = new HashSet<Alignment>();
 		// We are looking for nodes that have minted IRIs (e.g., existing ODP entities)

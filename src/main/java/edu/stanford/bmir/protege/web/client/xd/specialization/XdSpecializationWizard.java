@@ -7,8 +7,11 @@ import org.semanticweb.owlapi.model.IRI;
 
 import com.gwtext.client.core.EventObject; 
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.MessageBox;
+import com.gwtext.client.widgets.MessageBoxConfig;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
+import com.gwtext.client.widgets.WaitConfig;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.CardLayout;
 
@@ -302,6 +305,21 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		// Set IRI that we use
 		this.odpIRI = IRI.create(uri);
 		
+		// Throw up progress window
+		MessageBox.show(new MessageBoxConfig() {  
+            {  
+                setMsg("Loading ODP, please wait...");  
+                setProgressText("Loading ODP...");  
+                setWidth(300);  
+                setWait(true);  
+                setWaitConfig(new WaitConfig() {  
+                    {  
+                        setInterval(200);  
+                    }  
+                });    
+            }  
+        }); 
+		
 		// Get ODP implementation from server
         DispatchServiceManager.get().execute(new GetOdpContentsAction(uri), new DispatchServiceCallback<GetOdpContentsResult>() {
         	@Override
@@ -309,11 +327,12 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         		
         		FrameTreeNode<OntologyEntityFrame> odpClasses = result.getClasses();
         		FrameTreeNode<OntologyEntityFrame> odpObjectProperties = result.getObjectProperties();
-        		//Window.alert(printFrameTree(odpObjectProperties,""));
-        		//Window.alert(printFrameTree(odpObjectProperties,""));
         		FrameTreeNode<OntologyEntityFrame> odpDataProperties = result.getDataProperties();
         		
         		entitySpecializationPanel.populateEntityTree(odpClasses, odpObjectProperties, odpDataProperties);
+        		
+        		// Hide progress window once done
+        		MessageBox.hide();
             }
         });
 	}
