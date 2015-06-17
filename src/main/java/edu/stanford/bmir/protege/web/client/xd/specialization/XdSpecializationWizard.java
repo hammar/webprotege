@@ -281,9 +281,27 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 				specializedDataProperties);
 		PersistSpecializationAction psa = new PersistSpecializationAction(odpSpec);
 		
+		// Put up progress window
+		MessageBox.show(new MessageBoxConfig() {  
+            {  
+                setMsg("Saving ODP Specialisation, please wait...");  
+                setProgressText("Saving ODP Specialisation...");  
+                setWidth(300);  
+                setWait(true);  
+                setWaitConfig(new WaitConfig() {  
+                    {  
+                        setInterval(200);  
+                    }  
+                });    
+            }  
+        }); 
+		
 		DispatchServiceManager.get().execute(psa, new DispatchServiceCallback<PersistSpecializationResult>() {
         	@Override
             public void handleSuccess(PersistSpecializationResult result) {
+        		// Hide progress window once done
+        		MessageBox.hide();
+        		
         		closeAndResetSpecializationWizard();
             }
         });
