@@ -20,10 +20,9 @@ import com.gwtext.client.widgets.layout.VerticalLayout;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.project.Project;
-import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
-import edu.stanford.bmir.protege.web.client.ui.selection.SelectionEvent;
-import edu.stanford.bmir.protege.web.client.ui.selection.SelectionListener;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
@@ -71,18 +70,20 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet implements
 	 * their selections have been updated and that listeners should refresh content. */
 	@Override
 	public void selectionChanged(SelectionEvent event) {
-		Collection<EntityData> selection = event.getSelectable().getSelection();
+		Collection<? extends Object> selection = event.getSelectable().getSelection();
 		if (selection.size() > 0) {
-			EntityData entityData = selection.iterator().next();
-			String odpUri = entityData.getName();
-			
-			DispatchServiceManager.get().execute(new GetOdpDetailsAction(odpUri), new DispatchServiceCallback<GetOdpDetailsResult>() {
-				@Override
-				public void handleSuccess(GetOdpDetailsResult result) {
-					odp = result.getDetails();
-					renderOdpDetails(odp);
-				}
-			});
+			Object selectionData = selection.iterator().next();
+			if (selectionData instanceof String) {
+				String odpUri = (String)selectionData;
+				
+				DispatchServiceManager.get().execute(new GetOdpDetailsAction(odpUri), new DispatchServiceCallback<GetOdpDetailsResult>() {
+					@Override
+					public void handleSuccess(GetOdpDetailsResult result) {
+						odp = result.getDetails();
+						renderOdpDetails(odp);
+					}
+				});
+			}
 		}
 	}
 	

@@ -3,10 +3,10 @@ package edu.stanford.bmir.protege.web.client.xd;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.Window;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.SortDir;
 import com.gwtext.client.data.ArrayReader;
@@ -43,11 +43,10 @@ import com.gwtext.client.widgets.layout.RowLayoutData;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.project.Project;
-import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
-import edu.stanford.bmir.protege.web.client.ui.selection.Selectable;
-import edu.stanford.bmir.protege.web.client.ui.selection.SelectionEvent;
-import edu.stanford.bmir.protege.web.client.ui.selection.SelectionListener;
+import edu.stanford.bmir.protege.web.client.xd.selection.Selectable;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
@@ -92,14 +91,14 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
 	private Collection<SelectionListener> listeners;
 	
 	@Override
-	public Collection<EntityData> getSelection() {
+	public List<String> getSelection() {
 		if (resultsGrid.getSelectionModel().hasSelection()) {
 			Record r = resultsGrid.getSelectionModel().getSelected();
 			String selectedOdp = r.getAsString("uri");
-			return Arrays.asList(new EntityData(selectedOdp));
+			return Arrays.asList(selectedOdp);
 		}
 		else {
-			return null;
+			return Collections.emptyList();
 		}
 	}
 
@@ -309,7 +308,6 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
         // Behavior when a result from the search is clicked - notifies listeners
         // that selection changed.
 		resultsGrid.addGridRowListener(new GridRowListenerAdapter(){
-			@SuppressWarnings("deprecation")
 			public void onRowClick(GridPanel grid, int rowIndex, EventObject e) {
 				notifySelectionListeners(new SelectionEvent(XdSearchPortlet.this));
 			}
@@ -394,7 +392,7 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
 	}
 
 	@Override
-	public void setSelection(Collection<EntityData> selection) {
+	public void setSelection(Collection<? extends Object> selection) {
 		// We don't allow external sources to modify the selection of this portlet.
 	}
 }
