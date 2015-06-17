@@ -30,6 +30,7 @@ import com.gwtext.client.widgets.form.FormPanel;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.event.CheckboxListener;
 import com.gwtext.client.widgets.form.event.CheckboxListenerAdapter;
+import com.gwtext.client.widgets.form.event.ComboBoxListenerAdapter;
 import com.gwtext.client.widgets.form.event.TextFieldListenerAdapter;
 import com.gwtext.client.widgets.grid.ColumnConfig;
 import com.gwtext.client.widgets.grid.ColumnModel;
@@ -48,10 +49,13 @@ import edu.stanford.bmir.protege.web.client.xd.selection.Selectable;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
+import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpSearchHitsAction;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpsByCategoryAction;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpSearchHitsResult;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpsByCategoryResult;
 
 /***
  * Portlet providing an ODP search GUI.
@@ -83,9 +87,8 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
 	
 	// Results widget
 	private Store resultsStore;
-	private ArrayReader resultsReader;
+	private RecordDef recordDef;
 	private GridPanel resultsGrid;
-	private ColumnModel columnModel;
 	
 	// Listeners to selection events in this portlet
 	private Collection<SelectionListener> listeners;
@@ -94,23 +97,18 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
 	public List<String> getSelection() {
 		if (resultsGrid.getSelectionModel().hasSelection()) {
 			Record r = resultsGrid.getSelectionModel().getSelected();
-			String selectedOdp = r.getAsString("uri");
+			String selectedOdp = r.getAsString("iri");
 			return Arrays.asList(selectedOdp);
 		}
 		else {
 			return Collections.emptyList();
 		}
 	}
-
-	// Initialization method for GUI
-	@Override
-	public void initialize() {
-		
-		setTitle("ODP Search");
-		
+	
+	private Panel buildSearchForm() {
 		// Create the search form  
         FormPanel formPanel = new FormPanel(); 
-        formPanel.setTitle("Search controls");  
+        formPanel.setTitle("ODP Search");  
         formPanel.setPaddings(5, 5, 5, 0);
         formPanel.setAutoWidth(true);
         formPanel.setAutoHeight(true);
@@ -119,6 +117,14 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
         // Add query field
         queryField = new TextField("Query");
         queryField.setWidth(145);
+        // Enter-press in query field behavior
+ 		queryField.addListener(new TextFieldListenerAdapter(){
+ 			public void onSpecialKey(Field field, EventObject e) {
+ 				if (e.getKey() == KeyCodes.KEY_ENTER) {
+ 					runOdpSearch();
+ 				}
+ 			}
+ 		});
         formPanel.add(queryField);
         
         // Create filters FieldSet and child tab panel
@@ -262,56 +268,132 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
 				runOdpSearch();
 			}
 		});
-        formPanel.addButton(searchButton);   
 		
-		// Results list
-        resultsReader = new ArrayReader(new RecordDef(
-     		   new FieldDef[]{
-     		     new StringFieldDef("title"),
-     		     new StringFieldDef("uri"),
-     		     new FloatFieldDef("confidence")
-     		     }
-     		   ));
-        resultsStore = new Store(resultsReader);
-        ColumnConfig nameColumn = new ColumnConfig("Name", "title");
+		
+		
+        formPanel.addButton(searchButton);
+        formPanel.setCollapsible(true);
+        return formPanel;
+	}
+	
+	private Panel buildCategorySelector() {
+		Panel categorySelectorPanel = new Panel();
+		categorySelectorPanel.setTitle("ODP Category Selector");
+		categorySelectorPanel.setLayout(new FitLayout());
+		
+		// Create category selection combobox
+        Store categoryStore = new SimpleStore(new String[]{"name", "uri"}, getODPCategories());  
+        categoryStore.load();  
+        categoryCb = new ComboBox();  
+        categoryCb.setFieldLabel("Category");    
+        categoryCb.setStore(categoryStore);  
+        categoryCb.setDisplayField("name");  
+        categoryCb.setMode(ComboBox.LOCAL);    
+        categoryCb.setForceSelection(true);
+        categoryCb.setReadOnly(true);
+        categoryCb.addListener(new ComboBoxListenerAdapter(){
+			@Override
+			public void onSelect(ComboBox comboBox, Record record, int index) {
+				showOdpsByCategory(comboBox.getValue());
+			}
+        });
+        categorySelectorPanel.add(categoryCb);
+        categorySelectorPanel.setCollapsible(true);
+		
+		return categorySelectorPanel;
+	}
+	
+	private void showOdpsByCategory(String category) {
+		// Execute remote query method
+		DispatchServiceManager.get().execute(new GetOdpsByCategoryAction(category), new DispatchServiceCallback<GetOdpsByCategoryResult>() {
+			
+			@Override
+			public void handleSuccess(GetOdpsByCategoryResult result) {
+				// Hide confidence column (makes no sense for category based browsing)
+				resultsGrid.hideColumn("confidence");
+				
+				// Populate results list.
+				List<OdpDetails> odps = result.getOdps();
+				resultsStore.removeAll();
+				for (OdpDetails odp: odps) {
+					Record record = recordDef.createRecord(new Object[]{odp.getName(), odp.getUri(), 1.0});
+					resultsStore.add(record);
+				}
+				resultsStore.sort("name", SortDir.ASC);
+				resultsStore.commitChanges();
+			}
+		});
+	}
+	
+	private Panel buildResultsGrid() {
+		
+		// Initialize empty store.
+		MemoryProxy proxy = new MemoryProxy(new Object[0][3]);
+		this.recordDef = new RecordDef(
+				new FieldDef[]{
+						new StringFieldDef("name"),
+						new StringFieldDef("iri"),
+						new FloatFieldDef("confidence")
+						}); 
+		ArrayReader reader = new ArrayReader(recordDef);  
+		resultsStore = new Store(proxy, reader);
+		resultsStore.load();
+		
+		// Configure results grid member columns
+        ColumnConfig nameColumn = new ColumnConfig("Name", "name");
+        nameColumn.setId("name");
+        ColumnConfig iriColumn = new ColumnConfig("IRI", "iri");
+        iriColumn.setId("iri");
         ColumnConfig confidenceColumn = new ColumnConfig("Confidence", "confidence");
+        confidenceColumn.setId("confidence");
         confidenceColumn.setSortable(true);
         confidenceColumn.setWidth(90);
         ColumnConfig[] columns = new ColumnConfig[]{  
-        		nameColumn,  
+        		nameColumn,
+        		iriColumn,
                 confidenceColumn  
         };
-        columnModel = new ColumnModel(columns);
+        ColumnModel columnModel = new ColumnModel(columns);
+        
+        // Set up results grid rendering details
         resultsGrid = new GridPanel(resultsStore,columnModel);
         resultsGrid.setEnableHdMenu(false);
         resultsGrid.setEnableColumnMove(false);
         resultsGrid.setEnableColumnResize(false);
         resultsGrid.setTitle("Results list");
         resultsGrid.setAutoExpandColumn(nameColumn.getId());
-		
-		// Main portlet layout using a GWT-EXT accordion panel
-		Panel mainPanel = new Panel();
-		mainPanel.setLayout(new RowLayout());
-        mainPanel.add(formPanel);
-        mainPanel.add(resultsGrid, new RowLayoutData("75%"));
-		add(mainPanel);
         
-        // Enter-press in query field behavior
-		queryField.addListener(new TextFieldListenerAdapter(){
-			public void onSpecialKey(Field field, EventObject e) {
-				if (e.getKey() == KeyCodes.KEY_ENTER) {
-					runOdpSearch();
-				}
-			}
-		});
-        
-        // Behavior when a result from the search is clicked - notifies listeners
-        // that selection changed.
+        // Behavior when a result from the search is clicked - notifies listeners that selection changed.
 		resultsGrid.addGridRowListener(new GridRowListenerAdapter(){
 			public void onRowClick(GridPanel grid, int rowIndex, EventObject e) {
 				notifySelectionListeners(new SelectionEvent(XdSearchPortlet.this));
 			}
 		});
+        
+        return resultsGrid;
+	}
+
+	// Initialization method for GUI
+	@Override
+	public void initialize() {
+		setTitle("ODP Selector");
+		
+		// Main portlet layout
+		Panel mainPanel = new Panel();
+		mainPanel.setLayout(new RowLayout());
+        
+		Panel categorySelectorPanel = buildCategorySelector();
+		Panel searchFormPanel = buildSearchForm();
+		Panel resultsGridPanel = buildResultsGrid();
+		
+		mainPanel.add(categorySelectorPanel);
+        mainPanel.add(searchFormPanel);
+        mainPanel.add(resultsGridPanel, new RowLayoutData("75%"));
+        
+        add(mainPanel);
+        
+        // Load initial list of ODPs
+        showOdpsByCategory("Any");        
 	}
 	
 	// Runs the ODP search on the server using the query string and populates the results list.
@@ -340,23 +422,16 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
 				new DispatchServiceCallback<GetOdpSearchHitsResult>() {
 			@Override
 			public void handleSuccess(GetOdpSearchHitsResult result) {
-				// Populate results list by creating a new temporary data store using the existing 
-				// reader configuration, then moving records from that temporary store to the one
-				// that actually backs the GridPanel. Seems inefficient but was easiest to implement
-				// in code and there's not that much volume of data that it'll become a problem anyhow.
-				// TODO: Clean this up and actually use the store as intended by its designers.
+				// Show confidence column (if hidden by ODP browser)
+				resultsGrid.showColumn("confidence");
+				
+				// Populate results list.
 				List<OdpSearchResult> searchHits = result.getSearchResults();
-				List<Object[]> tempList = new ArrayList<Object[]>();
-				for (OdpSearchResult hit: searchHits) {
-					tempList.add(new Object[]{hit.getOdp().getName(),hit.getOdp().getUri(),hit.getConfidence()});
-				}
-				Object[][] newData = new Object[tempList.size()][]; 
-				newData = tempList.toArray(newData);
-				MemoryProxy tempProxy = new MemoryProxy(newData); 
-				Store tempStore = new Store(tempProxy, resultsReader);
-				tempStore.load();
 				resultsStore.removeAll();
-				resultsStore.add(tempStore.getRecords());
+				for (OdpSearchResult hit: searchHits) {
+					Record record = recordDef.createRecord(new Object[]{hit.getOdp().getName(), hit.getOdp().getUri(), hit.getConfidence()});
+					resultsStore.add(record);
+				}
 				resultsStore.sort("confidence", SortDir.DESC);
 				resultsStore.commitChanges();
 			}
