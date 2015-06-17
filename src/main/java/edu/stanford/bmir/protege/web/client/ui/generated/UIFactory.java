@@ -34,7 +34,6 @@ import edu.stanford.bmir.protege.web.client.usage.UsagePortlet;
 import edu.stanford.bmir.protege.web.client.xd.XdBrowsePortlet;
 import edu.stanford.bmir.protege.web.client.xd.XdBrowseTab;
 import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
-import edu.stanford.bmir.protege.web.client.xd.XdPatternInstancesPortlet;
 import edu.stanford.bmir.protege.web.client.xd.XdSearchPortlet;
 import edu.stanford.bmir.protege.web.client.xd.XdTab;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
@@ -195,9 +194,6 @@ public class UIFactory {
             else if(portletJavaClassName.endsWith(XdSearchPortlet.class.getName())) {
                 return new XdSearchPortlet(selectionModel, project);
             }
-            else if(portletJavaClassName.endsWith(XdPatternInstancesPortlet.class.getName())) {
-                return new XdPatternInstancesPortlet(selectionModel, project);
-            }
             else if(portletJavaClassName.endsWith(XdPatternDetailsPortlet.class.getName())) {
                 return new XdPatternDetailsPortlet(selectionModel, project);
             }
@@ -247,8 +243,7 @@ public class UIFactory {
                 OBOTermIdEditorPortlet.class.getName(),
                 OBOTermDefinitionPortlet.class.getName(), OBOTermXRefsEditorPortlet.class.getName(),
                 RevisionsPortlet.class.getName(), XdSearchPortlet.class.getName(),
-                XdPatternInstancesPortlet.class.getName(), XdPatternDetailsPortlet.class.getName(),
-                XdBrowsePortlet.class.getName()};
+                XdPatternDetailsPortlet.class.getName(), XdBrowsePortlet.class.getName()};
 
         List<String> portletsList = Arrays.asList(portlets);
         Collections.sort(portletsList, new Comparator<String>() {
