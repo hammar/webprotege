@@ -22,22 +22,16 @@ import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.UserHasProjectReadPermissionValidator;
-import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationPreviewAction;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationPreviewResult;
 
 public class GetSpecializationPreviewHandler extends AbstractHasProjectActionHandler<GetSpecializationPreviewAction,GetSpecializationPreviewResult> {
-	
-	private final WebProtegeLogger log;
 
 	@Inject
-	public GetSpecializationPreviewHandler(OWLAPIProjectManager projectManager, WebProtegeLogger logger) {
+	public GetSpecializationPreviewHandler(OWLAPIProjectManager projectManager) {
 		super(projectManager);
-		System.err.println("AARGH REGISTERED YOU FUCK!");
-		this.log = logger;
 	}
 	
 	@Override
@@ -47,22 +41,10 @@ public class GetSpecializationPreviewHandler extends AbstractHasProjectActionHan
 
 	@Override
 	protected GetSpecializationPreviewResult execute(GetSpecializationPreviewAction action, OWLAPIProject project, ExecutionContext executionContext) {
-		System.err.println("ARGH YOU FUCK!");
 		try {
-			
-			log.info("Got specialization action!! : " + action);
-			OdpSpecialization spec = action.getOdpSpecialization();
 			
 			OdpSpecializationChangeListGenerator generator = new OdpSpecializationChangeListGenerator(action.getOdpSpecialization());
 			OntologyChangeList<OWLEntity> changes = generator.generateChanges(project, new ChangeGenerationContext(executionContext.getUserId()));
-			
-			log.info(String.format("PROJID=%s)",spec.getProjectId()));
-			log.info(String.format("ODPIRI=%s)",spec.getOdpIri().toString()));
-			log.info(String.format("SPECSTRAT=%s)",spec.getSpecializationStrategy().toString()));
-			log.info(String.format("ALIGNMENTS=%s)",spec.getAlignments().toString()));
-			log.info(String.format("CLASS=%s)",spec.getClassFrameTrees().toString()));
-			log.info(String.format("OBJECT=%s)",spec.getObjectPropertyFrameTrees().toString()));
-			log.info(String.format("DATA=%s)",spec.getDataPropertyFrameTrees().toString()));
 			
 			// Get out the axioms from the change generator
 			Set<OWLAxiom> newAxioms = new HashSet<OWLAxiom>();
@@ -90,20 +72,7 @@ public class GetSpecializationPreviewHandler extends AbstractHasProjectActionHan
 	        GetSpecializationPreviewResult result = new GetSpecializationPreviewResult(baos.toString());
 	        
 	        return result;
-			
-			// TODO: Actually implement this.
-			/*String dummyResponse = "<#green-goblin>\n" + 
-					"    rel:enemyOf <#spiderman> ;\n" + 
-					"    a foaf:Person ;    # in the context of the Marvel universe\n" +
-					"    foaf:name \"Green Goblin\" .\n" + 
-					"\n" +
-					"<#spiderman>\n" +
-					"    rel:enemyOf <#green-goblin> ;\n" + 
-					"    a foaf:Person ;\n" +
-					"    foaf:name \"Spiderman\", \"Человек-паук\"@ru .";*/
-			
-			
-			
+	        
 		}
 		catch(Exception e) {
 			e.printStackTrace();

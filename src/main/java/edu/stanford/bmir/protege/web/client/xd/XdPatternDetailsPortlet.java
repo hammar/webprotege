@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.google.common.base.Optional;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -18,16 +17,19 @@ import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.VerticalLayout;
 
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
-import edu.stanford.bmir.protege.web.client.ui.selection.Selectable;
 import edu.stanford.bmir.protege.web.client.ui.selection.SelectionEvent;
 import edu.stanford.bmir.protege.web.client.ui.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpDetailsAction;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpDetailsResult;
 
 /***
  * Portlet that displays details about a particular ODP, and allows user to fire up
@@ -73,16 +75,12 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet implements
 		if (selection.size() > 0) {
 			EntityData entityData = selection.iterator().next();
 			String odpUri = entityData.getName();
-			XdServiceManager.getInstance().getOdpDetails(odpUri, new AsyncCallback<OdpDetails>() {
+			
+			DispatchServiceManager.get().execute(new GetOdpDetailsAction(odpUri), new DispatchServiceCallback<GetOdpDetailsResult>() {
 				@Override
-				public void onFailure(Throwable caught) {
-					add(new Label("Could not retrieve ODP details from server. Error message: " + caught.getMessage())); 				
-				}
-	
-				@Override
-				public void onSuccess(OdpDetails result) {
-					odp = result;
-					renderOdpDetails(result);
+				public void handleSuccess(GetOdpDetailsResult result) {
+					odp = result.getDetails();
+					renderOdpDetails(odp);
 				}
 			});
 		}

@@ -302,40 +302,6 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 		
 		// We should never get to here.
 		return null;
-		
-		/*
-    	
-    	// Get obj property specifics
-    	if (entity instanceof OWLObjectProperty) {
-    		OWLObjectProperty entityAsProperty = (OWLObjectProperty)entity;
-    		Set<OWLClassExpression> domainExpressions = entityAsProperty.getDomains(ont);
-    		for (OWLClassExpression oce: domainExpressions) {
-    			if (oce instanceof OWLClass) {
-    				String domainLabel = getLabel(((OWLClass)oce), ont);
-    				clsMetadata.put("rdfsDomain", domainLabel);
-    				break;
-    			}
-    		}
-    		Set<OWLClassExpression> rangeExpressions = entityAsProperty.getRanges(ont);
-    		for (OWLClassExpression oce: rangeExpressions) {
-    			if (oce instanceof OWLClass) {
-    				String rangeLabel = getLabel(((OWLClass)oce), ont);
-    				clsMetadata.put("rdfsRange", rangeLabel);
-    				break;
-    			}
-    		}
-    		if (entityAsProperty.isFunctional(ont)) {
-    			clsMetadata.put("owlFunctionalProperty","true");
-    		}
-    		if (entityAsProperty.isTransitive(ont)) {
-    			clsMetadata.put("owlTransitiveProperty","true");
-    		}
-    		if (entityAsProperty.isSymmetric(ont)) {
-    			clsMetadata.put("owlSymmetricProperty","true");
-    		}
-    	}
-    	
-    	}*/
 	}
 	
 	/**

@@ -22,12 +22,6 @@
 	<listener>
 		<listener-class>edu.stanford.bmir.protege.web.server.WebProtegeInitializer</listener-class>
 	</listener>
-
-	<!-- XD servlet -->
-	<servlet>
-		<servlet-name>XdService</servlet-name>
-		<servlet-class>edu.stanford.bmir.protege.web.server.xd.XdServiceImpl</servlet-class>
-	</servlet>
 	
 	<!-- WebProtege servlets -->
 
@@ -62,10 +56,6 @@
 	</servlet>
 
 	<!-- Servlet mappings -->
-	<servlet-mapping>
-		<servlet-name>XdService</servlet-name>
-		<url-pattern>/webprotege/xd</url-pattern>
-	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>DispatchService</servlet-name>

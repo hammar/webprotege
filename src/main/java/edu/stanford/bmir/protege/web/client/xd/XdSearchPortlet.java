@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.Window;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.SortDir;
 import com.gwtext.client.data.ArrayReader;
@@ -19,7 +19,6 @@ import com.gwtext.client.data.SimpleStore;
 import com.gwtext.client.data.Store;
 import com.gwtext.client.data.StringFieldDef;
 import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
@@ -41,6 +40,8 @@ import com.gwtext.client.widgets.layout.FormLayout;
 import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.layout.RowLayoutData;
 
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.rpc.data.EntityData;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
@@ -50,6 +51,8 @@ import edu.stanford.bmir.protege.web.client.ui.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpSearchHitsAction;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpSearchHitsResult;
 
 /***
  * Portlet providing an ODP search GUI.
@@ -335,21 +338,19 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
 		filterConfiguration.setDbPediaMappingRequired(dbpediaMappingCheck.getValue());
 		
 		// Execute remote query method
-		XdServiceManager.getInstance().getOdpSearchContent(queryField.getText(), filterConfiguration, new AsyncCallback<List<OdpSearchResult>>() {
+		DispatchServiceManager.get().execute(new GetOdpSearchHitsAction(queryField.getText(), filterConfiguration), 
+				new DispatchServiceCallback<GetOdpSearchHitsResult>() {
 			@Override
-			public void onFailure(Throwable caught) {
-				MessageBox.alert("Error", "GWT-RPC call failed: " + caught.getMessage());
-			}
-
-			@Override
-			public void onSuccess(List<OdpSearchResult> results) {
+			public void handleSuccess(GetOdpSearchHitsResult result) {
 				// Populate results list by creating a new temporary data store using the existing 
 				// reader configuration, then moving records from that temporary store to the one
 				// that actually backs the GridPanel. Seems inefficient but was easiest to implement
 				// in code and there's not that much volume of data that it'll become a problem anyhow.
+				// TODO: Clean this up and actually use the store as intended by its designers.
+				List<OdpSearchResult> searchHits = result.getSearchResults();
 				List<Object[]> tempList = new ArrayList<Object[]>();
-				for (OdpSearchResult result: results) {
-					tempList.add(new Object[]{result.getOdp().getName(),result.getOdp().getUri(),result.getConfidence()});
+				for (OdpSearchResult hit: searchHits) {
+					tempList.add(new Object[]{hit.getOdp().getName(),hit.getOdp().getUri(),hit.getConfidence()});
 				}
 				Object[][] newData = new Object[tempList.size()][]; 
 				newData = tempList.toArray(newData);
