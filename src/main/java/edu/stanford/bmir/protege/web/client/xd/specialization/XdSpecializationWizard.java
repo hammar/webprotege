@@ -213,7 +213,8 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 	
                 case "card-2":
                 	
-                	// Moving from property restriction panel to alignment panel 
+                	// Moving from property restriction panel to alignment panel
+                	propertyRestrictionPanel.persistRestrictions();
                 	cardLayout.setActiveItem(3);
                 	break;
                 	

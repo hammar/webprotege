@@ -1,9 +1,6 @@
 package edu.stanford.bmir.protege.web.server.xd;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -234,25 +231,23 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 			
 			// Get domains
 			Set<OWLClassExpression> domainExpressions = dataProperty.getDomains(ontologyClosure);
-			Set<LabelOrIri> domains = new HashSet<LabelOrIri>();
+			Set<LabelOrIri> domains = frame.getDomains();
     		for (OWLClassExpression oce: domainExpressions) {
     			if (oce instanceof OWLClass) {
     				IRI domainIri = ((OWLClass)oce).getIRI();
     				domains.add(new LabelOrIri(domainIri));
     			}
     		}
-			frame.setDomains(domains);
     		
     		// Get ranges
     		Set<OWLDataRange> rangeExpressions = dataProperty.getRanges(ontologyClosure);
-    		List<IRI> ranges = new ArrayList<IRI>();
+    		Set<IRI> ranges = frame.getRanges();
     		for (OWLDataRange dr: rangeExpressions) {
     			if (dr instanceof OWLDatatype) {
     				IRI rangeIri = ((OWLDatatype) dr).getIRI();
     				ranges.add(rangeIri);
     			}
     		}
-    		frame.setRanges(ranges.toArray(new IRI[ranges.size()]));
     		
     		// Set attributes
 			frame.setFunctional(dataProperty.isFunctional(ont));
@@ -271,25 +266,23 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 			
 			// Get domains
 			Set<OWLClassExpression> domainExpressions = objectProperty.getDomains(ontologyClosure);
-			Set<LabelOrIri> domains = new HashSet<LabelOrIri>();
+			Set<LabelOrIri> domains = frame.getDomains();
     		for (OWLClassExpression oce: domainExpressions) {
     			if (oce instanceof OWLClass) {
     				IRI domainIri = ((OWLClass)oce).getIRI();
     				domains.add(new LabelOrIri(domainIri));
     			}
     		}
-			frame.setDomains(domains);
     		
     		// Get ranges
 			Set<OWLClassExpression> rangeExpressions = objectProperty.getRanges(ontologyClosure);
-			Set<LabelOrIri> ranges = new HashSet<LabelOrIri>();
+			Set<LabelOrIri> ranges = frame.getRanges();
     		for (OWLClassExpression oce: rangeExpressions) {
     			if (oce instanceof OWLClass) {
     				IRI rangeIri = ((OWLClass)oce).getIRI();
     				ranges.add(new LabelOrIri(rangeIri));
     			}
     		}
-			frame.setRanges(ranges);
     		
 			// Set attributes
 			frame.setSymmetric(objectProperty.isSymmetric(ontologyClosure));

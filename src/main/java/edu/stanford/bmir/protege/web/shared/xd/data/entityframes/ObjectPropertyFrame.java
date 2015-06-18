@@ -31,21 +31,12 @@ public class ObjectPropertyFrame extends PropertyFrame implements Serializable {
 		this.ranges = new HashSet<LabelOrIri>();
 	}
 	
-	// No-OWL-entity constructor
-	/*public ObjectPropertyFrame(String label, String comment) {
-		this(label, comment, null);
-	}*/
-	
 	// OWL-entity constructor
 	public ObjectPropertyFrame(String label, String comment, IRI iri) {
 		super(label, comment, iri);
 		this.symmetric = false;
 		this.transitive = false;
 		this.ranges = new HashSet<LabelOrIri>();
-	}
-	
-	public void setRanges(Set<LabelOrIri> ranges) {
-		this.ranges = ranges;
 	}
 	
 	public Set<LabelOrIri> getRanges() {

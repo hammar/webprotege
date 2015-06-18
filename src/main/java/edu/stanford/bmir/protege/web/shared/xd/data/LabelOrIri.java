@@ -29,11 +29,13 @@ public class LabelOrIri implements Serializable {
 	// String constructor
 	public LabelOrIri(String label) {
 		this.label = Optional.of(label);
+		this.iri = Optional.absent();
 	}
 	
 	// IRI constructor
 	public LabelOrIri(IRI iri) {
 		this.iri = Optional.of(iri);
+		this.label = Optional.absent();
 	}
 
 	// Access methods

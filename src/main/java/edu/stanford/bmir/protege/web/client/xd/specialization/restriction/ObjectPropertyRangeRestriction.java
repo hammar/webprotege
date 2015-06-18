@@ -24,4 +24,12 @@ public class ObjectPropertyRangeRestriction implements Restriction {
 	public String getEntityLabel() {
 		return this.property.getLabel();
 	}
+
+	public ObjectPropertyFrame getProperty() {
+		return property;
+	}
+
+	public ClassFrame getRange() {
+		return range;
+	}
 }

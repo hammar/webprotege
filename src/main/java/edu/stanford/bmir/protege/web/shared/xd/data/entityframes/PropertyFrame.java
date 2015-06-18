@@ -1,5 +1,6 @@
 package edu.stanford.bmir.protege.web.shared.xd.data.entityframes;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
@@ -22,11 +23,13 @@ public abstract class PropertyFrame extends AbstractOntologyEntityFrame {
 	
 	public PropertyFrame(String label) {
 		super(label);
+		this.domains = new HashSet<LabelOrIri>();
 	}
 	
 	// No-OWL-entity constructor
 	public PropertyFrame(String label, String comment, IRI iri) {
 		super(label, comment, iri);
+		this.domains = new HashSet<LabelOrIri>();
 	}
 	
 	// Access methods
@@ -36,10 +39,6 @@ public abstract class PropertyFrame extends AbstractOntologyEntityFrame {
 
 	public void setFunctional(boolean functional) {
 		this.functional = functional;
-	}
-
-	public void setDomains(Set<LabelOrIri> domains) {
-		this.domains = domains;
 	}
 
 	public Set<LabelOrIri> getDomains() {

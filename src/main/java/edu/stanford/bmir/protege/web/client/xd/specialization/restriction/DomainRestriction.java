@@ -24,4 +24,12 @@ public class DomainRestriction implements Restriction {
 	public String getEntityLabel() {
 		return this.property.toString();
 	}
+
+	public PropertyFrame getProperty() {
+		return property;
+	}
+
+	public ClassFrame getDomain() {
+		return domain;
+	}
 }

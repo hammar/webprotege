@@ -34,6 +34,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.PropertyFrame;
@@ -176,7 +177,7 @@ public class PropertyRestrictionPanel extends Panel {
 		// Render class-oriented restrictions
 		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.CLASS_ORIENTED ||
 				parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.HYBRID) {
-			// TODO: Build Restrictions according to strategy, add to allRestrictions set
+			// TODO: Build Restrictions according to class-oriente sstrategy, add to allRestrictions set
 		}
 		
 		for (Restriction restriction: allRestrictions) {
@@ -393,12 +394,63 @@ public class PropertyRestrictionPanel extends Panel {
 	// Store user-selected restrictions to the classes, dataproperties, and object properties
 	// trees (which are references to the trees held in the parent specialization wizard).
 	public void persistRestrictions() {
-		// TODO: Build this
+		Record[] records = cbSelectionModel.getSelections();
+		for (Record record: records) {
+			String restrictionKey = record.getAsString("restrictionId");
+			Restriction restriction = restrictionsMap.get(restrictionKey);
+			if (restriction != null) {
+				
+				// persist rdfs domain restrictions
+				if (restriction instanceof DomainRestriction) {
+					PropertyFrame propertyFrame = ((DomainRestriction) restriction).getProperty();
+					ClassFrame domainFrame = ((DomainRestriction) restriction).getDomain();
+					LabelOrIri domain;
+					if (domainFrame.getIri().isPresent()) {
+						domain = new LabelOrIri(domainFrame.getIri().get());
+					}
+					else {
+						domain = new LabelOrIri(domainFrame.getLabel());
+					}
+					propertyFrame.getDomains().add(domain);
+				}
+				
+				// persist rdfs object property range restrictions 
+				else if (restriction instanceof ObjectPropertyRangeRestriction) {
+					ObjectPropertyFrame propertyFrame = ((ObjectPropertyRangeRestriction) restriction).getProperty();
+					ClassFrame rangeFrame = ((ObjectPropertyRangeRestriction) restriction).getRange();
+					LabelOrIri range;
+					if (rangeFrame.getIri().isPresent()) {
+						range = new LabelOrIri(rangeFrame.getIri().get());
+					}
+					else {
+						range = new LabelOrIri(rangeFrame.getLabel());
+					}
+					propertyFrame.getRanges().add(range);
+				}
+				
+				// TODO: Support persistence of class-oriented restrictions!
+			}
+		}
 	}
 	
 	// Reset any restrictions or other modifications on entities
 	// to the state from last screen, e.g., entity specialization panel
 	public void resetRestrictions() {
-		// TODO: Build this
+		// TODO: Remove class-oriented restrictions
+		/*for (OntologyEntityFrame classFrame: getFramesAsSet(classes,true)) {
+			
+		}*/
+		for (OntologyEntityFrame dataPropertyFrame: getFramesAsSet(dataProperties, true)) {
+			if (dataPropertyFrame instanceof DataPropertyFrame) {
+				((DataPropertyFrame) dataPropertyFrame).getDomains().clear();
+				((DataPropertyFrame) dataPropertyFrame).getRanges().clear();
+			}
+		}
+		for (OntologyEntityFrame objectPropertyFrame: getFramesAsSet(objectProperties, true)) {
+			if (objectPropertyFrame instanceof ObjectPropertyFrame) {
+				((ObjectPropertyFrame) objectPropertyFrame).getDomains().clear();
+				((ObjectPropertyFrame) objectPropertyFrame).getRanges().clear();
+			}
+		}
 	}
 }
