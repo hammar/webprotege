@@ -2,17 +2,17 @@ package edu.stanford.bmir.protege.web.server.xd;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.coode.owlapi.turtle.TurtleOntologyFormat;
+import org.coode.owlapi.manchesterowlsyntax.ManchesterOWLSyntaxOntologyFormat;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
-import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import edu.stanford.bmir.protege.web.server.change.ChangeGenerationContext;
@@ -52,25 +52,22 @@ public class GetSpecializationPreviewHandler extends AbstractHasProjectActionHan
 				if (change.isAxiomChange()) {
 					newAxioms.add(change.getAxiom());
 				}
-				// TODO: What to do if axiom is annotation?
 			}
 			
 			// Set up a temporary demo ontology including those axioms
 			OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 			OWLOntology demoOntology = manager.createOntology(newAxioms);
 			
-			// Configure the format and prefixes of the 
-			OWLOntologyFormat format = manager.getOntologyFormat(demoOntology);
-	        TurtleOntologyFormat turtleFormat = new TurtleOntologyFormat();
-	        if (format.isPrefixOWLOntologyFormat()) {
-	        	turtleFormat.copyPrefixesFrom(format.asPrefixOWLOntologyFormat());
-	        }
+			// Configure the format and prefixes of the         
+	        ManchesterOWLSyntaxOntologyFormat manchesterSyntax = new ManchesterOWLSyntaxOntologyFormat();
+	        for (Entry<String,String> prefixMapping: generator.getPrefixes().entrySet()) {
+				manchesterSyntax.setPrefix(prefixMapping.getKey(), prefixMapping.getValue());
+			}
 	        
 	        // Save demo ontology into Turtle format into an output stream, send to client
 	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	        manager.saveOntology(demoOntology, turtleFormat, baos);
+	        manager.saveOntology(demoOntology, manchesterSyntax, baos);
 	        GetSpecializationPreviewResult result = new GetSpecializationPreviewResult(baos.toString());
-	        
 	        return result;
 	        
 		}

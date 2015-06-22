@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -12,15 +14,18 @@ import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.StreamDocumentSource;
+import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.EntityType;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.web.client.RestTemplate;
@@ -37,6 +42,8 @@ import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubsumptionAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
@@ -50,6 +57,7 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 	private String XdpServiceUriBase;
 	
 	private Map<String,OWLEntity> freshEntities;
+	private Set<OWLOntology> odpClosure;
 	
 	public OdpSpecializationChangeListGenerator(OdpSpecialization specialization) {
 		super();
@@ -80,13 +88,32 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 		// Initiate change builder
 		OntologyChangeList.Builder<OWLEntity> builder = new OntologyChangeList.Builder<OWLEntity>();
 		
-		// Load ODP
-		OWLOntology odp = getOdp(specialization.getOdpIri());
+		// Load ODP closure
+		if (odpClosure == null) {
+			odpClosure = getOdpClosure(specialization.getOdpIri());
+		}
 		
-		// For every axiom in ODP, add to change builder (e.g., copy the ODP into the target ontology)
-		Set<OWLAxiom> allOdpAxioms = odp.getAxioms();
-		for (OWLAxiom axiom: allOdpAxioms) {
-			builder.addAxiom(project.getRootOntology(), axiom);
+		// For every axiom in ODP closure, add to change builder (e.g., copy the ODP closure into the target ontology)
+		// But filter out annotation property declarations and ODP metadata cruft
+		for (OWLOntology odpImport: odpClosure) {
+			if (odpImport.getOntologyID().getOntologyIRI().toString().contains("http://www.ontologydesignpatterns.org/schemas/cpannotationschema.owl")) {
+				continue;
+			}
+			Set<OWLAxiom> allOdpImportAxioms = odpImport.getAxioms();
+			for (OWLAxiom axiom: allOdpImportAxioms) {
+				Boolean includeAxiom = true;
+				if (axiom.getAxiomType() == AxiomType.DECLARATION) {
+					// Filter out some stuff we don't want
+					OWLEntity declaredEntity = ((OWLDeclarationAxiom) axiom).getEntity();
+					IRI entityIri = declaredEntity.getIRI();
+					if (entityIri.isReservedVocabulary()) {
+						includeAxiom = false;
+					}
+				}
+				if (includeAxiom) {
+					builder.addAxiom(project.getRootOntology(), axiom);
+				}
+			}
 		}
 		
 		// 1. Create class hierarchy from input specialization
@@ -115,19 +142,105 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 		
 		// 4. TODO: Create existential/universal restriction axioms on classes using properties..
 		
-		// 5. TODO: Create alignment axioms
+		// 5. Create alignment axioms
+		for (Alignment alignment: specialization.getAlignments()) {
+			if (alignment instanceof SubsumptionAlignment) {
+				OntologyEntityFrame superFrame = ((SubsumptionAlignment) alignment).getSuperEntity();
+				OntologyEntityFrame subFrame = ((SubsumptionAlignment) alignment).getSubEntity();
+				OWLEntity superEntity = getEntityFromFrame(superFrame);
+				OWLEntity subEntity = getEntityFromFrame(subFrame);
+				Optional<OWLAxiom> subsumptionAxiom = generateSubsumptionAxiom(project,superEntity,subEntity);
+				if (subsumptionAxiom.isPresent()) {
+					builder.addAxiom(project.getRootOntology(), subsumptionAxiom.get());
+				}
+			}
+		}
 		
 		// 6. Build change list and return it
 		return builder.build();
 	}
 
+	
+	
+	/**
+	 * Takes two OWL Entities (classes, data properties, or object properties) as input and returns a subsumption axiom
+	 * such that one is a subclass/subdataproperty/subobjectproperty of the other. If the two input entities are not of
+	 * the same type, the optional that is returned will be empty.
+	 * @param project
+	 * @param superEntity
+	 * @param subEntity
+	 * @return
+	 */
+	private Optional<OWLAxiom> generateSubsumptionAxiom(OWLAPIProject project, OWLEntity superEntity, OWLEntity subEntity) {
+		if (superEntity.getClass() != subEntity.getClass()) {
+			return Optional.absent();
+		}
+		OWLAxiom subsumptionAxiom;
+		if (subEntity instanceof OWLClass) {
+			subsumptionAxiom = project.getDataFactory().getOWLSubClassOfAxiom((OWLClass)subEntity, (OWLClass)superEntity);
+		}
+		else if (subEntity instanceof OWLDataProperty) {
+			subsumptionAxiom = project.getDataFactory().getOWLSubDataPropertyOfAxiom((OWLDataProperty)subEntity, (OWLDataProperty)superEntity);
+		}
+		else {
+			subsumptionAxiom = project.getDataFactory().getOWLSubObjectPropertyOfAxiom((OWLObjectProperty)subEntity, (OWLObjectProperty)superEntity);
+		}
+		return Optional.of(subsumptionAxiom);
+	}
+
+	public Map<String,String> getPrefixes() {
+		Map<String,String> prefixes = new HashMap<String,String>();
+		if (odpClosure == null) {
+			odpClosure = getOdpClosure(specialization.getOdpIri());
+		}
+		for (OWLOntology odpImport: odpClosure) {
+			OWLOntologyFormat format = odpImport.getOWLOntologyManager().getOntologyFormat(odpImport);
+			if (format.isPrefixOWLOntologyFormat()) {
+				Map<String,String> odpImportPrefixMap = format.asPrefixOWLOntologyFormat().getPrefixName2PrefixMap();
+				for (Entry<String,String> mapping: odpImportPrefixMap.entrySet()) {
+					String key = mapping.getKey();
+					String value = mapping.getValue();
+					
+					// Don't include the ODP annotation namespace
+					if (!value.contains("http://www.ontologydesignpatterns.org/schemas/cpannotationschema.owl#")) {
+						
+						if (key == ":") {
+							// Default prefix - create new prefix mapping from ontology URI
+							String odpImportFragment = odpImport.getOntologyID().getOntologyIRI().getFragment();
+							prefixes.put(odpImportFragment, value);
+						}
+						else if (!(prefixes.containsKey(key) || prefixes.containsValue(value))) {
+							// Neither prefix name nor value already exists, so create them
+							prefixes.put(key, value);
+						}
+						else if (prefixes.containsKey(key) && !prefixes.get(key).equalsIgnoreCase(value)) {
+							// Prefix already exists but value differs - set new semi-random prefix
+							Random rand = new Random();
+							String newKey = key + rand.nextInt(10000);
+							prefixes.put(newKey, value);
+						}
+					}
+				}
+			}
+		}
+		return prefixes;
+	}
+	
+	
+	/**
+	 * Creates a set of OWL axioms that make up a subsumption hierarchy (of classes, data properties, 
+	 * or object properties) from recursively walking a tree of OntologyEntityFrame objects.
+	 * @param project
+	 * @param tree
+	 * @param parent
+	 * @return
+	 */
 	private Set<OWLAxiom> generateFrameTreeCreationAxioms(OWLAPIProject project, FrameTreeNode<OntologyEntityFrame> tree, Optional<OWLEntity> parent) {
 		Set<OWLAxiom> allAxioms = new HashSet<OWLAxiom>();
 		
 		// Get data about the current frame
 		OntologyEntityFrame frame = tree.getData();
 		String entityLabel = frame.getLabel();
-		
 		
 		// Generate an entity declaration axiom of the correct type
 		OWLEntity freshEntity;
@@ -218,11 +331,63 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 	
 	@Override
 	public OWLEntity getRenamedResult(OWLEntity result, RenameMap renameMap) {
-		// TODO Auto-generated method stub
-		return null;
+		return result;
+	}
+	
+	/**
+	 * Retrieve or create an OWL Entity from an OntologyEntityFrame object. If the frame object has an assigned minted
+	 * IRI then an entity of the correct type is created using the OWLAPI Data Factory from that IRI. Otherwise, if 
+	 * the label is associated with a freshly created (but not yet persisted to ontology) entity, then that freshly
+	 * created entity is fetched from cache. Otherwise, a new entity is created and persisted in the fresh entity
+	 * cache. 
+	 * @param frame
+	 * @return
+	 */
+	private OWLEntity getEntityFromFrame(OntologyEntityFrame frame) {
+		Optional<IRI> entityIri = frame.getIri();
+		String entityLabel = frame.getLabel();
+		if (entityIri.isPresent()) {
+			// An IRI exists already, use DataFactory to construct corresponding entity type
+			if (frame instanceof ClassFrame) {
+				return DataFactory.getOWLClass(entityIri.get());
+			}
+			else if (frame instanceof DataPropertyFrame) {
+				return DataFactory.getOWLDataProperty(entityIri.get());
+			}
+			else {
+				return DataFactory.getOWLObjectProperty(entityIri.get());
+			}
+		}
+		else if (freshEntities.containsKey(entityLabel)) {
+			// This is a newly created entity that has not yet been persisted to the ontology
+			if (frame instanceof ClassFrame) {
+				return (OWLClass)freshEntities.get(entityLabel);
+			}
+			else if (frame instanceof DataPropertyFrame) {
+				return (OWLDataProperty)freshEntities.get(entityLabel);
+			}
+			else {
+				return (OWLObjectProperty)freshEntities.get(entityLabel);
+			}
+		}
+		else {
+			// Create a new entity and return
+			OWLEntity freshEntity;
+			if (frame instanceof ClassFrame) {
+				freshEntity = DataFactory.getFreshOWLEntity(EntityType.CLASS, entityLabel);
+			}
+			else if (frame instanceof DataPropertyFrame) {
+				freshEntity = DataFactory.getFreshOWLEntity(EntityType.DATA_PROPERTY, entityLabel);
+			}
+			else {
+				freshEntity = DataFactory.getFreshOWLEntity(EntityType.OBJECT_PROPERTY, entityLabel);
+			}
+			freshEntities.put(entityLabel, freshEntity);
+			return freshEntity;
+		}
 	}
 
-	private OWLOntology getOdp(IRI odpIri) {
+	private Set<OWLOntology> getOdpClosure(IRI odpIri) {
 		try {
 			// Fetch ODP as Turtle-formatted string from XdpService via REST
 			RestTemplate restTemplate = new RestTemplate();
@@ -235,8 +400,8 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 	        config = config.setFollowRedirects(false);
 	        config = config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
 	        StreamDocumentSource sds = new StreamDocumentSource(IOUtils.toInputStream(turtleRepresentation));
-	        OWLOntology odp = manager.loadOntologyFromOntologyDocument(sds, config);
-	        return odp;
+	        manager.loadOntologyFromOntologyDocument(sds, config);
+	        return manager.getOntologies();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

@@ -4,7 +4,7 @@ import com.gwtext.client.util.Format;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 
-public class SubClassAlignment implements Alignment {
+public class SubClassAlignment implements SubsumptionAlignment {
 	
 	private static final long serialVersionUID = 8496915564455099583L;
 	
@@ -23,11 +23,11 @@ public class SubClassAlignment implements Alignment {
 		this.subClass = subClass;
 	}
 	
-	public ClassFrame getSuperClass() {
+	public ClassFrame getSuperEntity() {
 		return superClass;
 	}
 
-	public ClassFrame getSubClass() {
+	public ClassFrame getSubEntity() {
 		return subClass;
 	}
 

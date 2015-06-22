@@ -4,7 +4,7 @@ import com.gwtext.client.util.Format;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 
-public class SubDataPropertyAlignment implements Alignment {
+public class SubDataPropertyAlignment implements SubsumptionAlignment {
 	
 	private static final long serialVersionUID = -2437051887984587228L;
 	
@@ -23,11 +23,11 @@ public class SubDataPropertyAlignment implements Alignment {
 		this.subProperty = subProperty;
 	}
 	
-	public DataPropertyFrame getSuperProperty() {
+	public DataPropertyFrame getSuperEntity() {
 		return superProperty;
 	}
 
-	public DataPropertyFrame getSubProperty() {
+	public DataPropertyFrame getSubEntity() {
 		return subProperty;
 	}
 
