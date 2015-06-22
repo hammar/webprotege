@@ -177,7 +177,7 @@ public class PropertyRestrictionPanel extends Panel {
 		// Render class-oriented restrictions
 		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.CLASS_ORIENTED ||
 				parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.HYBRID) {
-			// TODO: Build Restrictions according to class-oriente sstrategy, add to allRestrictions set
+			// TODO: Build Restrictions according to class-oriented strategy, add to allRestrictions set
 		}
 		
 		for (Restriction restriction: allRestrictions) {

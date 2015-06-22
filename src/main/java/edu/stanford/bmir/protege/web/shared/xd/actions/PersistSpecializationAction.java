@@ -1,10 +1,12 @@
 package edu.stanford.bmir.protege.web.shared.xd.actions;
 
+import edu.stanford.bmir.protege.web.shared.HasProjectId;
 import edu.stanford.bmir.protege.web.shared.dispatch.Action;
+import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 import edu.stanford.bmir.protege.web.shared.xd.results.PersistSpecializationResult;
 
-public class PersistSpecializationAction implements Action<PersistSpecializationResult> {
+public class PersistSpecializationAction implements Action<PersistSpecializationResult>, HasProjectId {
 
 	/**
 	 * No-arg constructor, for GWT-RPC serialization purpose only
@@ -29,5 +31,10 @@ public class PersistSpecializationAction implements Action<PersistSpecialization
 	 */
 	public OdpSpecialization getOdpSpecialization() {
 		return odpSpecialization;
+	}
+
+	@Override
+	public ProjectId getProjectId() {
+		return odpSpecialization.getProjectId();
 	}
 }

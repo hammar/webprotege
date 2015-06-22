@@ -270,8 +270,9 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	 */
 	private void saveAndClose() {	
 		
-		// TODO: Fetch alignments from user selections
-		Set<Alignment> selectedAlignments = new HashSet<Alignment>();
+		// Fetch alignments from user selections and add 
+		Set<Alignment> selectedAlignments = alignmentsPanel.getSelectedAlignments();
+		selectedAlignments.addAll(alignments);
 		
 		// Generate ODP Specialization object and action to pass to dispach service
 		Set<FrameTreeNode<OntologyEntityFrame>> specializedClasses = getSpecializedEntityTrees(this.allClasses);
@@ -302,7 +303,6 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
             public void handleSuccess(PersistSpecializationResult result) {
         		// Hide progress window once done
         		MessageBox.hide();
-        		
         		closeAndResetSpecializationWizard();
             }
         });

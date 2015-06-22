@@ -1,7 +1,12 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.widgets.Panel;
+
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 
 public class AlignmentsPanel extends Panel {
 	
@@ -15,5 +20,10 @@ public class AlignmentsPanel extends Panel {
         
 
         // TODO: Do awesome stuff here.
+	}
+	
+	public Set<Alignment> getSelectedAlignments() {
+		// TODO: implement me
+		return new HashSet<Alignment>();
 	}
 }
