@@ -22,5 +22,15 @@ public abstract class AbstractComplexRestriction implements Restriction {
 		return property.getLabel();
 	}
 
-	
+	public ObjectPropertyFrame getProperty() {
+		return property;
+	}
+
+	public ClassFrame getSource() {
+		return source;
+	}
+
+	public ClassFrame getDestination() {
+		return destination;
+	}
 }

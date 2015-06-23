@@ -26,6 +26,7 @@ import com.gwtext.client.widgets.grid.GroupingView;
 import com.gwtext.client.widgets.layout.FitLayout;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.AbstractComplexRestriction;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.DomainRestriction;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.EquivalentToExistentialRestriction;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.ObjectPropertyRangeRestriction;
@@ -35,6 +36,8 @@ import edu.stanford.bmir.protege.web.client.xd.util.UUID;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
+import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction;
+import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction.ValueConstraint;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
@@ -273,7 +276,7 @@ public class PropertyRestrictionPanel extends Panel {
 				// For each distinct combination of domain and range, suggest candidate restriction
 				for (ClassFrame domain: domains) {
 					for (ClassFrame range: ranges) {
-						if (domain != range) {
+						if (domain != range && !domain.getIri().isPresent() && !range.getIri().isPresent()) {
 							restrictions.add(new SubClassOfUniversalRestriction((ObjectPropertyFrame) property, domain, range));
 							restrictions.add(new EquivalentToExistentialRestriction((ObjectPropertyFrame) property, domain, range));
 						}
@@ -483,7 +486,21 @@ public class PropertyRestrictionPanel extends Panel {
 					propertyFrame.getRanges().add(range);
 				}
 				
-				// TODO: Support persistence of class-oriented restrictions!
+				// persist complex restrictions
+				else if (restriction instanceof AbstractComplexRestriction) {
+					ClassFrame sourceFrame = ((AbstractComplexRestriction) restriction).getSource();
+					ClassFrame destinationFrame = ((AbstractComplexRestriction) restriction).getDestination();
+					ObjectPropertyFrame propertyFrame = ((AbstractComplexRestriction) restriction).getProperty();
+					
+					if (restriction instanceof SubClassOfUniversalRestriction) {
+						PropertyRestriction frameRestriction = new PropertyRestriction(propertyFrame, destinationFrame, ValueConstraint.ONLY);
+						sourceFrame.getSubClassOfRestrictions().add(frameRestriction);
+					}
+					else if (restriction instanceof EquivalentToExistentialRestriction) {
+						PropertyRestriction frameRestriction = new PropertyRestriction(propertyFrame, destinationFrame, ValueConstraint.SOME);
+						sourceFrame.getEquivalentToRestrictions().add(frameRestriction);
+					}
+				}
 			}
 		}
 	}
@@ -491,20 +508,22 @@ public class PropertyRestrictionPanel extends Panel {
 	// Reset any restrictions or other modifications on entities
 	// to the state from last screen, e.g., entity specialization panel
 	public void resetRestrictions() {
-		// TODO: Remove class-oriented restrictions
-		/*for (OntologyEntityFrame classFrame: getFramesAsSet(classes,true)) {
-			
-		}*/
-		for (OntologyEntityFrame dataPropertyFrame: getFramesAsSet(dataProperties, true)) {
+		for (OntologyEntityFrame dataPropertyFrame: getFramesAsSet(this.dataProperties, true)) {
 			if (dataPropertyFrame instanceof DataPropertyFrame) {
 				((DataPropertyFrame) dataPropertyFrame).getDomains().clear();
 				((DataPropertyFrame) dataPropertyFrame).getRanges().clear();
 			}
 		}
-		for (OntologyEntityFrame objectPropertyFrame: getFramesAsSet(objectProperties, true)) {
+		for (OntologyEntityFrame objectPropertyFrame: getFramesAsSet(this.objectProperties, true)) {
 			if (objectPropertyFrame instanceof ObjectPropertyFrame) {
 				((ObjectPropertyFrame) objectPropertyFrame).getDomains().clear();
 				((ObjectPropertyFrame) objectPropertyFrame).getRanges().clear();
+			}
+		}
+		for (OntologyEntityFrame classFrame: getFramesAsSet(this.classes, true)) {
+			if (classFrame instanceof ClassFrame) {
+				((ClassFrame) classFrame).getEquivalentToRestrictions().clear();
+				((ClassFrame) classFrame).getSubClassOfRestrictions().clear();
 			}
 		}
 	}

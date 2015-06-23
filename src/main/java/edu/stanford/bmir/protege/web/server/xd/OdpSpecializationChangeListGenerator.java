@@ -28,6 +28,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLQuantifiedObjectRestriction;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.common.base.Optional;
@@ -42,6 +43,8 @@ import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
+import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction;
+import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction.ValueConstraint;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubsumptionAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
@@ -140,7 +143,13 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 			}
 		}
 		
-		// 4. TODO: Create existential/universal restriction axioms on classes using properties..
+		// 4. Create existential/universal restriction axioms on classes using properties
+		for (FrameTreeNode<OntologyEntityFrame> classTree: specialization.getClassFrameTrees()) {
+			Set<OWLAxiom> axioms = generateComplexRestrictionAxioms(project, classTree);
+			for (OWLAxiom axiom: axioms) {
+				builder.addAxiom(project.getRootOntology(), axiom);
+			}
+		}
 		
 		// 5. Create alignment axioms
 		for (Alignment alignment: specialization.getAlignments()) {
@@ -160,8 +169,56 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 		return builder.build();
 	}
 
+	private Optional<OWLQuantifiedObjectRestriction> generateObjectPropertyRestriction(OWLAPIProject project, PropertyRestriction pr) {
+		OWLQuantifiedObjectRestriction restriction;
+		ObjectPropertyFrame propertyFrame = pr.getProperty();
+		ClassFrame targetFrame = pr.getTarget();
+		ValueConstraint vc = pr.getValueConstraint();
+		OWLObjectProperty property = (OWLObjectProperty)getEntityFromFrame(propertyFrame);
+		OWLClass targetClass = (OWLClass)getEntityFromFrame(targetFrame);
+		if (vc == ValueConstraint.ONLY) {
+			restriction = project.getDataFactory().getOWLObjectAllValuesFrom(property, targetClass);
+			return Optional.of(restriction);
+		}
+		else if (vc == ValueConstraint.SOME) {
+			restriction = project.getDataFactory().getOWLObjectSomeValuesFrom(property, targetClass);
+			return Optional.of(restriction);
+		}
+		else {
+			return Optional.absent();
+		}
+	}
 	
-	
+	private Set<OWLAxiom> generateComplexRestrictionAxioms(OWLAPIProject project, FrameTreeNode<OntologyEntityFrame> startNode) {
+		Set<OWLAxiom> allAxioms = new HashSet<OWLAxiom>();
+		OntologyEntityFrame currentFrame = startNode.getData();
+		if (currentFrame instanceof ClassFrame){
+			OWLClass currentClass = (OWLClass)getEntityFromFrame(currentFrame);
+			for (PropertyRestriction pr: ((ClassFrame) currentFrame).getEquivalentToRestrictions()) {
+				// Create equivalent class property restriction axioms
+				Optional<OWLQuantifiedObjectRestriction> restriction = generateObjectPropertyRestriction(project, pr);
+				if (restriction.isPresent()) {
+					allAxioms.add(project.getDataFactory().getOWLEquivalentClassesAxiom(currentClass, restriction.get()));
+				}
+			}
+			for (PropertyRestriction pr: ((ClassFrame) currentFrame).getSubClassOfRestrictions()) {
+				// Create subclass of restriction axioms
+				Optional<OWLQuantifiedObjectRestriction> restriction = generateObjectPropertyRestriction(project, pr);
+				if (restriction.isPresent()) {
+					allAxioms.add(project.getDataFactory().getOWLSubClassOfAxiom(currentClass, restriction.get()));
+				}
+			}
+		}
+		
+		// Recurse through children
+		for (FrameTreeNode<OntologyEntityFrame> childNode: startNode.getChildren()) {
+			allAxioms.addAll(generateComplexRestrictionAxioms(project, childNode));
+		}
+		return allAxioms;
+	}
+
+
+
 	/**
 	 * Takes two OWL Entities (classes, data properties, or object properties) as input and returns a subsumption axiom
 	 * such that one is a subclass/subdataproperty/subobjectproperty of the other. If the two input entities are not of
