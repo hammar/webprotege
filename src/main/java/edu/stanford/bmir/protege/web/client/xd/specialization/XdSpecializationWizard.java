@@ -107,7 +107,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
         this.strategySelectionPanel = new StrategySelectionPanel();
         this.entitySpecializationPanel = new EntitySpecializationPanel(this);
         this.propertyRestrictionPanel = new PropertyRestrictionPanel(this);
-        this.alignmentsPanel = new AlignmentsPanel();
+        this.alignmentsPanel = new AlignmentsPanel(this);
         this.previewPanel = new PreviewPanel(this);
         
         // These are the individual cards/screens of the wizard interface.
@@ -145,6 +145,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 case "card-3":
                 	
                 	// Moving from alignment panel to property restriction panel
+                	alignmentsPanel.resetAlignments();
                 	cardLayout.setActiveItem(2);
                 	break;
                 	
@@ -179,35 +180,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 	allObjectProperties = entitySpecializationPanel.getAllObjectProperties();
                 	allDataProperties = entitySpecializationPanel.getAllDataProperties();
                 	alignments = entitySpecializationPanel.getAlignments();
-
-                	//String classTree = printFrameTree(allClasses,"");
-                	//String objPropTree = printFrameTree(allObjectProperties,"");
-                	//String joint = Format.format("Class hierarchy:\n\n{0}\n----------\nObject Property hierarchy:\n\n{1}", classTree, objPropTree);
-                	//Window.alert(objPropTree);
-                	
                 	propertyRestrictionPanel.loadEntities();
-                	
-                	//This is test code to ensure that the way specialziedClasses is generated makes sense.
-                	// Remove once done testing.
-                	/*String alignmentsString = "";
-                	for (Alignment a: alignments) {
-                		alignmentsString += (a.toString() + "\n");
-                	}
-                	Window.alert(alignmentsString);*/
-
-                	/*
-                	String dataPropertyTree = "";
-                	for (FrameTreeNode<OntologyEntityFrame> tree: specializedDataProperties) {
-                		dataPropertyTree += printFrameTree(tree,"|") + "\n";
-                	}
-                	Window.alert(dataPropertyTree);
-                	
-                	String objectPropertyTree = "";
-                	for (FrameTreeNode<OntologyEntityFrame> tree: specializedObjectProperties) {
-                		objectPropertyTree += printFrameTree(tree,"|") + "\n";
-                	}
-                	Window.alert(objectPropertyTree);*/
-                	
                 	cardLayout.setActiveItem(2);
                 	break;
                 	
@@ -215,6 +188,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
                 	
                 	// Moving from property restriction panel to alignment panel
                 	propertyRestrictionPanel.persistRestrictions();
+                	alignmentsPanel.loadCandidateAlignments();
                 	cardLayout.setActiveItem(3);
                 	break;
                 	
@@ -269,18 +243,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	 * and then closes down the wizard. 
 	 */
 	private void saveAndClose() {	
-		
-		// Fetch alignments from user selections and add 
-		Set<Alignment> selectedAlignments = alignmentsPanel.getSelectedAlignments();
-		selectedAlignments.addAll(alignments);
-		
-		// Generate ODP Specialization object and action to pass to dispach service
-		Set<FrameTreeNode<OntologyEntityFrame>> specializedClasses = getSpecializedEntityTrees(this.allClasses);
-		Set<FrameTreeNode<OntologyEntityFrame>> specializedObjectProperties = getSpecializedEntityTrees(this.allObjectProperties);
-		Set<FrameTreeNode<OntologyEntityFrame>> specializedDataProperties = getSpecializedEntityTrees(this.allDataProperties);
-		OdpSpecialization odpSpec = new OdpSpecialization(this.projectId, this.odpIRI, this.specializationStrategy, 
-				selectedAlignments, specializedClasses, specializedObjectProperties, 
-				specializedDataProperties);
+		OdpSpecialization odpSpec = this.getSpecialization();
 		PersistSpecializationAction psa = new PersistSpecializationAction(odpSpec);
 		
 		// Put up progress window
@@ -362,41 +325,6 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	/*
-	 * Recursive method to walk the a tree panel and return leaf nodes.
-	 * @param parentNode - starting node for each recursion.
-	 * @return lowest level TreeNodes, e.g. with no children.
-	 */
-	/*
-	private Set<TreeNode> getChildLeafNodes(TreeNode parentNode) {
-		HashSet<TreeNode> leaves = new HashSet<TreeNode>();
-		if (parentNode.getChildNodes().length == 0) {
-			leaves.add(parentNode);
-		}
-		else {
-			for (final Node childNode: parentNode.getChildNodes()) {
-				leaves.addAll(getChildLeafNodes((TreeNode)childNode));
-			}
-		}
-		return leaves;
-	}*/ 
-	
-	
-	/*
-	 * Recursive method to walk the a tree panel and return all nodes.
-	 * @param parentNode - starting node for each recursion.
-	 * @return all nodes in tree
-	 */
-	/*
-	private Set<TreeNode> getChildNodes(TreeNode parentNode) {
-		HashSet<TreeNode> leaves = new HashSet<TreeNode>();
-		leaves.add(parentNode);
-		for (final Node childNode: parentNode.getChildNodes()) {
-			leaves.addAll(getChildNodes((TreeNode)childNode));
-		}
-		return leaves;
-	}*/
 
 	public OdpSpecializationStrategy getSpecializationStrategy() {
 		return specializationStrategy;
@@ -415,9 +343,16 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	}
 	
 	public OdpSpecialization getSpecialization() {
-		return new OdpSpecialization(projectId, odpIRI, specializationStrategy, alignments,
+		Set<Alignment> selectedAlignments = alignmentsPanel.getSelectedAlignments();
+		selectedAlignments.addAll(alignments);
+		
+		return new OdpSpecialization(projectId, odpIRI, specializationStrategy, selectedAlignments,
     			this.getSpecializedClasses(),
     			this.getSpecializedObjectProperties(),
     			this.getSpecializedDataProperties());
+	}
+
+	public ProjectId getProjectId() {
+		return projectId;
 	}
 }

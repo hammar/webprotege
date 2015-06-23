@@ -2,25 +2,14 @@ package edu.stanford.bmir.protege.web.server.xd;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Set;
-
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.StreamDocumentSource;
-import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
-import org.semanticweb.owlapi.model.OWLAnnotation;
-import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
-import org.semanticweb.owlapi.model.OWLDataRange;
-import org.semanticweb.owlapi.model.OWLDatatype;
-import org.semanticweb.owlapi.model.OWLEntity;
-import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -31,10 +20,7 @@ import org.semanticweb.owlapi.reasoner.Node;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
-import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import org.springframework.web.client.RestTemplate;
-
-import com.google.common.base.Optional;
 
 import edu.stanford.bmir.protege.web.server.dispatch.ActionHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
@@ -42,13 +28,12 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
+import edu.stanford.bmir.protege.web.server.xd.util.OntologyOperations;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
-import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.AbstractOntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 
@@ -56,9 +41,6 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 
 	private final WebProtegeLogger log;
 	private String XdpServiceUriBase;
-	
-	private OWLAnnotationProperty rdfsLabel;
-	private OWLAnnotationProperty rdfsComment;
 	
 	@Inject
 	public GetOdpContentsHandler(WebProtegeLogger logger) {
@@ -102,11 +84,6 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	        config = config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
 	        StreamDocumentSource sds = new StreamDocumentSource(IOUtils.toInputStream(turtleRepresentation));
 	        OWLOntology odp = manager.loadOntologyFromOntologyDocument(sds, config);
-	        
-			// Create often used properties
-			OWLDataFactory df = manager.getOWLDataFactory();
-			rdfsLabel = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
-	        rdfsComment = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_COMMENT.getIRI());
 			
 	        // Set up reasoner (required for traversing class/property hierarchies)
 	        OWLReasonerFactory reasonerFactory = new StructuralReasonerFactory();
@@ -132,7 +109,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
         OWLObjectPropertyExpression topPropertyExpression = topNode.getRepresentativeElement();
         OWLObjectProperty topObjectProperty = (OWLObjectProperty)topPropertyExpression;
         
-        ObjectPropertyFrame opf = (ObjectPropertyFrame)getFrame(topObjectProperty, ont);
+        ObjectPropertyFrame opf = (ObjectPropertyFrame)OntologyOperations.getFrame(topObjectProperty, ont);
         
         // Create the tree with only OWL:TopObjectProperty in it
         FrameTreeNode<OntologyEntityFrame> tree = new FrameTreeNode<OntologyEntityFrame>(opf);
@@ -158,7 +135,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 		Node<OWLDataProperty> topNode = reasoner.getTopDataPropertyNode();
         OWLDataProperty topProperty = topNode.getRepresentativeElement();
         
-        DataPropertyFrame dpf = (DataPropertyFrame)getFrame(topProperty, ont);
+        DataPropertyFrame dpf = (DataPropertyFrame)OntologyOperations.getFrame(topProperty, ont);
         
         // Create the tree with only OWL:TopDataProperty in it
         FrameTreeNode<OntologyEntityFrame> tree = new FrameTreeNode<OntologyEntityFrame>(dpf);
@@ -185,7 +162,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
         // Extract metadata from top node (i.e., OWL:Thing)
 		Node<OWLClass> topNode = reasoner.getTopClassNode();
         OWLClass owlThing = topNode.getRepresentativeElement();
-        ClassFrame cf = (ClassFrame)getFrame(owlThing, ont);
+        ClassFrame cf = (ClassFrame)OntologyOperations.getFrame(owlThing, ont);
         
         // Create the tree with only OWL:Thing in it
         FrameTreeNode<OntologyEntityFrame> tree = new FrameTreeNode<OntologyEntityFrame>(cf);
@@ -197,105 +174,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
         return tree;
 	}
 	
-	/**
-	 * Generate an Ontology Entity Frame from an OWL Entity
-	 * @param cls
-	 * @param ont
-	 * @return
-	 */
-	private AbstractOntologyEntityFrame getFrame(OWLEntity entity, OWLOntology ont) {
-		// Depending on what type of OWLEntity we get in, construct a suitable frame and return it
-		
-		Set<OWLOntology> ontologyClosure = ont.getOWLOntologyManager().getOntologies();
-		
-		String entityLabel = getLabel(entity, ont);
-		Optional<String> entityComment = getAnnotationValue(entity, ont, rdfsComment, "en");
-		
-		if (entity instanceof OWLClass) {
-			ClassFrame cf = new ClassFrame(entityLabel);
-			cf.setIri(entity.getIRI());
-			if (entityComment.isPresent()) {
-				cf.setComment(entityComment.get());
-			}
-			return cf;
-		}
-		else if (entity instanceof OWLDataProperty) {
-			// Create frame
-			OWLDataProperty dataProperty = (OWLDataProperty)entity;
-			DataPropertyFrame frame = new DataPropertyFrame(entityLabel);
-			frame.setIri(dataProperty.getIRI());
-			if (entityComment.isPresent()) {
-				frame.setComment(entityComment.get());
-			}
-			
-			
-			// Get domains
-			Set<OWLClassExpression> domainExpressions = dataProperty.getDomains(ontologyClosure);
-			Set<LabelOrIri> domains = frame.getDomains();
-    		for (OWLClassExpression oce: domainExpressions) {
-    			if (oce instanceof OWLClass) {
-    				IRI domainIri = ((OWLClass)oce).getIRI();
-    				domains.add(new LabelOrIri(domainIri));
-    			}
-    		}
-    		
-    		// Get ranges
-    		Set<OWLDataRange> rangeExpressions = dataProperty.getRanges(ontologyClosure);
-    		Set<IRI> ranges = frame.getRanges();
-    		for (OWLDataRange dr: rangeExpressions) {
-    			if (dr instanceof OWLDatatype) {
-    				IRI rangeIri = ((OWLDatatype) dr).getIRI();
-    				ranges.add(rangeIri);
-    			}
-    		}
-    		
-    		// Set attributes
-			frame.setFunctional(dataProperty.isFunctional(ont));
-    		
-    		// Return constructed data property frame
-			return frame;
-		}
-		else if (entity instanceof OWLObjectProperty) {
-			// Create frame
-			OWLObjectProperty objectProperty = (OWLObjectProperty)entity;
-			ObjectPropertyFrame frame = new ObjectPropertyFrame(entityLabel);
-			frame.setIri(objectProperty.getIRI());
-			if (entityComment.isPresent()) {
-				frame.setComment(entityComment.get());
-			}
-			
-			// Get domains
-			Set<OWLClassExpression> domainExpressions = objectProperty.getDomains(ontologyClosure);
-			Set<LabelOrIri> domains = frame.getDomains();
-    		for (OWLClassExpression oce: domainExpressions) {
-    			if (oce instanceof OWLClass) {
-    				IRI domainIri = ((OWLClass)oce).getIRI();
-    				domains.add(new LabelOrIri(domainIri));
-    			}
-    		}
-    		
-    		// Get ranges
-			Set<OWLClassExpression> rangeExpressions = objectProperty.getRanges(ontologyClosure);
-			Set<LabelOrIri> ranges = frame.getRanges();
-    		for (OWLClassExpression oce: rangeExpressions) {
-    			if (oce instanceof OWLClass) {
-    				IRI rangeIri = ((OWLClass)oce).getIRI();
-    				ranges.add(new LabelOrIri(rangeIri));
-    			}
-    		}
-    		
-			// Set attributes
-			frame.setSymmetric(objectProperty.isSymmetric(ontologyClosure));
-			frame.setFunctional(objectProperty.isFunctional(ontologyClosure));
-			frame.setTransitive(objectProperty.isTransitive(ontologyClosure));
-			
-			// Return constructed object property frame
-    		return frame;
-		}
-		
-		// We should never get to here.
-		return null;
-	}
+
 	
 	/**
 	 * Recursively convert OWLClass nodes provided from reasoner to a Tree of ClassFrames 
@@ -308,7 +187,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	private void addClassToTree(Node<OWLClass> node, FrameTreeNode<OntologyEntityFrame> tree, OWLReasoner reasoner, OWLOntology ont) {
 		if (!node.isBottomNode()) {
 			for (OWLClass cls: node.getEntities()) {
-				ClassFrame cf = (ClassFrame)getFrame(cls, ont);
+				ClassFrame cf = (ClassFrame)OntologyOperations.getFrame(cls, ont);
 				FrameTreeNode<OntologyEntityFrame> emNode = tree.addChild(cf);
 				for (Node<OWLClass> childNode: reasoner.getSubClasses(node.getRepresentativeElement(), true)) {
 					addClassToTree(childNode, emNode, reasoner, ont);
@@ -327,7 +206,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 */
 	private void addObjectPropertyToTree(OWLObjectProperty property, FrameTreeNode<OntologyEntityFrame> tree, 
 			OWLReasoner reasoner, OWLOntology ont) {
-		OntologyEntityFrame opf = (OntologyEntityFrame)getFrame(property, ont);
+		OntologyEntityFrame opf = (OntologyEntityFrame)OntologyOperations.getFrame(property, ont);
 		FrameTreeNode<OntologyEntityFrame> emNode = tree.addChild(opf);
 		for (Node<OWLObjectPropertyExpression> childNode: reasoner.getSubObjectProperties(property, true)) {
         	if (!childNode.isBottomNode()) {
@@ -352,7 +231,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	 */
 	private void addDataPropertyToTree(OWLDataProperty property, FrameTreeNode<OntologyEntityFrame> tree, 
 			OWLReasoner reasoner, OWLOntology ont) {
-		DataPropertyFrame dpf = (DataPropertyFrame)getFrame(property, ont);
+		DataPropertyFrame dpf = (DataPropertyFrame)OntologyOperations.getFrame(property, ont);
 		FrameTreeNode<OntologyEntityFrame> emNode = tree.addChild(dpf);
 		for (Node<OWLDataProperty> childNode: reasoner.getSubDataProperties(property, true)) {
         	if (!childNode.isBottomNode()) {
@@ -361,79 +240,5 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
         		}
         	}
 		}
-	}
-	
-	
-	/**
-	 * Gets label (prefixed by ODP name). If no RDFS label exists for ODP or for concept exist,
-	 * uses local IRI fragments.
-	 * @param entity
-	 * @return
-	 */
-	private String getLabel(OWLEntity entity, OWLOntology ont) {
-		String odpPrefix = getOdpPrefix(ont);
-		Optional<String> entityLabel = getAnnotationValue(entity, ont, rdfsLabel, "en");
-		if (entityLabel.isPresent()) {
-			return String.format("%s: %s",odpPrefix,entityLabel.get());
-		}
-		else {
-			return entity.getIRI().getFragment();
-		}
-	}
-	
-	/**
-	 * Attempts to get a reasonable prefix to show the user for this particular ODP. 
-	 * Searches, in order, for rdfs:label annotations in English, then in any language,
-	 * then ontology IRI local fragment, and as last resort, document IRI local fragment. 
-	 * @param odp
-	 * @return
-	 */
-	private String getOdpPrefix(OWLOntology odp) {
-		String odpPrefix = null;
-		for (OWLAnnotation annotation : odp.getAnnotations()) {
-			if (annotation.getProperty() == rdfsLabel && annotation.getValue() instanceof OWLLiteral) {
-				OWLLiteral val = (OWLLiteral) annotation.getValue();
-				if (val.hasLang("en")) {
-					odpPrefix = val.getLiteral();
-					break;
-                }
-				if (!val.hasLang()) {
-					odpPrefix = val.getLiteral();
-                }
-			}
-		}
-		if (odpPrefix == null) {
-			odpPrefix = odp.getOntologyID().getOntologyIRI().getFragment();
-		}
-		if (odpPrefix == null) {
-			odpPrefix = odp.getOWLOntologyManager().getOntologyDocumentIRI(odp).getFragment();
-		}
-		return odpPrefix;
-	}
-	
-	/**
-	 * Returns the string value of a given annotation property on a given entity, in a given ontology,
-	 * as defined in a given language. If no such matching value is found, returns a value with no language tag.
-	 * If no such value is found, returns null.
-	 * @param entity
-	 * @param ont
-	 * @param annotationProperty
-	 * @param lang
-	 * @return
-	 */
-	private Optional<String> getAnnotationValue(OWLEntity entity,OWLOntology ont,OWLAnnotationProperty annotationProperty,String lang) {
-		String candidateAnswer = null;
-		for (OWLAnnotation annotation : entity.getAnnotations(ont, annotationProperty)) {
-            if (annotation.getValue() instanceof OWLLiteral) {
-            	OWLLiteral val = (OWLLiteral) annotation.getValue();
-                if (val.hasLang(lang)) {
-                	return Optional.of(val.getLiteral());
-                }
-                if (!val.hasLang()) {
-                	candidateAnswer = val.getLiteral();
-                }
-            }
-        }
-		return Optional.fromNullable(candidateAnswer);
 	}
 }

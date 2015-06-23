@@ -80,8 +80,4 @@ public class PreviewPanel extends Panel {
         
         this.add(instantiationAxiomsPanel);
 	}
-	
-	public void setInstantiationPreviewAxioms(String previewAxioms) {
-		this.instantationAxiomsPreview.setValue(previewAxioms);
-	}
 }

@@ -5,4 +5,5 @@ import java.io.Serializable;
 public interface Alignment extends Serializable {
 
 	public String toString();
+	public String getSortableEntityLabel();
 }

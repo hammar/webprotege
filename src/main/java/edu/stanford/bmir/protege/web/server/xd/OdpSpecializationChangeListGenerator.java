@@ -45,8 +45,9 @@ import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction.ValueConstraint;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.AbstractEquivalenceAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.AbstractSubsumptionAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubsumptionAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
@@ -153,15 +154,18 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 		
 		// 5. Create alignment axioms
 		for (Alignment alignment: specialization.getAlignments()) {
-			if (alignment instanceof SubsumptionAlignment) {
-				OntologyEntityFrame superFrame = ((SubsumptionAlignment) alignment).getSuperEntity();
-				OntologyEntityFrame subFrame = ((SubsumptionAlignment) alignment).getSubEntity();
+			if (alignment instanceof AbstractSubsumptionAlignment) {
+				OntologyEntityFrame superFrame = ((AbstractSubsumptionAlignment) alignment).getSuperEntity();
+				OntologyEntityFrame subFrame = ((AbstractSubsumptionAlignment) alignment).getSubEntity();
 				OWLEntity superEntity = getEntityFromFrame(superFrame);
 				OWLEntity subEntity = getEntityFromFrame(subFrame);
 				Optional<OWLAxiom> subsumptionAxiom = generateSubsumptionAxiom(project,superEntity,subEntity);
 				if (subsumptionAxiom.isPresent()) {
 					builder.addAxiom(project.getRootOntology(), subsumptionAxiom.get());
 				}
+			}
+			else if (alignment instanceof AbstractEquivalenceAlignment) {
+				// TODO: Implement this alignment!
 			}
 		}
 		

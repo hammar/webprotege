@@ -4,7 +4,7 @@ import com.gwtext.client.util.Format;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 
-public class SubDataPropertyAlignment implements SubsumptionAlignment {
+public class SubDataPropertyAlignment extends AbstractSubsumptionAlignment {
 	
 	private static final long serialVersionUID = -2437051887984587228L;
 	
