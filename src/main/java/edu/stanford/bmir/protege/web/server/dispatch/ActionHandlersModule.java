@@ -49,6 +49,7 @@ import edu.stanford.bmir.protege.web.server.user.GetUserIdsActionHandler;
 import edu.stanford.bmir.protege.web.server.user.LogOutUserActionHandler;
 import edu.stanford.bmir.protege.web.server.watches.AddWatchActionHandler;
 import edu.stanford.bmir.protege.web.server.watches.RemoveWatchActionHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetOdpCategoriesHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetOdpContentsHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetOdpDetailsHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetOdpSearchHitsHandler;
@@ -188,6 +189,7 @@ public class ActionHandlersModule extends AbstractModule {
         multibinder.addBinding().to(GetPersonIdItemsActionHandler.class);
         
         // eXtreme Design extension action handlers below
+        multibinder.addBinding().to(GetOdpCategoriesHandler.class);
         multibinder.addBinding().to(GetOdpSearchHitsHandler.class);
         multibinder.addBinding().to(GetOdpsByCategoryHandler.class);
         multibinder.addBinding().to(GetOdpDetailsHandler.class);

@@ -52,8 +52,10 @@ import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpCategoriesAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpSearchHitsAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpsByCategoryAction;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpCategoriesResult;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpSearchHitsResult;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpsByCategoryResult;
 
@@ -74,16 +76,23 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 	private Button searchButton;
 	
 	// Core search filters
+	private ComboBox searchCategoryCb;
+	private ComboBox searchSizeCb;
+	private ComboBox searchProfileCb;
+	private ComboBox searchStrategyCb;
+	
+	// ODP Category ComboBox
 	private ComboBox categoryCb;
-	private ComboBox sizeCb;
-	private ComboBox profileCb;
-	private ComboBox strategyCb;
 	
 	// Search mapping filters
 	private Checkbox allMappingsCheck;
 	private Checkbox dolceMappingCheck;
 	private Checkbox schemaOrgMappingCheck;
 	private Checkbox dbpediaMappingCheck;
+	
+	// ODP Categories used in both search and browser
+	private Store categoryStore;
+	private RecordDef categoryRecordDef;
 	
 	// Results widget
 	private Store resultsStore;
@@ -143,18 +152,19 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         coreTab.setLayout(new FormLayout());
         coreTab.setPaddings(5);
   
-        // Create category selection combobox
-        Store categoryStore = new SimpleStore(new String[]{"name", "uri"}, getODPCategories());  
-        categoryStore.load();  
-        categoryCb = new ComboBox();  
-        categoryCb.setFieldLabel("Category");    
-        categoryCb.setStore(categoryStore);  
-        categoryCb.setDisplayField("name");  
-        categoryCb.setMode(ComboBox.LOCAL);    
-        categoryCb.setForceSelection(true);
-        categoryCb.setReadOnly(true);
-        categoryCb.setWidth(120);
-        coreTab.add(categoryCb); 
+        // Create category selection combobox 
+        searchCategoryCb = new ComboBox();  
+        searchCategoryCb.setFieldLabel("Category"); 
+        searchCategoryCb.setTypeAhead(false);
+        searchCategoryCb.setStore(categoryStore);  
+        searchCategoryCb.setDisplayField("name");  
+        searchCategoryCb.setTriggerAction(ComboBox.ALL);  
+        searchCategoryCb.setValueField("name"); 
+        searchCategoryCb.setMode(ComboBox.LOCAL);    
+        searchCategoryCb.setForceSelection(true);
+        searchCategoryCb.setReadOnly(true);
+        searchCategoryCb.setWidth(120);
+        coreTab.add(searchCategoryCb); 
         
         // Create size selection combobox
         Store sizeStore = new SimpleStore(new String[]{"label","abbr"}, new String[][]{
@@ -164,15 +174,15 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         		new String[]{"Large","l"}}
         		);
         sizeStore.load();
-        sizeCb = new ComboBox();
-        sizeCb.setFieldLabel("Size");
-        sizeCb.setStore(sizeStore);
-        sizeCb.setDisplayField("label");
-        sizeCb.setMode(ComboBox.LOCAL);
-        sizeCb.setForceSelection(true);
-        sizeCb.setReadOnly(true);
-        sizeCb.setWidth(120);
-        coreTab.add(sizeCb);
+        searchSizeCb = new ComboBox();
+        searchSizeCb.setFieldLabel("Size");
+        searchSizeCb.setStore(sizeStore);
+        searchSizeCb.setDisplayField("label");
+        searchSizeCb.setMode(ComboBox.LOCAL);
+        searchSizeCb.setForceSelection(true);
+        searchSizeCb.setReadOnly(true);
+        searchSizeCb.setWidth(120);
+        coreTab.add(searchSizeCb);
         
         // Create profile selection combobox
         Store profileStore = new SimpleStore(new String[]{"label","abbr"}, new String[][]{
@@ -184,15 +194,15 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         		new String[]{"OWL2 DL","dl"}}
         		);
         profileStore.load();
-        profileCb = new ComboBox();
-        profileCb.setFieldLabel("Profile");
-        profileCb.setStore(profileStore);
-        profileCb.setDisplayField("label");
-        profileCb.setMode(ComboBox.LOCAL);
-        profileCb.setForceSelection(true);
-        profileCb.setReadOnly(true);
-        profileCb.setWidth(120);
-        coreTab.add(profileCb);
+        searchProfileCb = new ComboBox();
+        searchProfileCb.setFieldLabel("Profile");
+        searchProfileCb.setStore(profileStore);
+        searchProfileCb.setDisplayField("label");
+        searchProfileCb.setMode(ComboBox.LOCAL);
+        searchProfileCb.setForceSelection(true);
+        searchProfileCb.setReadOnly(true);
+        searchProfileCb.setWidth(120);
+        coreTab.add(searchProfileCb);
         
         // Create strategy selection combobox
         Store strategyStore = new SimpleStore(new String[]{"label","abbr"}, new String[][]{
@@ -202,15 +212,15 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         		new String[]{"Hybrid","hybrid"}}
         		);
         strategyStore.load();
-        strategyCb = new ComboBox();
-        strategyCb.setFieldLabel("Strategy");
-        strategyCb.setStore(strategyStore);
-        strategyCb.setDisplayField("label");
-        strategyCb.setMode(ComboBox.LOCAL);
-        strategyCb.setForceSelection(true);
-        strategyCb.setReadOnly(true);
-        strategyCb.setWidth(120);
-        coreTab.add(strategyCb);
+        searchStrategyCb = new ComboBox();
+        searchStrategyCb.setFieldLabel("Strategy");
+        searchStrategyCb.setStore(strategyStore);
+        searchStrategyCb.setDisplayField("label");
+        searchStrategyCb.setMode(ComboBox.LOCAL);
+        searchStrategyCb.setForceSelection(true);
+        searchStrategyCb.setReadOnly(true);
+        searchStrategyCb.setWidth(120);
+        coreTab.add(searchStrategyCb);
         
         // Add second filter tab (containing alignment filters)
         Panel mappingsTab = new Panel();
@@ -281,13 +291,14 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 		categorySelectorPanel.setTitle("ODP Category Selector");
 		categorySelectorPanel.setLayout(new FitLayout());
 		
-		// Create category selection combobox
-        Store categoryStore = new SimpleStore(new String[]{"name", "uri"}, getODPCategories());  
-        categoryStore.load();  
-        categoryCb = new ComboBox();  
+		// Create category selection combobox 
+        categoryCb = new ComboBox();
+        categoryCb.setTypeAhead(false);
         categoryCb.setFieldLabel("Category");    
         categoryCb.setStore(categoryStore);  
         categoryCb.setDisplayField("name");  
+        categoryCb.setTriggerAction(ComboBox.ALL);  
+        categoryCb.setValueField("name");  
         categoryCb.setMode(ComboBox.LOCAL);    
         categoryCb.setForceSelection(true);
         categoryCb.setReadOnly(true);
@@ -382,6 +393,30 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 		Panel mainPanel = new Panel();
 		mainPanel.setLayout(new RowLayout());
         
+		// Build category store, used in both category selector and search form
+		MemoryProxy proxy = new MemoryProxy(new Object[][]{new String[]{"Any"}});
+        categoryRecordDef = new RecordDef(  
+                new FieldDef[]{  
+                        new StringFieldDef("name")
+                }  
+        );
+        ArrayReader reader = new ArrayReader(categoryRecordDef);
+		categoryStore = new Store(proxy, reader);
+		categoryStore.load();
+		
+		// Call dispatch service manager to get categories and load into category store
+		DispatchServiceManager.get().execute(new GetOdpCategoriesAction(), new DispatchServiceCallback<GetOdpCategoriesResult>() {
+			@Override
+			public void handleSuccess(GetOdpCategoriesResult result) {
+				
+				for (String category: result.getCategories()) {
+					Record record = categoryRecordDef.createRecord(new Object[]{category});
+					categoryStore.add(record);
+				};
+				categoryStore.commitChanges();
+			}
+		});
+		
 		Panel categorySelectorPanel = buildCategorySelector();
 		Panel searchFormPanel = buildSearchForm();
 		Panel resultsGridPanel = buildResultsGrid();
@@ -401,17 +436,17 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 		
 		// Set up filter object
 		OdpSearchFilterConfiguration filterConfiguration = new OdpSearchFilterConfiguration();
-		if (categoryCb.getValue() != null) {
-			filterConfiguration.setCategory(categoryCb.getValue());
+		if (searchCategoryCb.getValue() != null) {
+			filterConfiguration.setCategory(searchCategoryCb.getValue());
 		}
-		if (sizeCb.getValue() != null) {
-			filterConfiguration.setSize(sizeCb.getValue());
+		if (searchSizeCb.getValue() != null) {
+			filterConfiguration.setSize(searchSizeCb.getValue());
 		}
-		if (profileCb.getValue() != null) {
-			filterConfiguration.setProfile(profileCb.getValue());
+		if (searchProfileCb.getValue() != null) {
+			filterConfiguration.setProfile(searchProfileCb.getValue());
 		}
-		if (strategyCb.getValue() != null) {
-			filterConfiguration.setStrategy(strategyCb.getValue());
+		if (searchStrategyCb.getValue() != null) {
+			filterConfiguration.setStrategy(searchStrategyCb.getValue());
 		}
 		filterConfiguration.setDolceMappingRequired(dolceMappingCheck.getValue());
 		filterConfiguration.setSchemaOrgMappingRequired(schemaOrgMappingCheck.getValue());
@@ -436,16 +471,6 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 				resultsStore.commitChanges();
 			}
 		});
-	}
-	
-	private String[][] getODPCategories() {
-		return new String[][]{
-				new String[]{"Any", "http://ontologydesignpatterns.orgg/wiki/Community:ANY"},  
-				new String[]{"Academy", "http://ontologydesignpatterns.org/wiki/Community:Academy"},
-				new String[]{"Agriculture", "http://ontologydesignpatterns.org/wiki/Community:Agriculture"},
-				new String[]{"Biology", "http://ontologydesignpatterns.org/wiki/Community:Biology"},
-				new String[]{"Business", "http://ontologydesignpatterns.org/wiki/Community:Business"}
-		};
 	}
 
 	/* ---- Selectable implementation methods ----*/
