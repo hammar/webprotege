@@ -59,11 +59,12 @@ public class AlignmentsPanel extends Panel {
         
         Panel instructionPanel = new Panel();
         instructionPanel.setPaddings(5);
-        Label instruction = new Label("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean in rhoncus sapien. "
-        		+ "Phasellus vitae magna at enim molestie auctor et at est. Nullam consequat odio eu varius venenatis. "
-        		+ "Etiam aliquet ligula ac posuere lacinia. Curabitur aliquet elit a viverra fringilla.");
+        Label instruction = new Label("From the suggested entity alignments listed below, constructed based on your specialised "
+        		+ "entities and the existing ontology entities, please select the ones that hold within your model. Please note "
+        		+ "that for multiple simultanous selection to work you must check the boxes individually, not just click on "
+        		+ "the rows in question. ");
         instructionPanel.add(instruction);
-        this.add(instructionPanel, new RowLayoutData(50));
+        this.add(instructionPanel, new RowLayoutData(53));
         
         this.cbSelectionModel = new CheckboxSelectionModel();
         

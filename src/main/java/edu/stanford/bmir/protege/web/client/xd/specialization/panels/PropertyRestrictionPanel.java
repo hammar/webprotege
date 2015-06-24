@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.SortDir;
 import com.gwtext.client.data.ArrayReader;
 import com.gwtext.client.data.FieldDef;
@@ -23,7 +24,8 @@ import com.gwtext.client.widgets.grid.ColumnConfig;
 import com.gwtext.client.widgets.grid.ColumnModel;
 import com.gwtext.client.widgets.grid.GridPanel;
 import com.gwtext.client.widgets.grid.GroupingView;
-import com.gwtext.client.widgets.layout.FitLayout;
+import com.gwtext.client.widgets.layout.RowLayout;
+import com.gwtext.client.widgets.layout.RowLayoutData;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.AbstractComplexRestriction;
@@ -67,7 +69,16 @@ public class PropertyRestrictionPanel extends Panel {
         this.setBorder(false);  
         this.setId("card-2");
         this.setTitle("Property Restriction");
-        this.setLayout(new FitLayout());
+        this.setLayout(new RowLayout());
+        
+        Panel instructionPanel = new Panel();
+        instructionPanel.setPaddings(5);
+        Label instruction = new Label("Please select those of the suggested restrictions below that make are relevant in "
+        		+ "the domain that you are modelling. These restrictions will be persisted as domain/range axioms, or as "
+        		+ "property restriction axioms, depending on selected specialisation strategy. Please note that for multiple "
+        		+ "simultanous selection to work you must check the boxes individually, not just click on the rows in question.");
+        instructionPanel.add(instruction);
+        this.add(instructionPanel, new RowLayoutData(63));
         
         this.classLookupMap = new HashMap<String, OntologyEntityFrame>();
         this.restrictionsMap = new HashMap<String,Restriction>();

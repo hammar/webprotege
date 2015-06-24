@@ -65,7 +65,7 @@ public class EntitySpecializationPanel extends Panel {
         		+ "below. Note that if using the class-oriented strategy you will be prevented from specialising "
         		+ "properties.");
         instructionPanel.add(instruction);
-        this.add(instructionPanel, new RowLayoutData(50));
+        this.add(instructionPanel, new RowLayoutData(53));
         
         entityTreePanel = new TreePanel();
         entityTreePanel.setTitle("ODP Entities");
