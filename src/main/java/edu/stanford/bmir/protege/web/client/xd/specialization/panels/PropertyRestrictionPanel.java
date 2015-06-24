@@ -27,7 +27,7 @@ import com.gwtext.client.widgets.grid.GroupingView;
 import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.layout.RowLayoutData;
 
-import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.AbstractComplexRestriction;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.DomainRestriction;
 import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.EquivalentToExistentialRestriction;
@@ -54,14 +54,14 @@ public class PropertyRestrictionPanel extends Panel {
 	private FrameTreeNode<OntologyEntityFrame> objectProperties;
 	private FrameTreeNode<OntologyEntityFrame> dataProperties;
 	
-	private XdSpecializationWizard parentWizard; 
+	private DesignPatternSpecializationWizard parentWizard; 
 	
 	// Infrastructure for restrictions presentation grid view
 	private GroupingStore store;
 	private RecordDef recordDef;
 	private CheckboxSelectionModel cbSelectionModel;
 	
-	public PropertyRestrictionPanel(XdSpecializationWizard parent) {
+	public PropertyRestrictionPanel(DesignPatternSpecializationWizard parent) {
 		super();
 		
 		this.parentWizard = parent;

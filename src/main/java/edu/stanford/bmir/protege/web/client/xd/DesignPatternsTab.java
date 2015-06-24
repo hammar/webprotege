@@ -10,12 +10,12 @@ import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
  * @author Karl Hammar <karl@karlhammar.com>
  */
 @SuppressWarnings("unchecked")
-public class XdTab extends AbstractTab {
+public class DesignPatternsTab extends AbstractTab {
 
-	private XdSearchPortlet patternSearchPortlet;
-	private XdPatternDetailsPortlet patternDetailsPortlet;
+	private DesignPatternSelectorPortlet patternSearchPortlet;
+	private DesignPatternDetailsPortlet patternDetailsPortlet;
 	
-    public XdTab(SelectionModel selectionModel, Project project) {
+    public DesignPatternsTab(SelectionModel selectionModel, Project project) {
         super(selectionModel, project);
     }
 
@@ -23,8 +23,8 @@ public class XdTab extends AbstractTab {
     public void setup() {
         super.setup();    
         
-        patternSearchPortlet = (XdSearchPortlet) getPortletByClassName(XdSearchPortlet.class.getName());
-        patternDetailsPortlet = (XdPatternDetailsPortlet) getPortletByClassName(XdPatternDetailsPortlet.class.getName());
+        patternSearchPortlet = (DesignPatternSelectorPortlet) getPortletByClassName(DesignPatternSelectorPortlet.class.getName());
+        patternDetailsPortlet = (DesignPatternDetailsPortlet) getPortletByClassName(DesignPatternDetailsPortlet.class.getName());
         
         // Hook up pattern details portlet to listen to changes in search portlet
         patternSearchPortlet.addSelectionListener(patternDetailsPortlet);

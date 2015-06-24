@@ -23,7 +23,7 @@ import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
-import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
@@ -37,7 +37,7 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpDetailsResult;
  *
  */
 @SuppressWarnings("unchecked")
-public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet implements SelectionListener {
+public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implements SelectionListener {
 	
 	// Core stuff
 	private ToolbarButton useOdpButton;
@@ -57,11 +57,11 @@ public class XdPatternDetailsPortlet extends AbstractOWLEntityPortlet implements
 	// References to specialisation wizard and its popup
 	//private XdSpecializationWizard wizard;
 	//private PopupPanel wizardPopup;
-	private XdSpecializationWizard wizard;
+	private DesignPatternSpecializationWizard wizard;
 	
-	public XdPatternDetailsPortlet(SelectionModel selectionModel, Project project) {
+	public DesignPatternDetailsPortlet(SelectionModel selectionModel, Project project) {
 		super(selectionModel, project);
-		wizard = new XdSpecializationWizard(this);
+		wizard = new DesignPatternSpecializationWizard(this);
 	}
 
 	

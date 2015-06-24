@@ -20,7 +20,7 @@ import com.gwtext.client.widgets.tree.TreePanel;
 import com.gwtext.client.widgets.tree.event.TreePanelListenerAdapter;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.EntityDetailsWindow;
-import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
@@ -46,9 +46,9 @@ public class EntitySpecializationPanel extends Panel {
 	private FrameTreeNode<OntologyEntityFrame> allObjectProperties;
 	private FrameTreeNode<OntologyEntityFrame> allDataProperties;
 	
-	private XdSpecializationWizard parentWizard;
+	private DesignPatternSpecializationWizard parentWizard;
 	
-	public EntitySpecializationPanel(XdSpecializationWizard parent) {
+	public EntitySpecializationPanel(DesignPatternSpecializationWizard parent) {
 		super();
 		
 		this.parentWizard = parent;

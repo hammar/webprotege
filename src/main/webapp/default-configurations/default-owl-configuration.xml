@@ -285,8 +285,8 @@
         <!--       XD Tab        -->
         <!-- ********************************** -->
 		<tab>
-            <name>edu.stanford.bmir.protege.web.client.xd.XdTab</name>
-            <label>eXtreme Design</label>
+            <name>edu.stanford.bmir.protege.web.client.xd.DesignPatternsTab</name>
+            <label>Design Patterns</label>
             <columns>
                 
                 <!-- Column 1 -->
@@ -294,7 +294,7 @@
                     <width>0.30</width>
                     <portlets>
                         <portlet>
-                            <name>edu.stanford.bmir.protege.web.client.xd.XdSearchPortlet</name>
+                            <name>edu.stanford.bmir.protege.web.client.xd.DesignPatternSelectorPortlet</name>
                             <height>570</height>
                             <width>0</width>
                         </portlet>
@@ -306,7 +306,7 @@
                     <width>0.70</width>
                     <portlets>
                         <portlet>
-                            <name>edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet</name>
+                            <name>edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet</name>
                             <height>570</height>
                             <width>0</width>
                         </portlet>

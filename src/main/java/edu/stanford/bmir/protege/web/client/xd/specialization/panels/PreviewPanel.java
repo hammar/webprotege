@@ -15,7 +15,7 @@ import com.gwtext.client.widgets.layout.RowLayout;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
-import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationPreviewAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationPreviewResult;
@@ -23,9 +23,9 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationPreviewR
 public class PreviewPanel extends Panel {
 	
 	private TextArea instantationAxiomsPreview;
-	private final XdSpecializationWizard parentWizard;
+	private final DesignPatternSpecializationWizard parentWizard;
 	
-	public PreviewPanel(XdSpecializationWizard parent) {
+	public PreviewPanel(DesignPatternSpecializationWizard parent) {
 		super();
 		
 		this.parentWizard = parent;

@@ -63,9 +63,9 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpsByCategoryResult;
  *
  */
 @SuppressWarnings("unchecked")
-public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selectable {
+public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet implements Selectable {
 	
-	public XdSearchPortlet(SelectionModel selectionModel, Project project) {
+	public DesignPatternSelectorPortlet(SelectionModel selectionModel, Project project) {
 		super(selectionModel, project);
 		this.listeners = new ArrayList<SelectionListener>();
 	}
@@ -366,7 +366,7 @@ public class XdSearchPortlet extends AbstractOWLEntityPortlet implements Selecta
         // Behavior when a result from the search is clicked - notifies listeners that selection changed.
 		resultsGrid.addGridRowListener(new GridRowListenerAdapter(){
 			public void onRowClick(GridPanel grid, int rowIndex, EventObject e) {
-				notifySelectionListeners(new SelectionEvent(XdSearchPortlet.this));
+				notifySelectionListeners(new SelectionEvent(DesignPatternSelectorPortlet.this));
 			}
 		});
         

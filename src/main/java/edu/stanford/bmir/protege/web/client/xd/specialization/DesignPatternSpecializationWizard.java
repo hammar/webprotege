@@ -17,7 +17,7 @@ import com.gwtext.client.widgets.layout.CardLayout;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
-import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
+import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.AlignmentsPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.EntitySpecializationPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PreviewPanel;
@@ -34,7 +34,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityF
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 import edu.stanford.bmir.protege.web.shared.xd.results.PersistSpecializationResult;
 
-public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
+public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets.Window {
 	
 	private ToolbarButton backButton;
 	private ToolbarButton nextButton;
@@ -65,7 +65,7 @@ public class XdSpecializationWizard extends com.gwtext.client.widgets.Window {
 	private OdpSpecializationStrategy specializationStrategy;
 	
 	@SuppressWarnings("deprecation")
-	public XdSpecializationWizard(XdPatternDetailsPortlet parent) {
+	public DesignPatternSpecializationWizard(DesignPatternDetailsPortlet parent) {
 		this.setCloseAction(HIDE);
 		
 		this.projectId = parent.getProjectId();

@@ -31,9 +31,9 @@ import edu.stanford.bmir.protege.web.client.ui.projectfeed.ProjectFeedPortlet;
 import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
 import edu.stanford.bmir.protege.web.client.ui.tab.UserDefinedTab;
 import edu.stanford.bmir.protege.web.client.usage.UsagePortlet;
-import edu.stanford.bmir.protege.web.client.xd.XdPatternDetailsPortlet;
-import edu.stanford.bmir.protege.web.client.xd.XdSearchPortlet;
-import edu.stanford.bmir.protege.web.client.xd.XdTab;
+import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
+import edu.stanford.bmir.protege.web.client.xd.DesignPatternSelectorPortlet;
+import edu.stanford.bmir.protege.web.client.xd.DesignPatternsTab;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 
 import java.util.*;
@@ -80,8 +80,8 @@ public class UIFactory {
         else if (tabJavaClassName.equals(UserDefinedTab.class.getName())) {
             return new UserDefinedTab(selectionModel, project);
         }
-        else if (tabJavaClassName.equals(XdTab.class.getName())) {
-        	return new XdTab(selectionModel, project);
+        else if (tabJavaClassName.equals(DesignPatternsTab.class.getName())) {
+        	return new DesignPatternsTab(selectionModel, project);
         }
         return null;
     }
@@ -186,11 +186,11 @@ public class UIFactory {
             else if (portletJavaClassName.endsWith(OWLEntityDescriptionEditorPortlet.class.getName())) {
                 return new OWLEntityDescriptionEditorPortlet(selectionModel, project);
             }
-            else if(portletJavaClassName.endsWith(XdSearchPortlet.class.getName())) {
-                return new XdSearchPortlet(selectionModel, project);
+            else if(portletJavaClassName.endsWith(DesignPatternSelectorPortlet.class.getName())) {
+                return new DesignPatternSelectorPortlet(selectionModel, project);
             }
-            else if(portletJavaClassName.endsWith(XdPatternDetailsPortlet.class.getName())) {
-                return new XdPatternDetailsPortlet(selectionModel, project);
+            else if(portletJavaClassName.endsWith(DesignPatternDetailsPortlet.class.getName())) {
+                return new DesignPatternDetailsPortlet(selectionModel, project);
             }
             else {
                 GWT.log("Portlet not found: " + portletJavaClassName);
@@ -208,7 +208,7 @@ public class UIFactory {
          * OtherTerminologiesTab.class.getName(),
          *
          */
-        String[] tabs = {ClassesTab.class.getName(), PropertiesTab.class.getName(), IndividualsTab.class.getName(), MetadataTab.class.getName(), XdTab.class.getName()};
+        String[] tabs = {ClassesTab.class.getName(), PropertiesTab.class.getName(), IndividualsTab.class.getName(), MetadataTab.class.getName(), DesignPatternsTab.class.getName()};
         return Arrays.asList(tabs);
     }
 
@@ -234,8 +234,8 @@ public class UIFactory {
                 OBOTermRelationshipPortlet.class.getName(), OBOTermSynonymsPortlet.class.getName(),
                 OBOTermIdEditorPortlet.class.getName(),
                 OBOTermDefinitionPortlet.class.getName(), OBOTermXRefsEditorPortlet.class.getName(),
-                RevisionsPortlet.class.getName(), XdSearchPortlet.class.getName(),
-                XdPatternDetailsPortlet.class.getName()};
+                RevisionsPortlet.class.getName(), DesignPatternSelectorPortlet.class.getName(),
+                DesignPatternDetailsPortlet.class.getName()};
 
         List<String> portletsList = Arrays.asList(portlets);
         Collections.sort(portletsList, new Comparator<String>() {

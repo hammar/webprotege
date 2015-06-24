@@ -31,7 +31,7 @@ import com.gwtext.client.widgets.layout.RowLayoutData;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
-import edu.stanford.bmir.protege.web.client.xd.specialization.XdSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.client.xd.util.UUID;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationAlignmentSuggestionsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
@@ -43,10 +43,10 @@ public class AlignmentsPanel extends Panel {
 	private GroupingStore store;
 	private RecordDef recordDef;
 	private CheckboxSelectionModel cbSelectionModel;
-	private XdSpecializationWizard parentWizard;
+	private DesignPatternSpecializationWizard parentWizard;
 	private Map<String,Alignment> alignmentsMap;
 	
-	public AlignmentsPanel(XdSpecializationWizard parent) {
+	public AlignmentsPanel(DesignPatternSpecializationWizard parent) {
 		super();
 		
 		this.parentWizard = parent;
