@@ -19,3 +19,13 @@
 div.specializedNode a.x-tree-node-anchor span {
 	color: green;
 }  
+
+div.specializationStrategySelectionPanel div.gwt-Label, 
+div.specializationStrategySelectionPanel div.gwt-HTML {
+	font-size: 11px;
+}
+
+div.specializationStrategySelectionPanel span.gwt-RadioButton label {
+	font-weight: bold;
+	font-size: 11px;
+}

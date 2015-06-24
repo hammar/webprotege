@@ -19,6 +19,7 @@ public class StrategySelectionPanel extends Panel {
         this.setBorder(false);
         this.setId("card-0");
         this.setTitle("Specialisation Strategy");
+        this.addClass("specializationStrategySelectionPanel");
         
         propStrategyButton = new RadioButton("strategyGroup","Property-oriented strategy");
         classStrategyButton = new RadioButton("strategyGroup", "Class-oriented strategy");
