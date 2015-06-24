@@ -32,7 +32,7 @@ public class SubDataPropertyAlignment extends AbstractSubsumptionAlignment {
 	}
 
 	public String toString() {
-		return Format.format("{0} is a subdataproperty of {1}", subProperty.getLabel(), superProperty.getLabel());
+		return Format.format("\"{0}\" is a subdataproperty of \"{1}\"", subProperty.getLabel(), superProperty.getLabel());
 	}
 
 }

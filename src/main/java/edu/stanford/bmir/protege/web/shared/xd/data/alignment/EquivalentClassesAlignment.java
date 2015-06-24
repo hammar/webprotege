@@ -36,7 +36,7 @@ public class EquivalentClassesAlignment extends AbstractEquivalenceAlignment {
 	}
 	
 	public String toString() {
-		return Format.format("{0} is a equivalent to {1}", homeClass.getLabel(), otherClass.getLabel());
+		return Format.format("\"{0}\" is equivalent to \"{1}\"", homeClass.getLabel(), otherClass.getLabel());
 	}
 
 }

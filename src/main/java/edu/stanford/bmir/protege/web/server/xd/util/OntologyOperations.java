@@ -158,7 +158,7 @@ public class OntologyOperations {
 	
 	/**
 	 * Generate an Ontology Entity Frame from an OWL Entity. Only works with classes, data properties, 
-	 * and object properties (otherwise returns null). Frame label will be prefixed with ontology label or fragment.
+	 * and object properties (otherwise returns null). Frame label will not be prefixed with ontology label or fragment.
 	 * @param cls
 	 * @param ont
 	 * @return

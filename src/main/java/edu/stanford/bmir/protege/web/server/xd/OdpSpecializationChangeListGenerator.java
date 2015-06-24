@@ -165,7 +165,14 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 				}
 			}
 			else if (alignment instanceof AbstractEquivalenceAlignment) {
-				// TODO: Implement this alignment!
+				OntologyEntityFrame homeFrame = ((AbstractEquivalenceAlignment) alignment).getHomeEntity();
+				OntologyEntityFrame otherFrame = ((AbstractEquivalenceAlignment) alignment).getOtherEntity();
+				OWLEntity homeEntity = getEntityFromFrame(homeFrame);
+				OWLEntity otherEntity = getEntityFromFrame(otherFrame);
+				Optional<OWLAxiom> equivalenceAxiom = generateEquivalenceAxiom(project,homeEntity,otherEntity);
+				if (equivalenceAxiom.isPresent()) {
+					builder.addAxiom(project.getRootOntology(), equivalenceAxiom.get());
+				}
 			}
 		}
 		
@@ -222,7 +229,33 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 	}
 
 
+	/**
+	 * Takes two OWL Entities (classes, data properties, or object properties) as input and returns an equivalence axiom
+	 * such that the two are equivalent. If the two input entities are not of the same type, the optional that is returned 
+	 * will be empty.
+	 * @param project
+	 * @param firstEntity
+	 * @param secondEntity
+	 * @return
+	 */
+	private Optional<OWLAxiom> generateEquivalenceAxiom(OWLAPIProject project, OWLEntity firstEntity, OWLEntity secondEntity) {
+		if (firstEntity.getClass() != secondEntity.getClass()) {
+			return Optional.absent();
+		}
+		OWLAxiom equivalenceAxiom = null;
+		if (firstEntity instanceof OWLClass) {
+			equivalenceAxiom = project.getDataFactory().getOWLEquivalentClassesAxiom((OWLClass)firstEntity, (OWLClass)secondEntity);
+		}
+		else if (firstEntity instanceof OWLDataProperty) {
+			equivalenceAxiom = project.getDataFactory().getOWLEquivalentDataPropertiesAxiom((OWLDataProperty)firstEntity, (OWLDataProperty)secondEntity);
+		}
+		else if (firstEntity instanceof OWLObjectProperty ){
+			equivalenceAxiom = project.getDataFactory().getOWLEquivalentObjectPropertiesAxiom((OWLObjectProperty)firstEntity, (OWLObjectProperty)secondEntity);
+		}
+		return Optional.fromNullable(equivalenceAxiom);
+	}
 
+	
 	/**
 	 * Takes two OWL Entities (classes, data properties, or object properties) as input and returns a subsumption axiom
 	 * such that one is a subclass/subdataproperty/subobjectproperty of the other. If the two input entities are not of
@@ -236,17 +269,17 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 		if (superEntity.getClass() != subEntity.getClass()) {
 			return Optional.absent();
 		}
-		OWLAxiom subsumptionAxiom;
+		OWLAxiom subsumptionAxiom = null;
 		if (subEntity instanceof OWLClass) {
 			subsumptionAxiom = project.getDataFactory().getOWLSubClassOfAxiom((OWLClass)subEntity, (OWLClass)superEntity);
 		}
 		else if (subEntity instanceof OWLDataProperty) {
 			subsumptionAxiom = project.getDataFactory().getOWLSubDataPropertyOfAxiom((OWLDataProperty)subEntity, (OWLDataProperty)superEntity);
 		}
-		else {
+		else if (subEntity instanceof OWLObjectProperty ){
 			subsumptionAxiom = project.getDataFactory().getOWLSubObjectPropertyOfAxiom((OWLObjectProperty)subEntity, (OWLObjectProperty)superEntity);
 		}
-		return Optional.of(subsumptionAxiom);
+		return Optional.fromNullable(subsumptionAxiom);
 	}
 
 	public Map<String,String> getPrefixes() {

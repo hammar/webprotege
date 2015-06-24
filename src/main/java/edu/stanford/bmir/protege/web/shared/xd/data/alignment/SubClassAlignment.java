@@ -32,7 +32,7 @@ public class SubClassAlignment extends AbstractSubsumptionAlignment {
 	}
 
 	public String toString() {
-		return Format.format("{0} is a subclass of {1}", subClass.getLabel(), superClass.getLabel());
+		return Format.format("\"{0}\" is a subclass of \"{1}\"", subClass.getLabel(), superClass.getLabel());
 	}
 
 }

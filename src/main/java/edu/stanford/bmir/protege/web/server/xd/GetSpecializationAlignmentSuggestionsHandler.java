@@ -1,11 +1,11 @@
 package edu.stanford.bmir.protege.web.server.xd;
 
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLEntity;
@@ -19,13 +19,21 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.UserHasProjectReadPermissionValidator;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
+import edu.stanford.bmir.protege.web.server.xd.util.AnnotationOperations;
 import edu.stanford.bmir.protege.web.server.xd.util.OntologyOperations;
+import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationAlignmentSuggestionsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalentClassesAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalentDataPropertiesAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalentObjectPropertiesAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubClassAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubDataPropertyAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubObjectPropertyAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationAlignmentSuggestionsResult;
 
@@ -57,16 +65,188 @@ public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasPro
 		return retVal;
 	}
 	
-	private Boolean isSubEntityOf(OntologyEntityFrame specializationFrame, OWLEntity existingEntity) {
-		// TODO: Build this
-		Random rand = new Random();
-		return rand.nextBoolean();
+	/**
+	 * Estimate whether two strings are sub/superterms using some very basic string matching
+	 * heuristics (substring inclusion, longest joint substring, etc.)
+	 * @param first
+	 * @param second
+	 * @return
+	 */
+	private Boolean isSubTerm(String first, String second) {
+		
+		// If either term is empty, then do not suggest subterm relationship but bail out instead
+		if (first.replace(" ", "").equalsIgnoreCase("") || second.replace(" ", "").equalsIgnoreCase("")) {
+			return false;
+		}
+		
+		// If the terms are identical, suggest bi-directional subsumption, e.g. equivalence)
+		if (first.equalsIgnoreCase(second)) {
+			return true;
+		}
+		
+		// If first term contains second, e.g., first is a strict extension of second, assume second
+		// is superterm and first is subterm
+		if (first.contains(second)) {
+			return true;
+		}
+		
+		// If the longest shared substring is greater than or equal to 4 (arbitrary choice?) 
+		// and the first is longer, suggest subsumption using same rationale as above
+		if (longestSubstr(first,second) > 3) {
+			if (first.length() > second.length()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
-	private Boolean isSubEntityOf(OWLEntity existingEntity, OntologyEntityFrame specializationFrame) {
-		// TODO: Build this
-		Random rand = new Random();
-		return rand.nextBoolean();
+	/**
+	 * Estimate whether a specialization frame is a sub entity of an existing OWL entity. 
+	 * @param specializationFrame
+	 * @param existingEntity
+	 * @param ontology
+	 * @return
+	 */
+	private Boolean isSubEntityOf(OntologyEntityFrame specializationFrame, OWLEntity existingEntity, OWLOntology ontology) {
+		String existingLabel = AnnotationOperations.getLabel(existingEntity, ontology, false);
+		String existingFragment = existingEntity.getIRI().getFragment();
+		String specializationLabel = specializationFrame.getLabel();
+		String specializationFragment = "";
+		if (specializationFrame.getIri().isPresent()) {
+			specializationFragment = specializationFrame.getIri().get().getFragment();
+		}
+		return (isSubTerm(specializationLabel,existingLabel) || isSubTerm(specializationFragment,existingFragment));
+	}
+	
+	/**
+	 * Estimate whether an existing OWL entity is a sub entity of a specialization frame. 
+	 * @param existingEntity
+	 * @param specializationFrame
+	 * @param ontology
+	 * @return
+	 */
+	private Boolean isSubEntityOf(OWLEntity existingEntity, OntologyEntityFrame specializationFrame, OWLOntology ontology) {
+		String existingLabel = AnnotationOperations.getLabel(existingEntity, ontology, false);
+		String existingFragment = existingEntity.getIRI().getFragment();
+		String specializationLabel = specializationFrame.getLabel();
+		String specializationFragment = "";
+		if (specializationFrame.getIri().isPresent()) {
+			specializationFragment = specializationFrame.getIri().get().getFragment();
+		}
+		return (isSubTerm(existingLabel,specializationLabel) || isSubTerm(existingFragment,specializationFragment));
+	}
+	
+	/**
+	 * Calculate the length of the longest shared substring between two input strings.
+	 * @param first
+	 * @param second
+	 * @return
+	 */
+	private static int longestSubstr(String first, String second) {
+	    if (first == null || second == null || first.length() == 0 || second.length() == 0) {
+	        return 0;
+	    }
+	    int maxLen = 0;
+	    int fl = first.length();
+	    int sl = second.length();
+	    int[][] table = new int[fl][sl];
+
+	    for (int i = 0; i < fl; i++) {
+	        for (int j = 0; j < sl; j++) {
+	            if (first.charAt(i) == second.charAt(j)) {
+	                if (i == 0 || j == 0) {
+	                    table[i][j] = 1;
+	                }
+	                else {
+	                    table[i][j] = table[i - 1][j - 1] + 1;
+	                }
+	                if (table[i][j] > maxLen) {
+	                    maxLen = table[i][j];
+	                }
+	            }
+	        }
+	    }
+	    return maxLen;
+	}
+	
+	/**
+	 * Compare every combination of input specialization ontology entity frame and existing OWL entity and suggest any
+	 * possible equivalency or subsumption alignments.
+	 * @param specializationFrames
+	 * @param ontologyEntites
+	 * @param ontology
+	 * @return
+	 */
+	private Set<Alignment> generateCandidateAlignments(Set<OntologyEntityFrame> specializationFrames, Set<? extends OWLEntity> ontologyEntites, OWLOntology ontology) {
+		Set<Alignment> retVal = new HashSet<Alignment>();
+		for (OntologyEntityFrame specializedFrame: specializationFrames) {
+			for (OWLEntity ontologyEntity: ontologyEntites) {
+				
+				// By default neither entity is subclass of other
+				Boolean specializationIsSubEntity = false;
+				Boolean existingIsSubEntity = false;
+				Boolean entitiesAreEquivalent = false;
+				
+				Boolean entitiesHaveSameNamespace = false;
+				// If frame has an IRI already, compare the IRIs
+				if (specializedFrame.getIri().isPresent()) {
+					IRI specializedFrameIri = specializedFrame.getIri().get();
+					IRI ontologyEntityIri = ontologyEntity.getIRI();
+					if (specializedFrameIri.getNamespace().equalsIgnoreCase(ontologyEntityIri.getNamespace())) {
+						entitiesHaveSameNamespace = true;
+					}
+				}
+				
+				// Do not suggest alignments for entities which are from the same ontology namespace to begin 
+				// with (assume that that namespace is reasonably structured at the outset..)
+				if (!entitiesHaveSameNamespace) {
+					specializationIsSubEntity = isSubEntityOf(specializedFrame, ontologyEntity, ontology);
+					existingIsSubEntity = isSubEntityOf(ontologyEntity, specializedFrame, ontology);
+					entitiesAreEquivalent = specializationIsSubEntity && existingIsSubEntity;
+				}
+				
+				if (entitiesAreEquivalent) {
+					// Construct equality alignment
+					OntologyEntityFrame ontologyFrame = OntologyOperations.getFrame(ontologyEntity, ontology, false);
+					if (specializedFrame instanceof ClassFrame) {
+						retVal.add(new EquivalentClassesAlignment((ClassFrame)specializedFrame, (ClassFrame)ontologyFrame));
+					}
+					else if (specializedFrame instanceof DataPropertyFrame) {
+						retVal.add(new EquivalentDataPropertiesAlignment((DataPropertyFrame)specializedFrame, (DataPropertyFrame)ontologyFrame));
+					}
+					else if (specializedFrame instanceof ObjectPropertyFrame) {
+						retVal.add(new EquivalentObjectPropertiesAlignment((ObjectPropertyFrame)specializedFrame, (ObjectPropertyFrame)ontologyFrame));
+					}
+				}
+				if (specializationIsSubEntity) {
+					// Construct one-way subsumption
+					OntologyEntityFrame ontologyFrame = OntologyOperations.getFrame(ontologyEntity, ontology, false);
+					if (specializedFrame instanceof ClassFrame) {
+						retVal.add(new SubClassAlignment((ClassFrame)ontologyFrame, (ClassFrame)specializedFrame));
+					}
+					else if (specializedFrame instanceof DataPropertyFrame) {
+						retVal.add(new SubDataPropertyAlignment((DataPropertyFrame)ontologyFrame, (DataPropertyFrame)specializedFrame));
+					}
+					else if (specializedFrame instanceof ObjectPropertyFrame) {
+						retVal.add(new SubObjectPropertyAlignment((ObjectPropertyFrame)ontologyFrame, (ObjectPropertyFrame)specializedFrame));
+					}
+				}
+				if (existingIsSubEntity) {
+					// Construct other way subsumption
+					OntologyEntityFrame ontologyFrame = OntologyOperations.getFrame(ontologyEntity, ontology, false);
+					if (specializedFrame instanceof ClassFrame) {
+						retVal.add(new SubClassAlignment((ClassFrame)specializedFrame, (ClassFrame)ontologyFrame));
+					}
+					else if (specializedFrame instanceof DataPropertyFrame) {
+						retVal.add(new SubDataPropertyAlignment((DataPropertyFrame)specializedFrame, (DataPropertyFrame)ontologyFrame));
+					}
+					else if (specializedFrame instanceof ObjectPropertyFrame) {
+						retVal.add(new SubObjectPropertyAlignment((ObjectPropertyFrame)specializedFrame, (ObjectPropertyFrame)ontologyFrame));
+					}
+				}
+			}
+		}
+		return retVal;
 	}
 	
 	@Override
@@ -79,38 +259,21 @@ public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasPro
 		// 1. Generate class alignment suggestions
 		Set<OntologyEntityFrame> specializationClasses = flattenFrameTree(action.getClasses());
 		Set<OWLClass> allOntologyClasses = ontology.getClassesInSignature(true);
-		for (OntologyEntityFrame specializedClass: specializationClasses) {
-			for (OWLClass ontologyClass: allOntologyClasses) {
-				Boolean specializationIsSubEntity = isSubEntityOf(specializedClass, ontologyClass);
-				Boolean existingIsSubEntity = isSubEntityOf(ontologyClass, specializedClass);
-				
-				if (specializationIsSubEntity && existingIsSubEntity) {
-					// Construct equality alignment
-					OntologyEntityFrame ontologyFrame = OntologyOperations.getFrame(ontologyClass, ontology, false);
-					alignments.add(new EquivalentClassesAlignment((ClassFrame)specializedClass, (ClassFrame)ontologyFrame));
-				}
-				else if (specializationIsSubEntity) {
-					// Construct one-way subsumption
-					OntologyEntityFrame ontologyFrame = OntologyOperations.getFrame(ontologyClass, ontology, false);
-					alignments.add(new SubClassAlignment((ClassFrame)ontologyFrame, (ClassFrame)specializedClass));
-				}
-				else if (existingIsSubEntity) {
-					// Construct other way subsumption
-					OntologyEntityFrame ontologyFrame = OntologyOperations.getFrame(ontologyClass, ontology, false);
-					alignments.add(new SubClassAlignment((ClassFrame)specializedClass, (ClassFrame)ontologyFrame));
-				}
-			}
-		}
+		OWLClass owlThing = DataFactory.getOWLThing();
+		allOntologyClasses.remove(owlThing);
+		OWLClass owlNothing = DataFactory.getOWLClass(IRI.create("http://www.w3.org/2002/07/owl#Nothing"));
+		allOntologyClasses.remove(owlNothing);
+		alignments.addAll(generateCandidateAlignments(specializationClasses, allOntologyClasses, ontology));
 		
 		// 2. Generate data property alignment suggestions
 		Set<OntologyEntityFrame> specializationDataProperties = flattenFrameTree(action.getDataProperties());
 		Set<OWLDataProperty> allOntologyDataProperties = ontology.getDataPropertiesInSignature(true);
-		// TODO: Implement the below
+		alignments.addAll(generateCandidateAlignments(specializationDataProperties, allOntologyDataProperties, ontology));
 		
 		// 3. Generate object property alignment suggestions
 		Set<OntologyEntityFrame> specializationObjectProperties = flattenFrameTree(action.getObjectProperties());
 		Set<OWLObjectProperty> allOntologyObjectProperties = ontology.getObjectPropertiesInSignature(true);
-		// TODO: Implement the below
+		alignments.addAll(generateCandidateAlignments(specializationObjectProperties, allOntologyObjectProperties, ontology));
 		
 		return new GetSpecializationAlignmentSuggestionsResult(alignments);
 	}
