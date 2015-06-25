@@ -29,3 +29,23 @@ div.specializationStrategySelectionPanel span.gwt-RadioButton label {
 	font-weight: bold;
 	font-size: 11px;
 }
+
+div.odpDetailsPortlet div.odpTitleLabel {
+	font-size: 22px;
+	border-bottom: 1px solid #99bbe8;
+}
+
+div.odpDetailsPortlet div.odpDetailsHeading {
+	margin-top: 1em;
+	font-size: 16px;
+	border-bottom: 1px dotted #99bbe8;
+}
+
+div.odpDetailsPortlet div.odpDetailLabel {
+	font-weight: bold;
+	margin-right: 3em;
+}
+
+div.odpDetailsPortlet div.odpDetail ul {
+	list-style-type: disc;
+}

@@ -2,7 +2,6 @@ package edu.stanford.bmir.protege.web.client.xd;
 
 import java.util.Collection;
 
-import com.google.common.base.Optional;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
@@ -11,10 +10,14 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.PaddedPanel;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
+import com.gwtext.client.widgets.WidgetComponent;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.layout.FitLayout;
+import com.gwtext.client.widgets.layout.TableLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
@@ -24,7 +27,6 @@ import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
-import edu.stanford.bmir.protege.web.shared.entity.OWLEntityData;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpDetailsAction;
@@ -45,25 +47,30 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 	private OdpDetails odp;
 	
 	// ODP description widgets
+	//private Panel odpIllustrationPanel;
 	private Image odpIllustration;
 	private Label odpTitleLabel;
 	private HTML odpDescription;
+	
+	private Label odpDomainsLabel;
 	private HTML odpDomainsList;
+	
+	private Label odpCqsLabel;
 	private HTML odpCqsList;
-	private Anchor odpUriLink;
+	
+	private Label odpScenariosLabel;
 	private HTML odpScenariosList;
-	private Grid odpDetailsGrid;
+	
+	private Label odpIriLabel;
+	private Anchor odpIriLink;
 	
 	// References to specialisation wizard and its popup
-	//private XdSpecializationWizard wizard;
-	//private PopupPanel wizardPopup;
 	private DesignPatternSpecializationWizard wizard;
 	
 	public DesignPatternDetailsPortlet(SelectionModel selectionModel, Project project) {
 		super(selectionModel, project);
 		wizard = new DesignPatternSpecializationWizard(this);
 	}
-
 	
 	/* ---- SelectionListener implementation method ---- 
 	 * Called when notified by some Selectable object (e.g., the search or browsing portlets) that 
@@ -87,19 +94,14 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 		}
 	}
 	
-	protected void handleAfterSetEntity(Optional<OWLEntityData> entityData) {
-
-	}
-	
 	public void renderOdpDetails(OdpDetails odp) {
 		
-		// TODO: clean up this part: which fields are actually mandatory that we get back from backend?
-		
 		if (odp.getName()!=null) {
+			odpTitleLabel.setVisible(true);
 			odpTitleLabel.setText(odp.getName());
 		}
 		else {
-			odpTitleLabel.setText("Name undefined");
+			odpTitleLabel.setVisible(false);
 		}
 		
 		if (odp.getDescription() != null) {
@@ -109,39 +111,58 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 			odpDescription.setText("");
 		}
 		
-		String domains = "";
-		if (odp.getDomains()!=null) {
+		if (odp.getImage() != null) {
+			odpIllustration.setUrl(odp.getImage());
+			odpIllustration.setVisible(true);
+		}
+		else {
+			odpIllustration.setVisible(false);
+		}
+		
+		if (odp.getDomains() == null) {
+			odpDomainsLabel.setVisible(false);
+			odpDomainsList.setVisible(false);
+		}
+		else {
+			odpDomainsLabel.setVisible(true);
+			odpDomainsList.setVisible(true);
+			String domains = "";
 			for (String domain: odp.getDomains()) {
 				domains += "<li>" + domain + "</li>\n";
 			}
+			odpDomainsList.setHTML("<ul>" + domains + "</ul>");
 		}
-		odpDomainsList.setHTML("<ul>" + domains + "</ul>");
 		
-		String cqs = "";
-		if (odp.getCqs()!=null){
+		if (odp.getCqs() == null) {
+			odpCqsLabel.setVisible(false);
+			odpCqsList.setVisible(false);
+		}
+		else {
+			odpCqsLabel.setVisible(true);
+			odpCqsList.setVisible(true);
+			String cqs = "";
 			for (String cq: odp.getCqs()) {
 				cqs += "<li>" + cq + "</li>\n";
 			}
+			odpCqsList.setHTML("<ul>" + cqs + "</ul>");
 		}
-		odpCqsList.setHTML(cqs);
 		
-		odpUriLink.setHref(odp.getUri());
-		odpUriLink.setText(odp.getUri());
-		
-		if (odp.getImage() != null) {
-			odpIllustration.setUrl(odp.getImage());
+		if (odp.getScenarios() == null) {
+			odpScenariosLabel.setVisible(false);
+			odpScenariosList.setVisible(false);
 		}
 		else {
-			odpIllustration.setUrl("");
-		}
-		
-		String scenarios = "";
-		if (odp.getScenarios() != null) {
+			odpScenariosLabel.setVisible(true);
+			odpScenariosList.setVisible(true);
+			String scenarios = "";
 			for (String scenario: odp.getScenarios()) {
 				scenarios += "<li>" + scenario + "</li>\n";
 			}
+			odpScenariosList.setHTML("<ul>" + scenarios + "</ul>");
 		}
-		odpScenariosList.setHTML("<ul>" + scenarios + "</ul>");
+		
+		odpIriLink.setHref(odp.getUri());
+		odpIriLink.setText(odp.getUri());
 		
 		useOdpButton.enable();
 		mainPanel.show();
@@ -151,6 +172,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 	@Override
 	public void initialize() {
 		this.setTitle("ODP Details");
+		this.addStyleName("odpDetailsPortlet");
 		addToolbarButtons();
 		
 		// Set up main panel
@@ -161,38 +183,56 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 		
 		// Initialize widgets
 		odpTitleLabel = new Label();
-		odpDescription = new HTML();
-		odpDomainsList = new HTML();
-		odpCqsList = new HTML();
-		odpUriLink = new Anchor();
-		odpScenariosList = new HTML();
-		
-		// Configure widgets
-		odpTitleLabel.addStyleName("xdOdpDescriptionTitle");
+		odpTitleLabel.addStyleName("odpTitleLabel");
+		mainPanel.add(odpTitleLabel);
 		
 		odpIllustration = new Image();
-		odpIllustration.setWidth("40em");
-		odpIllustration.addStyleName("xdOdpDetailsIllustration");
-		
-		odpDetailsGrid = new Grid(5,2);
-		odpDetailsGrid.setWidget(0, 0, new Label("Description:"));
-		odpDetailsGrid.setWidget(1, 0, new Label("Domains:"));
-		odpDetailsGrid.setWidget(2, 0, new Label("Competency questions:"));
-		odpDetailsGrid.setWidget(3, 0, new Label("Scenarios:"));
-		odpDetailsGrid.setWidget(4, 0, new Label("URL:"));
-		for (int i = 0; i<5; i++) {
-			odpDetailsGrid.getWidget(i, 0).addStyleName("xdOdpDetailsHeader");
-		}
-		odpDetailsGrid.setWidget(0, 1, odpDescription);
-		odpDetailsGrid.setWidget(1, 1, odpDomainsList);
-		odpDetailsGrid.setWidget(2, 1, odpCqsList);
-		odpDetailsGrid.setWidget(3, 1, odpScenariosList);
-		odpDetailsGrid.setWidget(4, 1, odpUriLink);
-		
-		// Add widgets to main panel
-		mainPanel.add(odpTitleLabel);
+		odpIllustration.setWidth("500px");
 		mainPanel.add(odpIllustration);
-		mainPanel.add(odpDetailsGrid);
+		
+		odpDescription = new HTML();
+		mainPanel.add(odpDescription);
+		
+		Label odpDetailsHeading = new Label("Pattern Details");
+		odpDetailsHeading.addStyleName("odpDetailsHeading");
+		mainPanel.add(odpDetailsHeading);
+		
+		Panel odpDetailsPanel = new Panel();
+		odpDetailsPanel.setLayout(new TableLayout(2));
+		odpDetailsPanel.setBorder(true);
+		odpDetailsPanel.setBodyBorder(true);
+		
+		odpDomainsLabel = new Label("Domains:");
+		odpDomainsLabel.addStyleName("odpDetailLabel");
+		odpDomainsList = new HTML();
+		odpDomainsList.addStyleName("odpDetail");
+		odpDetailsPanel.add(new PaddedPanel(new Panel(odpDomainsLabel.getElement()),5));
+		odpDetailsPanel.add(odpDomainsList);
+		
+		odpCqsLabel = new Label("Competency Questions:");
+		odpCqsLabel.addStyleName("odpDetailLabel");
+		odpCqsList = new HTML();
+		odpCqsList.addStyleName("odpDetail");
+		//odpDetailsPanel.add(odpCqsLabel);
+		odpDetailsPanel.add(new PaddedPanel(new Panel(odpCqsLabel.getElement()),5,0,0,5));
+		odpDetailsPanel.add(new PaddedPanel(new Panel(odpCqsList.getElement()),5,0,0,5));
+		//odpDetailsPanel.add(odpCqsList);
+		
+		odpScenariosLabel = new Label("Scenarios:");
+		odpScenariosLabel.addStyleName("odpDetailLabel");
+		odpScenariosList = new HTML();
+		odpScenariosList.addStyleName("odpDetail");
+		odpDetailsPanel.add(odpScenariosLabel);
+		odpDetailsPanel.add(odpScenariosList);
+		
+		odpIriLabel = new Label("IRI:");
+		odpIriLabel.addStyleName("odpDetailLabel");
+		odpIriLink = new Anchor();
+		odpIriLink.addStyleName("odpDetail");
+		odpDetailsPanel.add(odpIriLabel);
+		odpDetailsPanel.add(odpIriLink);
+		
+		mainPanel.add(odpDetailsPanel);
 		mainPanel.setVisible(false);
 		
 		add(mainPanel);
