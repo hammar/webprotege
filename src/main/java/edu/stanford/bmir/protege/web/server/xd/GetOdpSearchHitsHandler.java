@@ -6,8 +6,10 @@ import java.util.Properties;
 
 import javax.inject.Inject;
 
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import edu.stanford.bmir.protege.web.client.dispatch.ActionExecutionException;
 import edu.stanford.bmir.protege.web.server.dispatch.ActionHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
@@ -51,11 +53,19 @@ public class GetOdpSearchHitsHandler implements ActionHandler<GetOdpSearchHitsAc
 
 	@Override
 	public GetOdpSearchHitsResult execute(GetOdpSearchHitsAction action, ExecutionContext executionContext) {
-		String queryString = action.getQueryString();
-		OdpSearchFilterConfiguration filterConfiguration = action.getFilterConfiguration();
-		RestTemplate restTemplate = new RestTemplate();
-		String queryUri = String.format("%s/search/odpSearch?queryString=%s", XdpServiceUriBase, queryString);
-		OdpSearchResult[] results = restTemplate.postForObject(queryUri, filterConfiguration, OdpSearchResult[].class);
-		return new GetOdpSearchHitsResult(Arrays.asList(results));
+		try {
+			String queryString = action.getQueryString();
+			OdpSearchFilterConfiguration filterConfiguration = action.getFilterConfiguration();
+			RestTemplate restTemplate = new RestTemplate();
+			String queryUri = String.format("%s/search/odpSearch?queryString=%s", XdpServiceUriBase, queryString);
+			OdpSearchResult[] results = restTemplate.postForObject(queryUri, filterConfiguration, OdpSearchResult[].class);
+			return new GetOdpSearchHitsResult(Arrays.asList(results));
+		}
+		catch (RestClientException ex) {
+			ex.getMostSpecificCause().printStackTrace();
+			
+			//ex.printStackTrace();
+			throw new ActionExecutionException(ex.getCause());
+		}
 	}
 }

@@ -20,6 +20,7 @@ import com.gwtext.client.data.Store;
 import com.gwtext.client.data.StringFieldDef;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Panel;
+import com.gwtext.client.widgets.QuickTips;
 import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.Checkbox;
@@ -32,9 +33,11 @@ import com.gwtext.client.widgets.form.event.CheckboxListener;
 import com.gwtext.client.widgets.form.event.CheckboxListenerAdapter;
 import com.gwtext.client.widgets.form.event.ComboBoxListenerAdapter;
 import com.gwtext.client.widgets.form.event.TextFieldListenerAdapter;
+import com.gwtext.client.widgets.grid.CellMetadata;
 import com.gwtext.client.widgets.grid.ColumnConfig;
 import com.gwtext.client.widgets.grid.ColumnModel;
 import com.gwtext.client.widgets.grid.GridPanel;
+import com.gwtext.client.widgets.grid.Renderer;
 import com.gwtext.client.widgets.grid.event.GridRowListenerAdapter;
 import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.FormLayout;
@@ -116,16 +119,16 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 	
 	private Panel buildSearchForm() {
 		// Create the search form  
-        FormPanel formPanel = new FormPanel(); 
+        FormPanel formPanel = new FormPanel();
         formPanel.setTitle("ODP Search");  
-        formPanel.setPaddings(5, 5, 5, 0);
+        formPanel.setPaddings(5,5,5,0);
         formPanel.setAutoWidth(true);
         formPanel.setAutoHeight(true);
         formPanel.setLabelWidth(65);
         
         // Add query field
         queryField = new TextField("Query");
-        queryField.setWidth(145);
+        queryField.setWidth("95%");
         // Enter-press in query field behavior
  		queryField.addListener(new TextFieldListenerAdapter(){
  			public void onSpecialKey(Field field, EventObject e) {
@@ -141,10 +144,13 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         filtersFS.setLayout(new FitLayout());
         filtersFS.setCollapsible(true);  
         filtersFS.setCollapsed(true);
+        filtersFS.setMargins(0);
+        filtersFS.setStyle("margin-bottom: 0");
         TabPanel filterTabs = new TabPanel(); 
         filterTabs.setPlain(true);  
         filterTabs.setActiveTab(0);
         filterTabs.setHeight(150); 
+        filterTabs.setWidth(200);
         
         // Add first filter tab ("Core", containing selectors)
         Panel coreTab = new Panel();
@@ -163,7 +169,7 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         searchCategoryCb.setMode(ComboBox.LOCAL);    
         searchCategoryCb.setForceSelection(true);
         searchCategoryCb.setReadOnly(true);
-        searchCategoryCb.setWidth(120);
+        searchCategoryCb.setWidth(180);
         coreTab.add(searchCategoryCb); 
         
         // Create size selection combobox
@@ -181,7 +187,7 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         searchSizeCb.setMode(ComboBox.LOCAL);
         searchSizeCb.setForceSelection(true);
         searchSizeCb.setReadOnly(true);
-        searchSizeCb.setWidth(120);
+        searchSizeCb.setWidth(180);
         coreTab.add(searchSizeCb);
         
         // Create profile selection combobox
@@ -201,7 +207,7 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         searchProfileCb.setMode(ComboBox.LOCAL);
         searchProfileCb.setForceSelection(true);
         searchProfileCb.setReadOnly(true);
-        searchProfileCb.setWidth(120);
+        searchProfileCb.setWidth(180);
         coreTab.add(searchProfileCb);
         
         // Create strategy selection combobox
@@ -219,7 +225,7 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         searchStrategyCb.setMode(ComboBox.LOCAL);
         searchStrategyCb.setForceSelection(true);
         searchStrategyCb.setReadOnly(true);
-        searchStrategyCb.setWidth(120);
+        searchStrategyCb.setWidth(180);
         coreTab.add(searchStrategyCb);
         
         // Add second filter tab (containing alignment filters)
@@ -271,6 +277,7 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         filtersFS.add(filterTabs);
         formPanel.add(filtersFS);
   
+  
         // Finally, add the search button.
         searchButton = new Button("Search");
 		searchButton.addListener(new ButtonListenerAdapter() {
@@ -278,21 +285,39 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 				runOdpSearch();
 			}
 		});
-		
-		
-		
         formPanel.addButton(searchButton);
+        
+        Button resetButton = new Button("Reset");
+        resetButton.addListener(new ButtonListenerAdapter() {
+        	public void onClick(Button button, EventObject e) {
+        		queryField.setValue("");
+        		searchCategoryCb.setValue("");
+        		searchSizeCb.setValue("");
+        		searchProfileCb.setValue("");
+        		searchStrategyCb.setValue("");
+        	}
+        });
+        formPanel.addButton(resetButton);
+        
         formPanel.setCollapsible(true);
         return formPanel;
 	}
 	
 	private Panel buildCategorySelector() {
 		Panel categorySelectorPanel = new Panel();
+		//FormPanel categorySelectorPanel = new FormPanel();
+		//categorySelectorPanel.setAutoWidth(true);
+		//categorySelectorPanel.setAutoHeight(true);
+		//categorySelectorPanel.setLabelWidth(65);
 		categorySelectorPanel.setTitle("ODP Category Selector");
+		//categorySelectorPanel.setPaddings(5);
 		categorySelectorPanel.setLayout(new FitLayout());
 		
 		// Create category selection combobox 
         categoryCb = new ComboBox();
+        //categoryCb.setAutoWidth(true);
+        //categoryCb.setWidth("100%");
+        categoryCb.setEmptyText("Select Category");
         categoryCb.setTypeAhead(false);
         categoryCb.setFieldLabel("Category");    
         categoryCb.setStore(categoryStore);  
@@ -353,16 +378,24 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 		// Configure results grid member columns
         ColumnConfig nameColumn = new ColumnConfig("Name", "name");
         nameColumn.setId("name");
-        ColumnConfig iriColumn = new ColumnConfig("IRI", "iri");
-        iriColumn.setId("iri");
+        nameColumn.setWidth(150);
+        
+        // Enable IRI as tooltip on name column
+        QuickTips.init();
+        QuickTips.getQuickTip().setMaxWidth(500);
+        nameColumn.setRenderer(new Renderer() {
+                public String render(Object value, CellMetadata cellMetadata, Record record, int rowIndex, int colNum, Store store) {
+                	return "<div ext:qtip=\"" + record.getAsString("iri") + "\">" + record.getAsString("name") + "</div>";
+                }
+        });
+        
         ColumnConfig confidenceColumn = new ColumnConfig("Confidence", "confidence");
         confidenceColumn.setId("confidence");
         confidenceColumn.setSortable(true);
-        confidenceColumn.setWidth(90);
+        confidenceColumn.setWidth(80);
         ColumnConfig[] columns = new ColumnConfig[]{  
         		nameColumn,
-        		iriColumn,
-                confidenceColumn  
+        		confidenceColumn
         };
         ColumnModel columnModel = new ColumnModel(columns);
         
@@ -421,7 +454,7 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 		Panel searchFormPanel = buildSearchForm();
 		Panel resultsGridPanel = buildResultsGrid();
 		
-		mainPanel.add(categorySelectorPanel);
+		mainPanel.add(categorySelectorPanel, new RowLayoutData(48));
         mainPanel.add(searchFormPanel);
         mainPanel.add(resultsGridPanel, new RowLayoutData("75%"));
         
@@ -464,7 +497,8 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 				List<OdpSearchResult> searchHits = result.getSearchResults();
 				resultsStore.removeAll();
 				for (OdpSearchResult hit: searchHits) {
-					Record record = recordDef.createRecord(new Object[]{hit.getOdp().getName(), hit.getOdp().getUri(), hit.getConfidence()});
+					double confidenceRounded = Math.round( hit.getConfidence() * 100.0 ) / 100.0;
+					Record record = recordDef.createRecord(new Object[]{hit.getOdp().getName(), hit.getOdp().getUri(), confidenceRounded});
 					resultsStore.add(record);
 				}
 				resultsStore.sort("confidence", SortDir.DESC);
