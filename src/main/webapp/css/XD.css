@@ -38,14 +38,16 @@ div.odpDetailsPortlet div.odpTitleLabel {
 div.odpDetailsPortlet div.odpDetailsHeading {
 	margin-top: 1em;
 	font-size: 16px;
-	border-bottom: 1px dotted #99bbe8;
+	border-bottom: 1px solid #99bbe8;
 }
 
 div.odpDetailsPortlet div.odpDetailLabel {
 	font-weight: bold;
 	margin-right: 3em;
+	border-bottom: 1px dotted #99bbe8;
 }
 
 div.odpDetailsPortlet div.odpDetail ul {
 	list-style-type: disc;
+	list-style-position: inside;
 }

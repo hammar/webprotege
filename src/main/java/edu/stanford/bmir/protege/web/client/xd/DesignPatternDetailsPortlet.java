@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -14,9 +13,7 @@ import com.gwtext.client.widgets.PaddedPanel;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
-import com.gwtext.client.widgets.WidgetComponent;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.TableLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
 
@@ -206,31 +203,29 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 		odpDomainsLabel.addStyleName("odpDetailLabel");
 		odpDomainsList = new HTML();
 		odpDomainsList.addStyleName("odpDetail");
-		odpDetailsPanel.add(new PaddedPanel(new Panel(odpDomainsLabel.getElement()),5));
-		odpDetailsPanel.add(odpDomainsList);
+		odpDetailsPanel.add(new PaddedPanel(new Panel(odpDomainsLabel.getElement()),5,0,0,5));
+		odpDetailsPanel.add(new PaddedPanel(new Panel(odpDomainsList.getElement()),5,0,0,5));
 		
 		odpCqsLabel = new Label("Competency Questions:");
 		odpCqsLabel.addStyleName("odpDetailLabel");
 		odpCqsList = new HTML();
 		odpCqsList.addStyleName("odpDetail");
-		//odpDetailsPanel.add(odpCqsLabel);
 		odpDetailsPanel.add(new PaddedPanel(new Panel(odpCqsLabel.getElement()),5,0,0,5));
 		odpDetailsPanel.add(new PaddedPanel(new Panel(odpCqsList.getElement()),5,0,0,5));
-		//odpDetailsPanel.add(odpCqsList);
 		
 		odpScenariosLabel = new Label("Scenarios:");
 		odpScenariosLabel.addStyleName("odpDetailLabel");
 		odpScenariosList = new HTML();
 		odpScenariosList.addStyleName("odpDetail");
-		odpDetailsPanel.add(odpScenariosLabel);
-		odpDetailsPanel.add(odpScenariosList);
+		odpDetailsPanel.add(new PaddedPanel(new Panel(odpScenariosLabel.getElement()),5,0,0,5));
+		odpDetailsPanel.add(new PaddedPanel(new Panel(odpScenariosList.getElement()),5,0,0,5));
 		
 		odpIriLabel = new Label("IRI:");
 		odpIriLabel.addStyleName("odpDetailLabel");
 		odpIriLink = new Anchor();
 		odpIriLink.addStyleName("odpDetail");
-		odpDetailsPanel.add(odpIriLabel);
-		odpDetailsPanel.add(odpIriLink);
+		odpDetailsPanel.add(new PaddedPanel(new Panel(odpIriLabel.getElement()),5,0,0,5));
+		odpDetailsPanel.add(new PaddedPanel(new Panel(odpIriLink.getElement()),5,0,0,5));
 		
 		mainPanel.add(odpDetailsPanel);
 		mainPanel.setVisible(false);
@@ -239,7 +234,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 	}
 
 	
-	protected void addToolbarButtons() {
+	private void addToolbarButtons() {
         setTopToolbar(new Toolbar());
         final Toolbar toolbar = getTopToolbar();
         
