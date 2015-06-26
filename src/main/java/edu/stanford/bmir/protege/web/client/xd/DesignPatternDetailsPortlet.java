@@ -184,7 +184,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 		mainPanel.add(odpTitleLabel);
 		
 		odpIllustration = new Image();
-		odpIllustration.setWidth("500px");
+		odpIllustration.addStyleName("odpIllustration");
 		mainPanel.add(odpIllustration);
 		
 		odpDescription = new HTML();

@@ -35,6 +35,11 @@ div.odpDetailsPortlet div.odpTitleLabel {
 	border-bottom: 1px solid #99bbe8;
 }
 
+div.odpDetailsPortlet img.odpIllustration {
+	max-width: 600px;
+	max-height: 350px;
+}
+
 div.odpDetailsPortlet div.odpDetailsHeading {
 	margin-top: 1em;
 	font-size: 16px;
