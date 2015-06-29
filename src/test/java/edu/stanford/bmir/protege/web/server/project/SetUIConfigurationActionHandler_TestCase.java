@@ -3,9 +3,10 @@ package edu.stanford.bmir.protege.web.server.project;
 import edu.stanford.bmir.protege.web.client.rpc.data.NotSignedInException;
 import edu.stanford.bmir.protege.web.client.rpc.data.layout.ProjectLayoutConfiguration;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
+import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
+import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.project.SetUIConfigurationAction;
-import edu.stanford.bmir.protege.web.shared.project.SetUIConfigurationActionHandler;
 import edu.stanford.bmir.protege.web.shared.user.UserId;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,9 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Matthew Horridge
@@ -40,6 +39,9 @@ public class SetUIConfigurationActionHandler_TestCase {
     private ProjectLayoutConfiguration configuration;
 
     @Mock
+    private OWLAPIProject project;
+
+    @Mock
     private ProjectId projectId;
 
     @Mock
@@ -47,21 +49,22 @@ public class SetUIConfigurationActionHandler_TestCase {
 
     @Before
     public void setUp() throws Exception {
-        handler = new SetUIConfigurationActionHandler(uiConfigurationManager);
+        handler = new SetUIConfigurationActionHandler(mock(OWLAPIProjectManager.class));
         when(action.getConfiguration()).thenReturn(configuration);
         when(action.getProjectId()).thenReturn(projectId);
         when(executionContext.getUserId()).thenReturn(userId);
+        when(project.getUiConfigurationManager()).thenReturn(uiConfigurationManager);
     }
 
     @Test
     public void shouldSaveConfiguration() {
-        handler.execute(action, executionContext);
-        verify(uiConfigurationManager, times(1)).saveProjectLayoutConfiguration(projectId, userId, configuration);
+        handler.execute(action, project, executionContext);
+        verify(uiConfigurationManager, times(1)).saveProjectLayoutConfiguration(userId, configuration);
     }
 
     @Test(expected = NotSignedInException.class)
     public void shouldNotSaveConfigurationForGuestUser() {
         when(userId.isGuest()).thenReturn(true);
-        handler.execute(action, executionContext);
+        handler.execute(action, project, executionContext);
     }
 }

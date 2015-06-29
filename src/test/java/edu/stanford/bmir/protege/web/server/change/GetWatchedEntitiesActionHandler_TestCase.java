@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
-import edu.stanford.bmir.protege.web.server.owlapi.change.OWLAPIChangeManager;
+import edu.stanford.bmir.protege.web.server.owlapi.change.WatchedChangesManager;
 import edu.stanford.bmir.protege.web.server.watches.WatchManager;
 import edu.stanford.bmir.protege.web.shared.change.GetWatchedEntityChangesAction;
 import edu.stanford.bmir.protege.web.shared.change.GetWatchedEntityChangesResult;
@@ -43,7 +43,7 @@ public class GetWatchedEntitiesActionHandler_TestCase {
     private ExecutionContext context;
 
     @Mock
-    private OWLAPIChangeManager changeManager;
+    private WatchedChangesManager watchedChangesManager;
 
     @Mock
     private WatchManager watchManager;
@@ -66,8 +66,8 @@ public class GetWatchedEntitiesActionHandler_TestCase {
         when(action.getUserId()).thenReturn(userId);
         when(project.getWatchManager()).thenReturn(watchManager);
         when(watchManager.getWatches(userId)).thenReturn(watches);
-        when(project.getChangeManager()).thenReturn(changeManager);
-        when(changeManager.getProjectChangesForWatches(watches)).thenReturn(projectChanges);
+        when(project.getWatchedChangesManager()).thenReturn(watchedChangesManager);
+        when(watchedChangesManager.getProjectChangesForWatches(watches)).thenReturn(projectChanges);
     }
 
     @Test

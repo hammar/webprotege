@@ -1,7 +1,11 @@
 package edu.stanford.bmir.protege.web.server.metaproject;
 
-import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectDocumentStore;
+import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
+import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectFileStore;
+import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectFileStoreFactory;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
+
+import javax.inject.Inject;
 
 /**
  * Matthew Horridge
@@ -10,9 +14,19 @@ import edu.stanford.bmir.protege.web.shared.project.ProjectId;
  */
 public class ProjectExistsFilterImpl implements ProjectExistsFilter {
 
+    private OWLAPIProjectFileStoreFactory fileStoreFactory;
+
+    private WebProtegeLogger logger;
+
+    @Inject
+    public ProjectExistsFilterImpl(OWLAPIProjectFileStoreFactory fileStoreFactory, WebProtegeLogger logger) {
+        this.fileStoreFactory = fileStoreFactory;
+        this.logger = logger;
+    }
+
     @Override
     public boolean isProjectPresent(ProjectId projectId) {
-        OWLAPIProjectDocumentStore documentStore = OWLAPIProjectDocumentStore.getProjectDocumentStore(projectId);
-        return documentStore.exists();
+        OWLAPIProjectFileStore fileStore = fileStoreFactory.get(projectId);
+        return fileStore.getProjectDirectory().exists();
     }
 }

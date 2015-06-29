@@ -60,6 +60,9 @@ import edu.stanford.bmir.protege.web.server.xd.PersistSpecializationHandler;
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdCompletionsAction;
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdItemsAction;
 import edu.stanford.bmir.protege.web.shared.project.SetUIConfigurationActionHandler;
+=======
+import edu.stanford.bmir.protege.web.server.project.SetUIConfigurationActionHandler;
+>>>>>>> master
 import edu.stanford.bmir.protege.web.server.revision.*;
 /**
  * Matthew Horridge

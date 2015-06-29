@@ -213,7 +213,7 @@
         <dependency>
             <groupId>net.sourceforge.owlapi</groupId>
             <artifactId>binaryowl</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.4</version>
         </dependency>
         <dependency>
             <groupId>edu.stanford.protege</groupId>
@@ -384,8 +384,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
 

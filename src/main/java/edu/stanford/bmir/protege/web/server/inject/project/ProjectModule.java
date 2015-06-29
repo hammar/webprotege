@@ -1,25 +1,54 @@
 package edu.stanford.bmir.protege.web.server.inject.project;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
+import edu.stanford.bmir.protege.web.server.OntologyChangeSubjectProvider;
+import edu.stanford.bmir.protege.web.server.change.HasGetRevisionSummary;
+import edu.stanford.bmir.protege.web.server.events.EventLifeTime;
 import edu.stanford.bmir.protege.web.server.events.EventManager;
+import edu.stanford.bmir.protege.web.server.events.HasPostEvents;
 import edu.stanford.bmir.protege.web.server.hierarchy.*;
-import edu.stanford.bmir.protege.web.server.mansyntax.WebProtegeOWLEntityChecker;
 import edu.stanford.bmir.protege.web.server.mansyntax.WebProtegeOWLOntologyChecker;
-import edu.stanford.bmir.protege.web.server.shortform.WebProtegeOntologyIRIShortFormProvider;
-import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
+import edu.stanford.bmir.protege.web.server.metrics.MetricCalculator;
+import edu.stanford.bmir.protege.web.server.metrics.MetricCalculatorsProvider;
+import edu.stanford.bmir.protege.web.server.notes.OWLAPINotesManager;
+import edu.stanford.bmir.protege.web.server.notes.OWLAPINotesManagerNotesAPIImpl;
+import edu.stanford.bmir.protege.web.server.owlapi.*;
+import edu.stanford.bmir.protege.web.server.owlapi.HasApplyChanges;
+import edu.stanford.bmir.protege.web.server.owlapi.change.*;
+import edu.stanford.bmir.protege.web.server.render.*;
+import edu.stanford.bmir.protege.web.server.shortform.*;
+import edu.stanford.bmir.protege.web.server.util.TempFileFactory;
+import edu.stanford.bmir.protege.web.server.util.TempFileFactoryImpl;
 import edu.stanford.bmir.protege.web.server.watches.*;
 import edu.stanford.bmir.protege.web.shared.BrowserTextProvider;
+import edu.stanford.bmir.protege.web.shared.HasAnnotationAssertionAxioms;
+import edu.stanford.bmir.protege.web.shared.HasGetChangeSubjects;
+import edu.stanford.bmir.protege.web.shared.HasGetEntitiesWithIRI;
+import edu.stanford.bmir.protege.web.shared.axiom.AxiomComparatorImpl;
+import edu.stanford.bmir.protege.web.shared.axiom.AxiomTypeOrdering;
+import edu.stanford.bmir.protege.web.shared.axiom.DefaultAxiomTypeOrdering;
 import edu.stanford.bmir.protege.web.shared.event.ProjectEvent;
+import edu.stanford.bmir.protege.web.shared.object.*;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
-import org.semanticweb.owlapi.expression.OWLEntityChecker;
+import edu.stanford.bmir.protege.web.shared.renderer.HasHtmlBrowserText;
+import edu.stanford.bmir.protege.web.shared.revision.RevisionNumber;
 import org.semanticweb.owlapi.expression.OWLOntologyChecker;
+import org.semanticweb.owlapi.io.OWLObjectRenderer;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.BidirectionalShortFormProvider;
+import org.semanticweb.owlapi.util.IRIShortFormProvider;
 import org.semanticweb.owlapi.util.OntologyIRIShortFormProvider;
 import org.semanticweb.owlapi.util.ShortFormProvider;
+import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
 import java.io.File;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static com.google.inject.Scopes.*;
 
 /**
  * @author Matthew Horridge, Stanford University, Bio-Medical Informatics Research Group, Date: 25/03/2014
@@ -29,50 +58,302 @@ import java.io.File;
  */
 public class ProjectModule extends AbstractModule {
 
-    private ProjectId projectId;
+    private final ProjectId projectId;
 
-    private OWLAPIProject project;
 
-    public ProjectModule(OWLAPIProject project) {
-        this.project = project;
-        this.projectId = project.getProjectId();
+    public ProjectModule(ProjectId projectId) {
+        this.projectId = projectId;
     }
 
+    public static final EventLifeTime PROJECT_EVENT_LIFE_TIME = EventLifeTime.get(60, TimeUnit.SECONDS);
 
     @Override
     protected void configure() {
+
+        // @formatter:off
+
         bind(ProjectId.class).toInstance(projectId);
 
-        bind(File.class).annotatedWith(ProjectDirectory.class).toProvider(ProjectDirectoryProvider.class);
+        bind(File.class)
+                .annotatedWith(RootOntologyDocument.class)
+                .toProvider(RootOntologyDocumentProvider.class);
 
-        bind(OWLDataFactory.class).toInstance(project.getDataFactory());
-        bind(OWLEntityProvider.class).toInstance(project.getDataFactory());
-        bind(OWLOntology.class).annotatedWith(RootOntology.class).toInstance(project.getRootOntology());
-        bind(ShortFormProvider.class).toInstance(project.getRenderingManager().getShortFormProvider());
-        bind(BidirectionalShortFormProvider.class).toInstance(project.getRenderingManager().getShortFormProvider());
-        bind(OntologyIRIShortFormProvider.class).to(WebProtegeOntologyIRIShortFormProvider.class);
+        bind(File.class).annotatedWith(ProjectDirectory.class)
+                .toProvider(ProjectDirectoryProvider.class);
 
-        bind(OWLEntityChecker.class).to(WebProtegeOWLEntityChecker.class);
-        bind(OWLOntologyChecker.class).to(WebProtegeOWLOntologyChecker.class);
+        bind(File.class)
+                .annotatedWith(ChangeHistoryFile.class)
+                .toProvider(ChangeHistoryFileProvider.class);
 
-        bind(new TypeLiteral<OWLObjectHierarchyProvider<OWLClass>>(){}).to(AssertedClassHierarchyProvider.class);
-        bind(new TypeLiteral<OWLObjectHierarchyProvider<OWLObjectProperty>>(){}).to(OWLObjectPropertyHierarchyProvider.class);
-        bind(new TypeLiteral<OWLObjectHierarchyProvider<OWLDataProperty>>(){}).to(OWLDataPropertyHierarchyProvider.class);
-        bind(new TypeLiteral<OWLObjectHierarchyProvider<OWLAnnotationProperty>>(){}).to(OWLAnnotationPropertyHierarchyProvider.class);
+        bind(File.class)
+                .annotatedWith(ProjectSpecificUiConfigurationDataDirectory.class)
+                .toProvider(ProjectSpecificUiConfigurationDataDirectoryProvider.class);
 
-        bind(AssertedClassHierarchyProvider.class).toInstance(project.getClassHierarchyProvider());
-        bind(OWLObjectPropertyHierarchyProvider.class).toInstance(project.getObjectPropertyHierarchyProvider());
-        bind(OWLDataPropertyHierarchyProvider.class).toInstance(project.getDataPropertyHierarchyProvider());
-        bind(OWLAnnotationPropertyHierarchyProvider.class).toInstance(project.getAnnotationPropertyHierarchyProvider());
+        bind(File.class)
+                .annotatedWith(NotesOntologyDocument.class)
+                .toProvider(NotesOntologyDocumentProvider.class);
 
-        bind(File.class).annotatedWith(WatchFile.class).toProvider(WatchFileProvider.class);
+        bind(File.class)
+                .annotatedWith(WatchFile.class)
+                .toProvider(WatchFileProvider.class);
+
+
+        bind(OWLAPIProject.class)
+                .asEagerSingleton();
+
+        bind(OWLOntology.class)
+                .annotatedWith(RootOntology.class)
+                .toProvider(RootOntologyProvider.class)
+                .asEagerSingleton();
+
+        bind(OWLAPIProjectDocumentStore.class)
+                .asEagerSingleton();
+
+
+
+        bind(OWLDataFactory.class)
+                .toInstance(new OWLDataFactoryImpl(false, false));
+
+        bind(OWLEntityProvider.class)
+                .to(OWLDataFactoryImpl.class);
+
+        bind(OWLAnnotationPropertyProvider.class)
+                .to(OWLDataFactoryImpl.class);
+
+
+
+
+        bind(OWLClass.class)
+                .annotatedWith(ClassHierarchyRoot.class)
+                .toProvider(ClassHierarchyRootProvider.class);
+
+        bind(OWLObjectProperty.class)
+                .annotatedWith(ObjectPropertyHierarchyRoot.class)
+                .toProvider(ObjectPropertyHierarchyRootProvider.class);
+
+        bind(OWLDataProperty.class)
+                .annotatedWith(DataPropertyHierarchyRoot.class)
+                .toProvider(DataPropertyHierarchyRootProvider.class);
+
+
+
+        bind(new TypeLiteral<OWLObjectHierarchyProvider<OWLClass>>() {})
+                .to(AssertedClassHierarchyProvider.class);
+
+        bind(new TypeLiteral<OWLObjectHierarchyProvider<OWLObjectProperty>>() {})
+                .to(OWLObjectPropertyHierarchyProvider.class);
+
+        bind(new TypeLiteral<OWLObjectHierarchyProvider<OWLDataProperty>>() {})
+                .to(OWLDataPropertyHierarchyProvider.class);
+
+        bind(new TypeLiteral<OWLObjectHierarchyProvider<OWLAnnotationProperty>>() {})
+                .to(OWLAnnotationPropertyHierarchyProvider.class);
+
+        bind(AssertedClassHierarchyProvider.class)
+                .asEagerSingleton();
+
+        bind(OWLObjectPropertyHierarchyProvider.class)
+                .asEagerSingleton();
+
+        bind(OWLDataPropertyHierarchyProvider.class)
+                .asEagerSingleton();
+
+        bind(OWLAnnotationPropertyHierarchyProvider.class)
+                .asEagerSingleton();
+
+
+
+
+        bind(WatchManager.class)
+                .to(WatchManagerImpl.class)
+                .asEagerSingleton();
+
+        bind(WatchEventManager.class)
+                .toProvider(WatchEventManagerProvider.class)
+                .asEagerSingleton();
+
+        bind(WatchStore.class)
+                .to(WatchStoreImpl.class)
+                .asEagerSingleton();
+
+        bind(WatchTriggeredHandler.class)
+                .to(WatchTriggeredHandlerImpl.class)
+                .asEagerSingleton();
+
+
+
+        bind(RenderingManager.class)
+                .asEagerSingleton();
+
+
+        bind(ShortFormProvider.class)
+                .to(WebProtegeShortFormProvider.class)
+                .asEagerSingleton();
+
+        bind(IRIShortFormProvider.class)
+                .to(WebProtegeIRIShortFormProvider.class)
+                .asEagerSingleton();
+
+        bind(BrowserTextProvider.class)
+                .to(RenderingManager.class);
+
+        // TODO: Needs annotation
+        bind(new TypeLiteral<ImmutableList<IRI>>(){}).toInstance(ImmutableList.<IRI>builder()
+                .addAll(DefaultShortFormAnnotationPropertyIRIs.asImmutableList()).build());
+
+        bind(HasLang.class).toInstance(new HasLang() {
+            @Override
+            public String getLang() {
+                return "en";
+            }
+        });
+
+
+        bind(BidirectionalShortFormProvider.class)
+                .to(WebProtegeBidirectionalShortFormProvider.class)
+                .asEagerSingleton();
+
+        bind(OntologyIRIShortFormProvider.class)
+                .to(WebProtegeOntologyIRIShortFormProvider.class)
+                .asEagerSingleton();
+
+        bind(EntityIRIChecker.class)
+                .to(EntityIRICheckerImpl.class)
+                .asEagerSingleton();
+
+        bind(OWLOntologyChecker.class)
+                .to(WebProtegeOWLOntologyChecker.class)
+                .asEagerSingleton();
+
+        bind(HighlightedEntityChecker.class)
+                .to(NullHighlightedEntityChecker.class)
+                .asEagerSingleton();
+
+
+
+
+
+        bind(EventManager.class)
+                .asEagerSingleton();
+
+        bind(new TypeLiteral<EventManager<ProjectEvent<?>>>(){})
+                .toInstance(new EventManager<ProjectEvent<?>>(PROJECT_EVENT_LIFE_TIME));
+
+        bind(new TypeLiteral<HasPostEvents<ProjectEvent<?>>>(){})
+                .to(new TypeLiteral<EventManager<ProjectEvent<?>>>() {
+                });
+
+        bind(EventLifeTime.class)
+                .toInstance(PROJECT_EVENT_LIFE_TIME);
+
+        bind(RevisionNumber.class)
+                .toProvider(RevisionNumberProvider.class);
+
+
+
+        bind(HasGetChangeSubjects.class).to(OntologyChangeSubjectProvider.class);
+
+        bind(DeprecatedEntityChecker.class).to(DeprecatedEntityCheckerImpl.class);
+
+        bind(HasGetRevisionSummary.class).to(RevisionManagerImpl.class);
+
+        bind(RevisionManager.class).to(RevisionManagerImpl.class).asEagerSingleton();
+        bind(RevisionStore.class).toProvider(RevisionStoreProvider.class).asEagerSingleton();
+
         bind(WatchManager.class).to(WatchManagerImpl.class).asEagerSingleton();
         bind(WatchStore.class).to(WatchStoreImpl.class).asEagerSingleton();
-        bind(WatchTriggeredHandler.class).to(WatchTriggeredHandlerImpl.class);
 
-        bind(BrowserTextProvider.class).toInstance(project.getRenderingManager());
+        bind(OWLAPINotesManager.class).to(OWLAPINotesManagerNotesAPIImpl.class).in(SINGLETON);
 
-        bind(EventManager.class).toInstance(project.getEventManager());
-        bind(new TypeLiteral<EventManager<ProjectEvent<?>>>(){}).toInstance(project.getEventManager());
+        bind(LegacyEntityDataProvider.class).to(RenderingManager.class);
+
+
+        bind(new TypeLiteral<OWLObjectSelector<OWLClassExpression>>(){})
+                .to(OWLClassExpressionSelector.class);
+
+
+        bind(new TypeLiteral<OWLObjectSelector<OWLObjectPropertyExpression>>(){})
+                .to(OWLObjectPropertyExpressionSelector.class);
+
+        bind(new TypeLiteral<OWLObjectSelector<OWLDataPropertyExpression>>(){})
+                .to(OWLDataPropertyExpressionSelector.class);
+
+        bind(new TypeLiteral<OWLObjectSelector<OWLIndividual>>(){})
+                .to(OWLIndividualSelector.class);
+
+        bind(new TypeLiteral<OWLObjectSelector<OWLClassExpression>>(){})
+                .to(OWLClassExpressionSelector.class);
+
+
+        bind(new TypeLiteral<OWLObjectSelector<SWRLAtom>>(){})
+                .to(SWRLAtomSelector.class);
+
+
+        bind(new TypeLiteral<Comparator<? super OWLAnnotation>>(){})
+                .to(OWLObjectComparatorImpl.class);
+
+        bind(new TypeLiteral<Comparator<? super OWLClass>>(){})
+                .to(OWLObjectComparatorImpl.class);
+
+        bind(new TypeLiteral<Comparator<? super OWLObjectProperty>>(){})
+                .to(OWLObjectComparatorImpl.class);
+
+        bind(new TypeLiteral<Comparator<? super OWLDataProperty>>(){})
+                .to(OWLObjectComparatorImpl.class);
+
+        bind(new TypeLiteral<Comparator<? super OWLAnnotationProperty>>(){})
+                .to(OWLObjectComparatorImpl.class);
+
+        bind(new TypeLiteral<Comparator<? super OWLDatatype>>(){})
+                .to(OWLObjectComparatorImpl.class);
+
+        bind(new TypeLiteral<Comparator<? super OWLNamedIndividual>>(){})
+                .to(OWLObjectComparatorImpl.class);
+
+        bind(new TypeLiteral<Comparator<? super SWRLAtom>>(){})
+                .to(OWLObjectComparatorImpl.class);
+
+        bind(new TypeLiteral<Comparator<OWLAxiom>>(){})
+                .to(AxiomComparatorImpl.class);
+
+        bind(new TypeLiteral<Comparator<OWLObject>>(){})
+                .to(OWLObjectComparatorImpl.class);
+
+
+        bind(new TypeLiteral<List<AxiomType<?>>>(){}).annotatedWith(AxiomTypeOrdering.class)
+                .toInstance(DefaultAxiomTypeOrdering.get());
+
+        bind(HasHtmlBrowserText.class)
+                .to(RenderingManager.class);
+
+        bind(OWLObjectRenderer.class)
+                .to(OWLObjectRendererImpl.class);
+
+        bind(HasImportsClosure.class)
+                .toProvider(RootOntologyProvider.class)
+                .asEagerSingleton();
+
+
+        bind(new TypeLiteral<List<MetricCalculator>>(){})
+                .toProvider(MetricCalculatorsProvider.class);
+
+
+        bind(HasContainsEntityInSignature.class)
+                .to(HasContainsEntityInSignatureImpl.class);
+
+        bind(HasGetEntitiesWithIRI.class)
+                .to(HasGetEntitiesWithIRIImpl.class);
+
+        bind(HasGetEntitiesInSignature.class)
+                .to(HasGetEntitiesInSignatureImpl.class);
+
+        bind(HasAnnotationAssertionAxioms.class)
+                .to(HasAnnotationAssertionAxiomsImpl.class);
+
+
+        bind(HasApplyChanges.class)
+                .to(OWLAPIProject.class);
+
+        // @formatter:on
     }
 }
