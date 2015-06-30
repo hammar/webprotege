@@ -44,7 +44,6 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 	private OdpDetails odp;
 	
 	// ODP description widgets
-	//private Panel odpIllustrationPanel;
 	private Image odpIllustration;
 	private Label odpTitleLabel;
 	private HTML odpDescription;
@@ -130,7 +129,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 			odpDomainsList.setHTML("<ul>" + domains + "</ul>");
 		}
 		
-		if (odp.getCqs() == null) {
+		if (odp.getCqs() == null || odp.getCqs().length < 1) {
 			odpCqsLabel.setVisible(false);
 			odpCqsList.setVisible(false);
 		}
@@ -144,7 +143,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 			odpCqsList.setHTML("<ul>" + cqs + "</ul>");
 		}
 		
-		if (odp.getScenarios() == null) {
+		if (odp.getScenarios() == null || odp.getScenarios().length < 1) {
 			odpScenariosLabel.setVisible(false);
 			odpScenariosList.setVisible(false);
 		}
