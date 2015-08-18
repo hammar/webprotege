@@ -16,6 +16,7 @@ import edu.stanford.bmir.protege.web.server.dispatch.validators.UserHasProjectWr
 import edu.stanford.bmir.protege.web.server.msg.OWLMessageFormatter;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
+import edu.stanford.bmir.protege.web.server.xd.log.XdpLogger;
 import edu.stanford.bmir.protege.web.shared.event.ProjectEvent;
 import edu.stanford.bmir.protege.web.shared.events.EventList;
 import edu.stanford.bmir.protege.web.shared.xd.actions.PersistSpecializationAction;
@@ -23,9 +24,12 @@ import edu.stanford.bmir.protege.web.shared.xd.results.PersistSpecializationResu
 
 public class PersistSpecializationHandler extends AbstractProjectChangeHandler<OWLEntity, PersistSpecializationAction,PersistSpecializationResult> {
 	
+	private final XdpLogger xdpLog;
+	
 	@Inject
 	public PersistSpecializationHandler(OWLAPIProjectManager projectManager) {
 		super(projectManager);
+		this.xdpLog = new XdpLogger();
 	}
 
 	@Override
@@ -49,6 +53,10 @@ public class PersistSpecializationHandler extends AbstractProjectChangeHandler<O
 	protected PersistSpecializationResult createActionResult(ChangeApplicationResult<OWLEntity> changeApplicationResult,
 			PersistSpecializationAction action, OWLAPIProject project, ExecutionContext executionContext,
 			EventList<ProjectEvent<?>> eventList) {
+		
+		// Log alignments used, for later analysis
+		xdpLog.logUsedOdpAlignments(executionContext.getUserId(), project, action.getOdpSpecialization().getAlignments());
+		
 		return new PersistSpecializationResult(eventList);
 	}
 

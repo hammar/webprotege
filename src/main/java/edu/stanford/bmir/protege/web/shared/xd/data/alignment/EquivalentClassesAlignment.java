@@ -1,7 +1,5 @@
 package edu.stanford.bmir.protege.web.shared.xd.data.alignment;
 
-import com.gwtext.client.util.Format;
-
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
@@ -36,7 +34,7 @@ public class EquivalentClassesAlignment extends AbstractEquivalenceAlignment {
 	}
 	
 	public String toString() {
-		return Format.format("\"{0}\" is equivalent to \"{1}\"", homeClass.getLabel(), otherClass.getLabel());
+		return (homeClass.getLabel() + " is equivalent to " + otherClass.getLabel());
 	}
 
 }

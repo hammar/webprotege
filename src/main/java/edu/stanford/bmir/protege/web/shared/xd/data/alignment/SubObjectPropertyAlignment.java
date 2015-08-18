@@ -1,7 +1,5 @@
 package edu.stanford.bmir.protege.web.shared.xd.data.alignment;
 
-import com.gwtext.client.util.Format;
-
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 
 public class SubObjectPropertyAlignment extends AbstractSubsumptionAlignment {
@@ -32,7 +30,7 @@ public class SubObjectPropertyAlignment extends AbstractSubsumptionAlignment {
 	}
 
 	public String toString() {
-		return Format.format("\"{0}\" is a subobjectproperty of \"{1}\"", subProperty.getLabel(), superProperty.getLabel());
+		return (subProperty.getLabel() + " is a subobjectproperty of " + superProperty.getLabel());
 	}
 
 }

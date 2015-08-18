@@ -19,6 +19,7 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.UserHasProjectReadPermissionValidator;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
+import edu.stanford.bmir.protege.web.server.xd.log.XdpLogger;
 import edu.stanford.bmir.protege.web.server.xd.util.AnnotationOperations;
 import edu.stanford.bmir.protege.web.server.xd.util.OntologyOperations;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
@@ -39,9 +40,12 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationAlignmen
 
 public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasProjectActionHandler<GetSpecializationAlignmentSuggestionsAction,GetSpecializationAlignmentSuggestionsResult> {
 
+	private final XdpLogger xdpLog;
+	
 	@Inject
 	public GetSpecializationAlignmentSuggestionsHandler(OWLAPIProjectManager projectManager) {
 		super(projectManager);
+		this.xdpLog = new XdpLogger();
 	}
 
 	@Override
@@ -274,6 +278,9 @@ public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasPro
 		Set<OntologyEntityFrame> specializationObjectProperties = flattenFrameTree(action.getObjectProperties());
 		Set<OWLObjectProperty> allOntologyObjectProperties = ontology.getObjectPropertiesInSignature(true);
 		alignments.addAll(generateCandidateAlignments(specializationObjectProperties, allOntologyObjectProperties, ontology));
+		
+		// 4. Log generated suggestions for later analysis
+		xdpLog.logSuggestedOdpAlignments(executionContext.getUserId(), project, alignments);
 		
 		return new GetSpecializationAlignmentSuggestionsResult(alignments);
 	}

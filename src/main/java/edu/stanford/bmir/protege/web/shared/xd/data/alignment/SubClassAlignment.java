@@ -1,7 +1,5 @@
 package edu.stanford.bmir.protege.web.shared.xd.data.alignment;
 
-import com.gwtext.client.util.Format;
-
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 
 public class SubClassAlignment extends AbstractSubsumptionAlignment {
@@ -32,7 +30,7 @@ public class SubClassAlignment extends AbstractSubsumptionAlignment {
 	}
 
 	public String toString() {
-		return Format.format("\"{0}\" is a subclass of \"{1}\"", subClass.getLabel(), superClass.getLabel());
+		return (subClass.getLabel() + " is a subclass of " + superClass.getLabel());
 	}
 
 }

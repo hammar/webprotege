@@ -1,7 +1,5 @@
 package edu.stanford.bmir.protege.web.shared.xd.data.alignment;
 
-import com.gwtext.client.util.Format;
-
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
@@ -36,7 +34,7 @@ public class EquivalentDataPropertiesAlignment extends AbstractEquivalenceAlignm
 	}
 	
 	public String toString() {
-		return Format.format("\"{0}\" is equivalent to \"{1}\"", homeProperty.getLabel(), otherProperty.getLabel());
+		return (homeProperty.getLabel() + " is equivalent to " + otherProperty.getLabel());
 	}
 
 }

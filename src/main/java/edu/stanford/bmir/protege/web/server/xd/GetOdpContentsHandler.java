@@ -2,6 +2,7 @@ package edu.stanford.bmir.protege.web.server.xd;
 
 import java.io.IOException;
 import java.util.Properties;
+
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
@@ -28,6 +29,7 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
+import edu.stanford.bmir.protege.web.server.xd.log.XdpLogger;
 import edu.stanford.bmir.protege.web.server.xd.util.OntologyOperations;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
@@ -39,6 +41,7 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 
 public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction,GetOdpContentsResult> {
 
+	private final XdpLogger xdpLog;
 	private final WebProtegeLogger log;
 	private String XdpServiceUriBase;
 	
@@ -46,6 +49,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	public GetOdpContentsHandler(WebProtegeLogger logger) {
 		super();
 		this.log = logger;
+		this.xdpLog = new XdpLogger();
 		try {
 			Properties XdServiceProperties = new Properties();
 			XdServiceProperties.load(GetOdpContentsHandler.class.getResourceAsStream("XdpService.properties"));
@@ -93,6 +97,9 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	        FrameTreeNode<OntologyEntityFrame> classes = getClassFrames(odp, reasoner);
 	        FrameTreeNode<OntologyEntityFrame> objectProperties = getObjectPropertyFrames(odp, reasoner);
 	        FrameTreeNode<OntologyEntityFrame> datatypeProperties = getDatatypeFrames(odp, reasoner);
+	        
+	        // Log request and user ID for later analysis
+	        xdpLog.logOdpContentsRetrieved(executionContext.getUserId(), action.getOdpUri());
 	        
 	        return new GetOdpContentsResult(classes,objectProperties,datatypeProperties);
 		}

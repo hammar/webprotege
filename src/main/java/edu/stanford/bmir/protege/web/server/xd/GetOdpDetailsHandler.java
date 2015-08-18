@@ -13,12 +13,14 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
+import edu.stanford.bmir.protege.web.server.xd.log.XdpLogger;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpDetailsAction;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpDetailsResult;
 
 public class GetOdpDetailsHandler implements ActionHandler<GetOdpDetailsAction,GetOdpDetailsResult> {
 
+	private final XdpLogger xdpLog;
 	private final WebProtegeLogger log;
 	private String XdpServiceUriBase;
 	
@@ -26,6 +28,7 @@ public class GetOdpDetailsHandler implements ActionHandler<GetOdpDetailsAction,G
 	public GetOdpDetailsHandler(WebProtegeLogger logger) {
 		super();
 		this.log = logger;
+		this.xdpLog = new XdpLogger();
 		try {
 			Properties XdServiceProperties = new Properties();
 			XdServiceProperties.load(GetOdpDetailsHandler.class.getResourceAsStream("XdpService.properties"));
@@ -54,6 +57,10 @@ public class GetOdpDetailsHandler implements ActionHandler<GetOdpDetailsAction,G
 		RestTemplate restTemplate = new RestTemplate();
 		String queryUri = String.format("%s/retrieve/odpMetadata?uri=%s", XdpServiceUriBase, odpUri);
 		OdpDetails odp = restTemplate.getForObject(queryUri, OdpDetails.class);
+		
+		// Log details request for later analysis
+		xdpLog.logOdpMetadataRetrieved(executionContext.getUserId(), action.getOdpUri());
+		
 		return new GetOdpDetailsResult(odp);
 	}
 }

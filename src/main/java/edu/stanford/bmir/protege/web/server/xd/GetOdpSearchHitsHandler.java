@@ -16,6 +16,7 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
+import edu.stanford.bmir.protege.web.server.xd.log.XdpLogger;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
 import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpSearchHitsAction;
@@ -23,6 +24,7 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpSearchHitsResult;
 
 public class GetOdpSearchHitsHandler implements ActionHandler<GetOdpSearchHitsAction,GetOdpSearchHitsResult> {
 
+	private final XdpLogger xdpLog;
 	private final WebProtegeLogger log;
 	private String XdpServiceUriBase;
 	
@@ -30,6 +32,7 @@ public class GetOdpSearchHitsHandler implements ActionHandler<GetOdpSearchHitsAc
 	public GetOdpSearchHitsHandler(WebProtegeLogger logger) {
 		super();
 		this.log = logger;
+		this.xdpLog = new XdpLogger();
 		try {
 			Properties XdServiceProperties = new Properties();
 			XdServiceProperties.load(GetOdpSearchHitsHandler.class.getResourceAsStream("XdpService.properties"));
@@ -59,6 +62,10 @@ public class GetOdpSearchHitsHandler implements ActionHandler<GetOdpSearchHitsAc
 			RestTemplate restTemplate = new RestTemplate();
 			String queryUri = String.format("%s/search/odpSearch?queryString=%s", XdpServiceUriBase, queryString);
 			OdpSearchResult[] results = restTemplate.postForObject(queryUri, filterConfiguration, OdpSearchResult[].class);
+			
+			// Log request, user ID, filters, and results for later analysis
+			this.xdpLog.logOdpSearchExecuted(executionContext.getUserId(), queryString, filterConfiguration, results);
+			
 			return new GetOdpSearchHitsResult(Arrays.asList(results));
 		}
 		catch (RestClientException ex) {
