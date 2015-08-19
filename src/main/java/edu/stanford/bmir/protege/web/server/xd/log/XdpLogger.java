@@ -3,8 +3,10 @@ package edu.stanford.bmir.protege.web.server.xd.log;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.Handler;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -16,13 +18,30 @@ import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 
 public class XdpLogger {
 	
+	private static XdpLogger instance = null;
+	
 	public static final String LOG_NAME = "xdp";
 	
-	private Logger logger;
+	private final Logger logger;
 	private final SimpleDateFormat dateFormat;
+	private static Handler fileHandler;
 	
-	public XdpLogger() {
+	public static XdpLogger getInstance() {
+		if(instance == null) {
+			instance = new XdpLogger();
+		}
+		return instance;
+	}
+	
+	private XdpLogger() {
 		this.logger = Logger.getLogger(LOG_NAME);
+		try {
+			// Try to set up a file system handler where logs are dumped
+			fileHandler = new FileHandler("/var/log/xdplog/xdplog.log", true);
+			this.logger.addHandler(fileHandler);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		this.dateFormat = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssZ");
 	}
 

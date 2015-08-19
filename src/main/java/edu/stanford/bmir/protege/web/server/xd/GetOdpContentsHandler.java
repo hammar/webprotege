@@ -49,7 +49,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	public GetOdpContentsHandler(WebProtegeLogger logger) {
 		super();
 		this.log = logger;
-		this.xdpLog = new XdpLogger();
+		this.xdpLog = XdpLogger.getInstance();
 		try {
 			Properties XdServiceProperties = new Properties();
 			XdServiceProperties.load(GetOdpContentsHandler.class.getResourceAsStream("XdpService.properties"));

@@ -32,7 +32,7 @@ public class GetOdpSearchHitsHandler implements ActionHandler<GetOdpSearchHitsAc
 	public GetOdpSearchHitsHandler(WebProtegeLogger logger) {
 		super();
 		this.log = logger;
-		this.xdpLog = new XdpLogger();
+		this.xdpLog = XdpLogger.getInstance();
 		try {
 			Properties XdServiceProperties = new Properties();
 			XdServiceProperties.load(GetOdpSearchHitsHandler.class.getResourceAsStream("XdpService.properties"));

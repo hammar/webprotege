@@ -45,7 +45,7 @@ public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasPro
 	@Inject
 	public GetSpecializationAlignmentSuggestionsHandler(OWLAPIProjectManager projectManager) {
 		super(projectManager);
-		this.xdpLog = new XdpLogger();
+		this.xdpLog = XdpLogger.getInstance();
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class GetOdpDetailsHandler implements ActionHandler<GetOdpDetailsAction,G
 	public GetOdpDetailsHandler(WebProtegeLogger logger) {
 		super();
 		this.log = logger;
-		this.xdpLog = new XdpLogger();
+		this.xdpLog = XdpLogger.getInstance();
 		try {
 			Properties XdServiceProperties = new Properties();
 			XdServiceProperties.load(GetOdpDetailsHandler.class.getResourceAsStream("XdpService.properties"));

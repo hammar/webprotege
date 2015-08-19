@@ -29,7 +29,7 @@ public class PersistSpecializationHandler extends AbstractProjectChangeHandler<O
 	@Inject
 	public PersistSpecializationHandler(OWLAPIProjectManager projectManager) {
 		super(projectManager);
-		this.xdpLog = new XdpLogger();
+		this.xdpLog = XdpLogger.getInstance();
 	}
 
 	@Override
