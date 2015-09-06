@@ -162,5 +162,4 @@ public class OntologyServiceManager {
         proxy.replaceExternalReference(projectId.getId(), entityName, bpRefData, oldValueEntityData, userId.getUserName(), operationDescription, cb);
     }
 
-
 }

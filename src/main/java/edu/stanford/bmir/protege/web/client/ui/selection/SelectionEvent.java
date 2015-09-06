@@ -1,7 +1,14 @@
 package edu.stanford.bmir.protege.web.client.ui.selection;
 
+/**
+ * 
+ * Companion event to Selectable interface.
+ * 
+ * @author Karl Hammar (karl@karlhammar.com)
+ * @version 1
+ * @see Selectable
+ */
 public class SelectionEvent {
-	public static final int SELECTION_CHANGED = 1;
 	private Selectable selectable;
 	
 	public SelectionEvent(Selectable selectable) {

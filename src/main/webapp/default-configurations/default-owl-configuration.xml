@@ -316,6 +316,41 @@
             </columns>
             <controllingPortlet reference="../columns/column/portlets/portlet"/>
         </tab>
+        
+        
+        <!-- ********************************** -->
+        <!-- Visualization Tab -->
+        <!-- ********************************** -->
+        <tab>
+            <name>edu.stanford.bmir.protege.web.client.ui.ontology.visualization.VisualizationTab</name>
+            <label>Visualization</label>
+            <columns>
+                
+                <!-- Column 1 Standard visualization is VOWL -->
+                <column>
+                    <width>0.80</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLVisualizationPortlet</name>
+                            <height>560</height>
+                        </portlet>
+                    </portlets>
+                </column>
+                
+                <!-- Column 2 is Details w.r.t. a selected element -->
+                <column>
+                    <width>0.20</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLDetailsPortlet</name>
+                            <height>560</height>
+                        </portlet>
+                    </portlets>
+                </column>
+                
+            </columns>
+            <controllingPortlet reference="../columns/column/portlets/portlet" />
+        </tab>
     </tabs>
 
 </project>

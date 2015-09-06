@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="css/WebProtege.css" type="text/css">
     <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
     <link rel="stylesheet" href="css/XD.css" type="text/css">
+    <link rel="stylesheet" href="css/vowl.css" type="text/css">
 
     <script>
         <%
@@ -52,6 +53,11 @@
 
     <script type="text/javascript" language="javascript" src="js/ext/ext-all.js"></script>
 
+    <script type="text/javascript" src="js/webvowl/d3.min.js"></script>
+
+    <script type="text/javascript" src="js/webvowl/webvowl-app.js"></script>
+
+    <script type="text/javascript" src="js/webvowl/webvowl.js"></script>
 
 
     ${application.analytics}

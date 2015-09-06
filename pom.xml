@@ -301,6 +301,11 @@
             <version>1.6.1.RELEASE</version>
         </dependency>
         <dependency>
+            <groupId>org.visualdataweb.vowl.owl2vowl</groupId>
+            <artifactId>OWL2VOWL</artifactId>
+            <version>0.2.1</version>
+        </dependency>
+        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>3.1</version>
@@ -315,6 +320,11 @@
         	<groupId>com.karlhammar</groupId>
         	<artifactId>XdpShared</artifactId>
         	<version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20141113</version>
         </dependency>
     </dependencies>
 
@@ -443,7 +453,6 @@
 					</execution>
 				</executions>
 			</plugin>
-      
         </plugins>
     </build>
 

@@ -47,6 +47,7 @@ import edu.stanford.bmir.protege.web.server.usage.GetUsageActionHandler;
 import edu.stanford.bmir.protege.web.server.user.CreateUserAccountActionHandler;
 import edu.stanford.bmir.protege.web.server.user.GetUserIdsActionHandler;
 import edu.stanford.bmir.protege.web.server.user.LogOutUserActionHandler;
+import edu.stanford.bmir.protege.web.server.visualization.vowl.ConvertOntologyHandler;
 import edu.stanford.bmir.protege.web.server.watches.AddWatchActionHandler;
 import edu.stanford.bmir.protege.web.server.watches.RemoveWatchActionHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetOdpCategoriesHandler;
@@ -61,6 +62,8 @@ import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdCompletionsActio
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdItemsAction;
 import edu.stanford.bmir.protege.web.server.project.SetUIConfigurationActionHandler;
 import edu.stanford.bmir.protege.web.server.revision.*;
+import edu.stanford.bmir.protege.web.shared.frame.GetOntologyFramesAction;
+
 /**
  * Matthew Horridge
  * Stanford Center for Biomedical Informatics Research
@@ -101,6 +104,8 @@ public class ActionHandlersModule extends AbstractModule {
 
         multibinder.addBinding().to(GetNamedIndividualFrameActionHandler.class);
         multibinder.addBinding().to(UpdateNamedIndividualFrameHandler.class);
+
+        multibinder.addBinding().to(GetOntologyFramesActionHandler.class);
 
         multibinder.addBinding().to(GetRootOntologyIdActionHandler.class);
         multibinder.addBinding().to(GetOntologyAnnotationsActionHandler.class);
@@ -197,5 +202,8 @@ public class ActionHandlersModule extends AbstractModule {
         multibinder.addBinding().to(GetSpecializationAlignmentSuggestionsHandler.class);
         multibinder.addBinding().to(GetSpecializationPreviewHandler.class);
         multibinder.addBinding().to(PersistSpecializationHandler.class);
+        
+        // VOWL extension handlers below
+        multibinder.addBinding().to(ConvertOntologyHandler.class);
     }
 }
