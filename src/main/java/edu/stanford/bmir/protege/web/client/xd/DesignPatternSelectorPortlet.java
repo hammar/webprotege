@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.SortDir;
 import com.gwtext.client.data.ArrayReader;
@@ -270,13 +271,19 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         dbpediaMappingCheck.addListener(mappingCheckboxListener);
         mappingsTab.add(dbpediaMappingCheck);
         
-        // Add tabs to tabpanel, tabpanel to filters fieldset, 
-        // and filters fieldset to form.
+        // Add tabs to tabpanel, tabpanel to filters fieldset, and filters fieldset to form.
+        //filterTabs.add(excuseTab);
         filterTabs.add(coreTab);
         filterTabs.add(mappingsTab);
+        
+        // Filters are temporarily disabled as this feature is 
+        // not supported on the back-end service yet.
+        coreTab.setDisabled(true);
+        mappingsTab.setDisabled(true);
+        filtersFS.add(new Label("Filter backend support is temporarily disabled. We apologise for the inconvenience."));
+        
         filtersFS.add(filterTabs);
         formPanel.add(filtersFS);
-  
   
         // Finally, add the search button.
         searchButton = new Button("Search");
