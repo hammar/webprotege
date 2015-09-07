@@ -46,7 +46,7 @@ Building and running WebProtégé with the XDP plugin is a five step process, ea
 
 2. Step into directory
 
-    ```cd XdpServices```
+    ```cd XdpShared```
 
 3. Install into local Maven repository:
 
