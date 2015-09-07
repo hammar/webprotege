@@ -42,7 +42,7 @@ Building and running WebProtégé with the XDP plugin is a five step process, ea
 
 1. Clone GitHub repository:
 
-    ```git clone https://github.com/hammar/XdpServices.git```
+    ```git clone https://github.com/hammar/XdpShared.git```
 
 2. Step into directory
 
