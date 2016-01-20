@@ -61,6 +61,8 @@ import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdCompletionsActio
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdItemsAction;
 import edu.stanford.bmir.protege.web.server.project.SetUIConfigurationActionHandler;
 import edu.stanford.bmir.protege.web.server.revision.*;
+import edu.stanford.bmir.protege.web.shared.frame.GetOntologyFramesAction;
+
 /**
  * Matthew Horridge
  * Stanford Center for Biomedical Informatics Research
@@ -101,6 +103,8 @@ public class ActionHandlersModule extends AbstractModule {
 
         multibinder.addBinding().to(GetNamedIndividualFrameActionHandler.class);
         multibinder.addBinding().to(UpdateNamedIndividualFrameHandler.class);
+
+        multibinder.addBinding().to(GetOntologyFramesActionHandler.class);
 
         multibinder.addBinding().to(GetRootOntologyIdActionHandler.class);
         multibinder.addBinding().to(GetOntologyAnnotationsActionHandler.class);
