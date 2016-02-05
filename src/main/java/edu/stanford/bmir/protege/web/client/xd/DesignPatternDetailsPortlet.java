@@ -4,16 +4,20 @@ import java.util.Collection;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
+import com.gwtext.client.core.Position;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.PaddedPanel;
 import com.gwtext.client.widgets.Panel;
+import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.TableLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
 
@@ -47,6 +51,10 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 	private Image odpIllustration;
 	private Label odpTitleLabel;
 	private HTML odpDescription;
+	
+	// ODP remote visualisation frame
+	private Frame visualisationFrame;
+	private static String WEBVOWL_URI = "http://vis.ecare.infoeng.se/#iri=";
 	
 	private Label odpDomainsLabel;
 	private HTML odpDomainsList;
@@ -160,6 +168,9 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 		odpIriLink.setHref(odp.getUri());
 		odpIriLink.setText(odp.getUri());
 		
+		// Enable visualisation
+		visualisationFrame.setUrl(WEBVOWL_URI + odp.getUri());
+		
 		useOdpButton.enable();
 		mainPanel.show();
 	}
@@ -171,8 +182,15 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 		this.addStyleName("odpDetailsPortlet");
 		addToolbarButtons();
 		
-		// Set up main panel
-		mainPanel = new Panel();  
+		// Set up tab panel
+		TabPanel tabPanel = new TabPanel();  
+        tabPanel.setTabPosition(Position.TOP); 
+        tabPanel.setMinTabWidth(115);  
+        tabPanel.setTabWidth(135);  
+        tabPanel.setActiveTab(0); 
+		
+		// Set up main ODP metadata panel
+		mainPanel = new Panel("Pattern Description");  
 		mainPanel.setPaddings(10);
 		mainPanel.setLayout(new VerticalLayout(15)); 
 		mainPanel.setAutoScroll(true);
@@ -229,7 +247,16 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 		mainPanel.add(odpDetailsPanel);
 		mainPanel.setVisible(false);
 		
-		add(mainPanel);
+		visualisationFrame = new Frame();
+		Panel visualisationPanel = new Panel("WebVOWL Visualisation");  
+		visualisationPanel.setLayout(new FitLayout());  
+		visualisationPanel.setIconCls("tab-icon");  
+		visualisationPanel.add(visualisationFrame); 
+		
+		// Add panels to tabpanel and tabpanel to page
+		tabPanel.add(mainPanel);
+		tabPanel.add(visualisationPanel);
+		add(tabPanel);
 	}
 
 	
