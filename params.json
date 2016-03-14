@@ -1,0 +1,7 @@
+{
+  "name": "XD for WebProtégé",
+  "tagline": "WebProtégé fork supporting eXtreme Design",
+  "body": "# XDP\r\n\r\neXtreme Design for WebProtégé (XDP) is an extension to standard [WebProtégé](https://github.com/protegeproject/webprotege) supporting the use of [Ontology Design Patterns](http://ontologydesignpatterns.org/) (ODPs) and the [eXtreme Design](http://link.springer.com/chapter/10.1007/978-3-642-24794-1_3) ontology engineering method. \r\n\r\nXDP is early pre-release software. At any time it is sure to contain bugs ranging form the annoying to the data-eating critical. If you use XDP, please make sure to backup often.\r\n\r\nA demo install on a version of the code that should be relatively stable is running at [wp.xd-protege.com](http://wp.xd-protege.com)",
+  "google": "",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
