@@ -1,13 +1,13 @@
 package edu.stanford.bmir.protege.web.server.xd.log;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.Handler;
-
 import org.apache.commons.lang.StringUtils;
 
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
@@ -24,8 +24,6 @@ public class XdpLogger {
 	
 	private final Logger logger;
 	private final SimpleDateFormat dateFormat;
-	private static Handler fileHandler;
-	
 	public static XdpLogger getInstance() {
 		if(instance == null) {
 			instance = new XdpLogger();
@@ -35,12 +33,26 @@ public class XdpLogger {
 	
 	private XdpLogger() {
 		this.logger = Logger.getLogger(LOG_NAME);
+		// Try to set up a file system handler where logs are dumped
 		try {
-			// Try to set up a file system handler where logs are dumped
-			fileHandler = new FileHandler("/var/log/xdplog/xdplog.log", true);
+			Properties XdLoggerProperties = new Properties();
+			XdLoggerProperties.load(XdpLogger.class.getResourceAsStream("XdpLogger.properties"));
+			String xdpLogPath = XdLoggerProperties.getProperty("xdpLogPath");
+			FileHandler fileHandler = new FileHandler(xdpLogPath, true);
 			this.logger.addHandler(fileHandler);
-		} catch (Exception e) {
-			e.printStackTrace();
+		} 
+		catch (IOException e) {
+			// Possibly the configuration did not exist or the configured path was inaccessible.
+			// Try with default path instead. Requires another try/catch block.
+			try {
+				FileHandler fileHandler = new FileHandler("/var/log/xdplog/xdplog.log", true);
+				this.logger.addHandler(fileHandler);
+			} 
+			catch (IOException ex) {
+				// No logging available.
+				ex.printStackTrace();
+			}
+			
 		}
 		this.dateFormat = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssZ");
 	}
