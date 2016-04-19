@@ -54,7 +54,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 	
 	// ODP remote visualisation frame
 	private Frame visualisationFrame;
-	private static String WEBVOWL_URI = "http://vis.ecare.infoeng.se/#iri=";
+	private static String WEBVOWL_URI = "http://vis.xd-protege.com/#iri=";
 	
 	private Label odpDomainsLabel;
 	private HTML odpDomainsList;
