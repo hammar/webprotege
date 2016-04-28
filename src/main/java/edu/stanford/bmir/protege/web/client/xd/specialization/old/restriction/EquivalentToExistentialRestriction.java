@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization.restriction;
+package edu.stanford.bmir.protege.web.client.xd.specialization.old.restriction;
 
 import com.gwtext.client.util.Format;
 

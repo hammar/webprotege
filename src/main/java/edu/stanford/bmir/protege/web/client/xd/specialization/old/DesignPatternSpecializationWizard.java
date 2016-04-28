@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization;
+package edu.stanford.bmir.protege.web.client.xd.specialization.old;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,11 +18,11 @@ import com.gwtext.client.widgets.layout.CardLayout;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
-import edu.stanford.bmir.protege.web.client.xd.specialization.panels.AlignmentsPanel;
-import edu.stanford.bmir.protege.web.client.xd.specialization.panels.EntitySpecializationPanel;
-import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PreviewPanel;
-import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PropertyRestrictionPanel;
-import edu.stanford.bmir.protege.web.client.xd.specialization.panels.StrategySelectionPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.panels.AlignmentsPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.panels.EntitySpecializationPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.panels.PreviewPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.panels.PropertyRestrictionPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.panels.StrategySelectionPanel;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.PersistSpecializationAction;

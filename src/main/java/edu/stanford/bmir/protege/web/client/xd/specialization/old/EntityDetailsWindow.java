@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization;
+package edu.stanford.bmir.protege.web.client.xd.specialization.old;
 
 import com.google.common.base.Optional;
 import com.gwtext.client.core.EventObject;

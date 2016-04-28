@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
+package edu.stanford.bmir.protege.web.client.xd.specialization.old.panels;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;

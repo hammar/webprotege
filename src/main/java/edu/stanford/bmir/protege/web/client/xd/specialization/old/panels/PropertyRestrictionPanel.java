@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
+package edu.stanford.bmir.protege.web.client.xd.specialization.old.panels;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,13 +27,13 @@ import com.gwtext.client.widgets.grid.GroupingView;
 import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.layout.RowLayoutData;
 
-import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
-import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.AbstractComplexRestriction;
-import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.DomainRestriction;
-import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.EquivalentToExistentialRestriction;
-import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.ObjectPropertyRangeRestriction;
-import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.Restriction;
-import edu.stanford.bmir.protege.web.client.xd.specialization.restriction.SubClassOfUniversalRestriction;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.DesignPatternSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.restriction.AbstractComplexRestriction;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.restriction.DomainRestriction;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.restriction.EquivalentToExistentialRestriction;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.restriction.ObjectPropertyRangeRestriction;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.restriction.Restriction;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.restriction.SubClassOfUniversalRestriction;
 import edu.stanford.bmir.protege.web.client.xd.util.UUID;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;

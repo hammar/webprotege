@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
+package edu.stanford.bmir.protege.web.client.xd.specialization.old.panels;
 
 import com.google.gwt.user.client.ui.TextArea;
 import com.gwtext.client.core.EventObject;
@@ -15,7 +15,7 @@ import com.gwtext.client.widgets.layout.RowLayout;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
-import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationPreviewAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationPreviewResult;
@@ -23,16 +23,16 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationPreviewR
 public class PreviewPanel extends Panel {
 	
 	private TextArea instantationAxiomsPreview;
-	private final DesignPatternInstantiationWizard parentWizard;
+	private final DesignPatternSpecializationWizard parentWizard;
 	
-	public PreviewPanel(DesignPatternInstantiationWizard parent) {
+	public PreviewPanel(DesignPatternSpecializationWizard parent) {
 		super();
 		
 		this.parentWizard = parent;
 		
         this.setLayout(new FitLayout());
         this.setBorder(false);  
-        this.setId("card-1");
+        this.setId("card-4");
         this.setTitle("ODP Specialisation Preview");
         
         // Axioms list

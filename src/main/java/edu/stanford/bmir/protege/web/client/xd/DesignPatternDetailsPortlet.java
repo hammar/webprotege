@@ -27,7 +27,8 @@ import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
-import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpDetailsAction;
@@ -69,11 +70,11 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 	private Anchor odpIriLink;
 	
 	// References to specialisation wizard and its popup
-	private DesignPatternSpecializationWizard wizard;
+	private DesignPatternInstantiationWizard wizard;
 	
 	public DesignPatternDetailsPortlet(SelectionModel selectionModel, Project project) {
 		super(selectionModel, project);
-		wizard = new DesignPatternSpecializationWizard(this);
+		wizard = new DesignPatternInstantiationWizard(this);
 	}
 	
 	/* ---- SelectionListener implementation method ---- 

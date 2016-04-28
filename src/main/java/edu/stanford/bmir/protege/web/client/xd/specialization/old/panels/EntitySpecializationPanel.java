@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
+package edu.stanford.bmir.protege.web.client.xd.specialization.old.panels;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,9 +19,9 @@ import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
 import com.gwtext.client.widgets.tree.event.TreePanelListenerAdapter;
 
-import edu.stanford.bmir.protege.web.client.xd.specialization.EntityDetailsWindow;
-import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.DesignPatternSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.EntityDetailsWindow;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubClassAlignment;

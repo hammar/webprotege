@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization.restriction;
+package edu.stanford.bmir.protege.web.client.xd.specialization.old.restriction;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;

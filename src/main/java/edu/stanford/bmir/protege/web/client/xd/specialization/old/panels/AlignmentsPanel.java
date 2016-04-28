@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
+package edu.stanford.bmir.protege.web.client.xd.specialization.old.panels;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +31,7 @@ import com.gwtext.client.widgets.layout.RowLayoutData;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
-import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternSpecializationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.old.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.client.xd.util.UUID;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationAlignmentSuggestionsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
