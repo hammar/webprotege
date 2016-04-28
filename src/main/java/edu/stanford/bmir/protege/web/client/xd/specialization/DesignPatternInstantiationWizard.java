@@ -16,6 +16,7 @@ import com.gwtext.client.widgets.layout.FitLayout;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.InstantiationMethodSelectionPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PreviewPanel;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 
 public class DesignPatternInstantiationWizard extends com.gwtext.client.widgets.Window {
@@ -28,6 +29,7 @@ public class DesignPatternInstantiationWizard extends com.gwtext.client.widgets.
 	private Panel visualizationPanel;
 	private InstantiationMethodSelectionPanel instantiationMethodSelectionPanel;
 	private PreviewPanel previewPanel;
+	private CodpInstantiationMethod instantiationMethod;
 
 	public DesignPatternInstantiationWizard(DesignPatternDetailsPortlet parent) {
 		this.setCloseAction(HIDE);
@@ -37,6 +39,9 @@ public class DesignPatternInstantiationWizard extends com.gwtext.client.widgets.
 		this.setHeight(480);
 		this.setResizable(false);
 		this.setLayout(new FitLayout()); 
+		
+		// Default values
+		this.instantiationMethod = CodpInstantiationMethod.TEMPLATE_BASED;
 		
 		TabPanel tabPanel = new TabPanel();  
         tabPanel.setTabPosition(Position.TOP);  
@@ -84,7 +89,7 @@ public class DesignPatternInstantiationWizard extends com.gwtext.client.widgets.
         // These are the individual cards/screens of the wizard interface.
         // The order in which they are added is important, as is the ID that 
         // they are assigned in their respective constructor.
-        this.instantiationMethodSelectionPanel = new InstantiationMethodSelectionPanel();
+        this.instantiationMethodSelectionPanel = new InstantiationMethodSelectionPanel(this);
         this.previewPanel = new PreviewPanel(this);
         
         wp.add(instantiationMethodSelectionPanel);
@@ -168,5 +173,9 @@ public class DesignPatternInstantiationWizard extends com.gwtext.client.widgets.
 	public void loadOdp(String uri) {
 		Window.alert("Asked to load: " + uri);
 		// TODO Auto-generated method stub
+	}
+
+	public void setInstantiationMethod(CodpInstantiationMethod instantiationMethod) {
+		this.instantiationMethod = instantiationMethod;
 	}
 }
