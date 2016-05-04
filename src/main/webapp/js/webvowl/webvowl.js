@@ -2745,6 +2745,8 @@ webvowl.modules.pickAndPin = function () {
 		}
 		// Clear the array of stored nodes
 		pinnedNodes.length = 0;
+
+		return pap;
 	};
 
 	return pap;

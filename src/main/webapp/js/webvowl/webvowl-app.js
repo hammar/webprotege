@@ -13,6 +13,13 @@ webvowlApp.app = function (graphContainerSelector, convertedOntology) {
 		data,
 		statistics,
 		ontologyInfo,
+		language,
+		pause, unpause,
+		pickPin,
+		classDistance, datatypeDistance,
+		//pause = graph.freeze(),
+		//unpause = graph.unfreeze(),
+		reset,
 	// Graph modules
 		focuser = webvowl.modules.focuser(),
 		datatypeFilter = webvowl.modules.datatypeFilter(),
@@ -30,6 +37,8 @@ webvowlApp.app = function (graphContainerSelector, convertedOntology) {
 		selectedNode;
 
 	app.initialize = function () {
+		nodeDegreeFilter.enabled(true);
+
 		options.graphContainerSelector(graphContainerSelector);
 		options.selectionModules().push(focuser);
 		options.selectionModules().push(pickAndPin);
@@ -60,7 +69,7 @@ webvowlApp.app = function (graphContainerSelector, convertedOntology) {
 	
 	app.ontologyInfo = function() {
 		return ontologyInfo;
-	}
+	};
 
 	app.selectedLabel = function() {
 		return selectedLabel;
@@ -69,7 +78,56 @@ webvowlApp.app = function (graphContainerSelector, convertedOntology) {
 	app.selectedNode = function() {
 		return selectedNode;
 	};
+	
+	app.language = function(newLanguage) {
+		graph.language(newLanguage);
+		return app;
+	};
+	
+	app.pause = function() {
+		graph.freeze();
+		return app;
+	};
+	
+	app.unpause = function() {
+		graph.unfreeze();
+		return app;
+	};
+	
+	app.reset = function() {
+		graph.reset();
+		pickAndPin.enabled(false).reset();
+		app.collapsingDegree(0);
 
+		graph.updateStyle();
+		return app;
+	};
+
+	app.togglePickAndPin = function() {
+		pickAndPin.enabled(!pickAndPin.enabled());
+		return app;
+	};
+
+	app.collapsingDegree = function(degree) {
+		nodeDegreeFilter.setDegreeQueryFunction(function() {
+			return degree;
+		});
+		graph.update();
+		return app;
+	};
+	
+	app.classDistance = function(distance) {
+		options.classDistance(distance);
+		graph.updateStyle();
+		return app;
+	};
+
+	app.datatypeDistance = function(distance) {
+		options.datatypeDistance(distance);
+		graph.updateStyle();
+		return app;
+	};
+	
 	app.data = function (convertedOntology) {
 		if (!arguments.length) return data;
 		data = convertedOntology;

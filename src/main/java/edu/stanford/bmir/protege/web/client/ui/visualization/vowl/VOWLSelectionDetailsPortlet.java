@@ -18,7 +18,7 @@ import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
  */
 public class VOWLSelectionDetailsPortlet extends AbstractOWLEntityPortlet implements SelectionListener {
 
-	private static final String DETAILS_TITLE = " Selection Details";
+	private static final String DETAILS_TITLE = "Selection Details";
 	
 	private VOWLSelectionDetailsView view;
 	

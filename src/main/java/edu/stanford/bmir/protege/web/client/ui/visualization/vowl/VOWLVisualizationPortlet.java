@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import com.google.common.base.Optional;
 import com.google.gwt.core.shared.GWT;
@@ -13,9 +16,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtext.client.widgets.Panel;
@@ -25,6 +31,8 @@ import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
+import edu.stanford.bmir.protege.web.client.ui.visualization.change.ChangeListener;
+import edu.stanford.bmir.protege.web.client.ui.visualization.change.ChangedEvent;
 import edu.stanford.bmir.protege.web.client.ui.visualization.loading.GraphListener;
 import edu.stanford.bmir.protege.web.client.ui.visualization.loading.GraphLoadedEvent;
 import edu.stanford.bmir.protege.web.client.ui.visualization.loading.Loadable;
@@ -42,7 +50,7 @@ import edu.stanford.bmir.protege.web.shared.visualization.vowl.ConvertOntologyRe
  *
  */
 @SuppressWarnings("unchecked")
-public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implements Selectable, Loadable {
+public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implements Selectable, Loadable, ChangeListener, SelectionListener {
 
 	private static final String VOWL_TITLE = "WebVOWL 0.4.0";
 	private VOWLVisualizationJso visualizationJso;
@@ -74,10 +82,8 @@ public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implement
 		graphContainer = new HTML();
 
 		graphContainer.getElement().setId(getContainerId());
-		graphContainer.getElement().getStyle().setBackgroundColor("#ecf0f1");
 
 		add(graphContainer);
-
 	}
 
 	@Override
@@ -336,6 +342,66 @@ public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implement
 			}
 
 		}
+
+	}
+
+	@Override
+	public void isChanged(ChangedEvent event) {
+
+		Collection<? extends Object> changedSelection = event.getChangeable().getChange();
+
+		if (changedSelection.size() > 0) {
+			Object selectionData = changedSelection.iterator().next();
+			//GWT.log("[VOWL] Visualization Selection in the drop down list is changed");
+			if (selectionData instanceof String) {
+				String selectedEntity = (String) selectionData;
+				GWT.log("[VOWL] Visualization Selection in the drop down list is changed: "+ selectedEntity);
+				visualizationJso.setLanguage(selectedEntity);
+				onRefresh();
+				// TODO render the updated graph view.renderDetailsDynamicInfo(event.getSelectable().getPanel(), "<h3>Selection Details</h3>");
+			}
+		}
+	}
+
+	@Override
+	public void selectionChanged(SelectionEvent event) {
+		Collection<? extends Object> changedSelection = event.getSelectable().getSelection();
+
+		if (changedSelection.size() == 1) {
+
+			Object selection = changedSelection.iterator().next();
+			if(selection instanceof String) {
+				if(selection.equals("reset")) {
+					visualizationJso.reset();
+					//onRefresh();
+				}
+				else if(selection.equals("pickPin")) {
+					visualizationJso.togglePickAndPin();
+				}
+				else {;}
+			}
+			else {;}
+		}else {
+			String[] array = (String[]) changedSelection.toArray();
+			if(array[0].equals("classDistance")) {
+				visualizationJso.classDistance(Integer.valueOf(array[1]));
+			}
+			else if(array[0].equals("datatypeDistance")) {
+				visualizationJso.datatypeDistance(Integer.valueOf(array[1]));
+			}
+			else if(array[0].equals("collapseDegree")) {
+				visualizationJso.collapsingDegree(Integer.valueOf(array[1]));
+			}
+			else if(array[0].equals("pause")) {
+				if(array[1].equals("true"))
+					visualizationJso.pause();
+				else
+					visualizationJso.unpause();
+			}
+			else {;}
+
+		}
+
 
 	}
 

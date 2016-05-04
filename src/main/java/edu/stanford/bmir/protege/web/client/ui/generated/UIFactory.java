@@ -30,6 +30,7 @@ import edu.stanford.bmir.protege.web.client.ui.portlet.propertyForm.PropertyFiel
 import edu.stanford.bmir.protege.web.client.ui.projectfeed.ProjectFeedPortlet;
 import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
 import edu.stanford.bmir.protege.web.client.ui.tab.UserDefinedTab;
+import edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLControlPortlet;
 import edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLSelectionDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLVisualizationPortlet;
@@ -195,6 +196,9 @@ public class UIFactory {
             else if(portletJavaClassName.endsWith(VOWLSelectionDetailsPortlet.class.getName())) {
             	return new VOWLSelectionDetailsPortlet(selectionModel, project);
             }
+            else if(portletJavaClassName.endsWith(VOWLControlPortlet.class.getName())) {
+            	return new VOWLControlPortlet(selectionModel, project);
+            }
             else {
                 GWT.log("Portlet not found: " + portletJavaClassName);
             }
@@ -238,7 +242,8 @@ public class UIFactory {
                 OBOTermDefinitionPortlet.class.getName(), OBOTermXRefsEditorPortlet.class.getName(),
                 RevisionsPortlet.class.getName(), DesignPatternSelectorPortlet.class.getName(),
                 DesignPatternDetailsPortlet.class.getName(),
-                VOWLVisualizationPortlet.class.getName(), VOWLDetailsPortlet.class.getName(), VOWLSelectionDetailsPortlet.class.getName()};
+                VOWLVisualizationPortlet.class.getName(), VOWLDetailsPortlet.class.getName(), 
+                VOWLSelectionDetailsPortlet.class.getName(), VOWLControlPortlet.class.getName()};
 
         List<String> portletsList = Arrays.asList(portlets);
         Collections.sort(portletsList, new Comparator<String>() {
