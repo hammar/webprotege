@@ -28,48 +28,48 @@ Building and running WebProtégé with the XDP plugin is a five step process, ea
 
 1. Clone Semantic Vectors repository:
 
-    git clone https://github.com/semanticvectors/semanticvectors.git
+    ```git clone https://github.com/semanticvectors/semanticvectors.git```
 
 2. Step into directory
 
-    cd semanticvectors
+    ```cd semanticvectors```
 
 3. Install into local Maven repository:
 
-    mvn install
+    ```mvn install```
 
 ## Installing XdpShared
 
 1. Clone GitHub repository:
 
-    git clone https://github.com/hammar/XdpServices.git
+    ```git clone https://github.com/hammar/XdpShared.git```
 
 2. Step into directory
 
-    cd XdpServices
+    ```cd XdpShared```
 
 3. Install into local Maven repository:
 
-    gradle install
+    ```gradle install```
 
 ## Running XdpServices
 
 1. Clone GitHub repository:
 
-    git clone https://github.com/hammar/XdpServices.git
+    ```git clone https://github.com/hammar/XdpServices.git```
 
 2. Step into directory:
 
-    cd XdpServices
+    ```cd XdpServices```
 
 3. Start service:
 
-    gradle bootRun
+    ```gradle bootRun```
 
 4. OPTIONALLY, build a redistributable JAR archive that can be installed into some init script or maintenance daemon system:
 
-    gradle jar
-    gradle bootRepackage
+    ```gradle jar
+    gradle bootRepackage```
 
 ## Perform initial indexing
 
@@ -88,18 +88,18 @@ Before building, ensure that a data directory exists which is writable by the We
 
 1. Clone GitHub repository:
 
-    git clone https://github.com/hammar/webprotege.git
+    ```git clone https://github.com/hammar/webprotege.git```
 
 2. Step into directory:
 
-    cd webprotege
+    ```cd webprotege```
 
 3. Run GWT Dev Mode:
 
-    mvn gwt:run
+    ```mvn gwt:run```
 
 4. Or optionally, if your data directory is NOT /data/webprotege, run GWT Dev Mode with a parameter indicating where that directory is located:
 
-    mvn -Ddata.directory=/mypath/mydirectory gwt:run
+    ```mvn -Ddata.directory=/mypath/mydirectory gwt:run```
 
 5. Within the GWT Development Mode console that is brought up on your screen, click ”Launch Default Browser”, allow the Java to JavaScript compilation to take place (can take a little while) and then use WebProtégé as expected.
