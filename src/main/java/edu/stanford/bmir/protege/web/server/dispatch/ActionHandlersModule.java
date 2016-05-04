@@ -2,6 +2,7 @@ package edu.stanford.bmir.protege.web.server.dispatch;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
+
 import edu.stanford.bmir.protege.web.server.app.GetClientApplicationPropertiesActionHandler;
 import edu.stanford.bmir.protege.web.server.auth.ChangePasswordActionHandler;
 import edu.stanford.bmir.protege.web.server.auth.GetChapSessionActionHandler;
@@ -48,6 +49,16 @@ import edu.stanford.bmir.protege.web.server.user.GetUserIdsActionHandler;
 import edu.stanford.bmir.protege.web.server.user.LogOutUserActionHandler;
 import edu.stanford.bmir.protege.web.server.watches.AddWatchActionHandler;
 import edu.stanford.bmir.protege.web.server.watches.RemoveWatchActionHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetOdpCategoriesHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetOdpContentsHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetOdpDetailsHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetOdpSearchHitsHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetOdpsByCategoryHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetSpecializationAlignmentSuggestionsHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetSpecializationPreviewHandler;
+import edu.stanford.bmir.protege.web.server.xd.PersistSpecializationHandler;
+import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdCompletionsAction;
+import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdItemsAction;
 import edu.stanford.bmir.protege.web.server.project.SetUIConfigurationActionHandler;
 import edu.stanford.bmir.protege.web.server.revision.*;
 import edu.stanford.bmir.protege.web.shared.frame.GetOntologyFramesAction;
@@ -180,5 +191,15 @@ public class ActionHandlersModule extends AbstractModule {
         multibinder.addBinding().to(GetPersonIdCompletionsActionHandler.class);
         multibinder.addBinding().to(GetUserIdCompletionsActionHandler.class);
         multibinder.addBinding().to(GetPersonIdItemsActionHandler.class);
+        
+        // eXtreme Design extension action handlers below
+        multibinder.addBinding().to(GetOdpCategoriesHandler.class);
+        multibinder.addBinding().to(GetOdpSearchHitsHandler.class);
+        multibinder.addBinding().to(GetOdpsByCategoryHandler.class);
+        multibinder.addBinding().to(GetOdpDetailsHandler.class);
+        multibinder.addBinding().to(GetOdpContentsHandler.class);
+        multibinder.addBinding().to(GetSpecializationAlignmentSuggestionsHandler.class);
+        multibinder.addBinding().to(GetSpecializationPreviewHandler.class);
+        multibinder.addBinding().to(PersistSpecializationHandler.class);
     }
 }

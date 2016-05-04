@@ -1,0 +1,58 @@
+.owlClassTreeNode {
+	background-image: url("/images/xd/owlClassIcon.png");
+	background-size: 18px 16px;
+    background-repeat: no-repeat;
+}
+
+.owlObjectPropertyTreeNode {
+	background-image: url("/images/xd/owlObjectPropertyIcon.png");
+	background-size: 18px 16px;
+    background-repeat: no-repeat;
+}
+
+.owlDataPropertyTreeNode {
+	background-image: url("/images/xd/owlDataPropertyIcon.png");
+	background-size: 18px 16px;
+    background-repeat: no-repeat;
+}
+
+div.specializedNode a.x-tree-node-anchor span {
+	color: green;
+}  
+
+div.specializationStrategySelectionPanel div.gwt-Label, 
+div.specializationStrategySelectionPanel div.gwt-HTML {
+	font-size: 11px;
+}
+
+div.specializationStrategySelectionPanel span.gwt-RadioButton label {
+	font-weight: bold;
+	font-size: 11px;
+}
+
+div.odpDetailsPortlet div.odpTitleLabel {
+	font-size: 22px;
+	border-bottom: 1px solid #99bbe8;
+}
+
+div.odpDetailsPortlet img.odpIllustration {
+	max-width: 600px;
+	max-height: 350px;
+}
+
+div.odpDetailsPortlet div.odpDetailsHeading {
+	margin-top: 1em;
+	font-size: 16px;
+	border-bottom: 1px solid #99bbe8;
+}
+
+div.odpDetailsPortlet div.odpDetailLabel {
+	font-weight: bold;
+	margin-right: 3em;
+	border-bottom: 1px dotted #99bbe8;
+}
+
+div.odpDetailsPortlet div.odpDetail ul {
+	list-style-type: disc;
+	list-style-position: inside;
+}

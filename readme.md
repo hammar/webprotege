@@ -1,6 +1,14 @@
 WebProtégé
 ==========
 
+XDP
+-------------------
+
+eXtreme Design for WebProtégé (XDP) is an extension to standard WebProtégé supporting the use of Ontology Design Patterns (ODPs) and the eXtreme Design ontology engineering method. In order to run XDP you will, in addition to the codebase held in this repository, need to run an instance of [XdpServices](https://github.com/hammar/XdpServices) that the extension uses to search and browse for ODPs, and return ODP metadata and OWL representations. Additionally, the [XdpShared](https://github.com/hammar/XdpShared) package holding shared data classes used for communication needs to be installed in the local Maven repository in order for either of the two projects to build.
+
+By default XdpServices runs on port 7777, and by default XDP looks for it on localhost at that port. If you run XdpServices on another machine or port, please update ```src/main/resources/edu/stanford/bmir/protege/web/server/xd/XdpService.properties``` to reflect this.
+
+
 What is WebProtégé?
 -------------------
 

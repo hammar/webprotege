@@ -280,7 +280,42 @@
 
             </columns>
         </tab>
-
+        
+        <!-- ********************************** -->
+        <!--       XD Tab        -->
+        <!-- ********************************** -->
+		<tab>
+            <name>edu.stanford.bmir.protege.web.client.xd.DesignPatternsTab</name>
+            <label>Design Patterns</label>
+            <columns>
+                
+                <!-- Column 1 -->
+                <column>
+                    <width>0.30</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.xd.DesignPatternSelectorPortlet</name>
+                            <height>570</height>
+                            <width>0</width>
+                        </portlet>
+                    </portlets>
+                </column>
+                
+                <!-- Column 2 -->
+                <column>
+                    <width>0.70</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet</name>
+                            <height>570</height>
+                            <width>0</width>
+                        </portlet>
+                    </portlets>
+                </column>
+                
+            </columns>
+            <controllingPortlet reference="../columns/column/portlets/portlet"/>
+        </tab>
     </tabs>
 
 </project>
