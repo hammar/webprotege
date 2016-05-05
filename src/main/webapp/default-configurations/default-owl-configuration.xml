@@ -334,6 +334,10 @@
                             <name>edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLVisualizationPortlet</name>
                             <height>560</height>
                         </portlet>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLControlPortlet</name>
+                            <height>50</height>
+                        </portlet>
                     </portlets>
                 </column>
                 
@@ -343,16 +347,13 @@
                     <portlets>
                         <portlet>
                             <name>edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLDetailsPortlet</name>
-                            <height>200</height>
+                            <height>300</height>
                         </portlet>
                         <portlet>
                             <name>edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLSelectionDetailsPortlet</name>
-                            <height>200</height>
+                            <height>300</height>
                         </portlet>
-                        <portlet>
-                            <name>edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLControlPortlet</name>
-                            <height>200</height>
-                        </portlet>
+
                     </portlets>
                 </column>
                 
