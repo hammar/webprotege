@@ -2,15 +2,15 @@ package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.gwtext.client.widgets.Panel;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 
-public class InstantiationMethodSelectionPanel extends Panel {
+public class InstantiationMethodSelectionPanel extends FlowPanel {
 
 	private DesignPatternInstantiationWizard parentWizard;
 	private RadioButton templateMethodButton;
@@ -20,8 +20,6 @@ public class InstantiationMethodSelectionPanel extends Panel {
 		super();
 		
 		this.parentWizard = parent;
-		this.setBorder(false);  
-        this.setId("card-0");
         this.setTitle("Instantiation Method Selection");
         
         this.templateMethodButton = new RadioButton("methodGroup","Template-Based Instantiation");

@@ -1,33 +1,30 @@
-.owlClassTreeNode {
-	background-image: url("/images/xd/owlClassIcon.png");
-	background-size: 18px 16px;
-    background-repeat: no-repeat;
+div.xdWizardNavBar {
+	border-top: 1px solid darkblue;
+	background-color: silver;
 }
 
-.owlObjectPropertyTreeNode {
-	background-image: url("/images/xd/owlObjectPropertyIcon.png");
-	background-size: 18px 16px;
-    background-repeat: no-repeat;
+div.xdWizardNavBar Button {
+	height: 1.5em;
+	margin: 5px;
 }
 
-.owlDataPropertyTreeNode {
-	background-image: url("/images/xd/owlDataPropertyIcon.png");
-	background-size: 18px 16px;
-    background-repeat: no-repeat;
+div.xdWizardContentPanel {
+	background-color: white;
 }
 
-div.specializedNode a.x-tree-node-anchor span {
-	color: green;
-}  
-
-div.specializationStrategySelectionPanel div.gwt-Label, 
-div.specializationStrategySelectionPanel div.gwt-HTML {
-	font-size: 11px;
+div.xdInstantiationWizard div.gwt-TabLayoutPanelTabs {
+	border-bottom: 1px solid darkblue;
+	border-left: 1px solid darkblue;
 }
 
-div.specializationStrategySelectionPanel span.gwt-RadioButton label {
-	font-weight: bold;
-	font-size: 11px;
+div.xdInstantiationWizard div.gwt-TabLayoutPanelTab {
+	padding: 5px;
+	border-top: 1px solid darkblue;
+	border-right: 1px solid darkblue;
+}
+
+div.xdInstantiationWizard div.gwt-TabLayoutPanelTab-selected {
+	background-color: white;
 }
 
 div.odpDetailsPortlet div.odpTitleLabel {

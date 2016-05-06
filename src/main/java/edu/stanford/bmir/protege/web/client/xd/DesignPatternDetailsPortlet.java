@@ -3,11 +3,13 @@ package edu.stanford.bmir.protege.web.client.xd;
 import java.util.Collection;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Position;
 import com.gwtext.client.widgets.Button;
@@ -28,7 +30,6 @@ import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
-import edu.stanford.bmir.protege.web.client.xd.specialization.old.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpDetailsAction;
@@ -271,8 +272,13 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
         useOdpButton.addListener(new ButtonListenerAdapter() {
             @Override
             public void onClick(final Button button, final EventObject e) {
-            	wizard.setModal(true);
-            	wizard.show();
+            	wizard.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+                    public void setPosition(int offsetWidth, int offsetHeight) {
+                      int left = (Window.getClientWidth() - offsetWidth) / 2;
+                      int top = (Window.getClientHeight() - offsetHeight) / 2;
+                      wizard.setPopupPosition(left, top);
+                    }
+                  });
             	wizard.loadOdp(odp.getUri());
             }
         });
