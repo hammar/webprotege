@@ -23,6 +23,15 @@ div.xdInstantiationWizard div.gwt-TabLayoutPanelTab {
 	border-right: 1px solid darkblue;
 }
 
+div.xdInstantiationWizard div.xdWizardHeader {
+	font-weight: bold;
+	text-align: center;
+}
+
+div.xdInstantiationWizard div.xdWizardHeader div.gwt-Label {
+	margin: 5px;
+}
+
 div.xdInstantiationWizard div.gwt-TabLayoutPanelTab-selected {
 	background-color: white;
 }
