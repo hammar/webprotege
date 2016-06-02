@@ -13,8 +13,11 @@ import com.google.gwt.user.client.ui.TabLayoutPanel;
 
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.AlignmentsPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.panels.EntityCloningPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.panels.EntitySpecializationPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.InstantiationMethodSelectionPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PreviewPanel;
+import edu.stanford.bmir.protege.web.client.xd.specialization.panels.RestrictionsPanel;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 
@@ -27,13 +30,16 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private Panel wizardPanel;
 	private Panel visualizationPanel;
 	private InstantiationMethodSelectionPanel instantiationMethodSelectionPanel;
+	private EntityCloningPanel entityCloningPanel;
+	private EntitySpecializationPanel entitySpecializationPanel;
+	private RestrictionsPanel restrictionsPanel;
 	private AlignmentsPanel alignmentsPanel;
 	private PreviewPanel previewPanel;
 	private CodpInstantiationMethod instantiationMethod;
 	private ActiveWizardScreen activeWizardScreen;
 
 	private enum ActiveWizardScreen {
-        METHOD_SELECTION, ALIGNMENTS, PREVIEW;
+        METHOD_SELECTION, ENTITY_CLONING, ENTITY_SPECIALIZATION, RESTRICTIONS, ALIGNMENTS, PREVIEW;
     }
 	
 	public DesignPatternInstantiationWizard(DesignPatternDetailsPortlet parent) {
@@ -110,13 +116,22 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		
         // These are the individual cards/screens of the wizard interface.
         this.instantiationMethodSelectionPanel = new InstantiationMethodSelectionPanel(this);
+        this.entityCloningPanel = new EntityCloningPanel(this);
+        this.entitySpecializationPanel = new EntitySpecializationPanel(this);
+        this.restrictionsPanel = new RestrictionsPanel(this);
         this.alignmentsPanel = new AlignmentsPanel(this);
         this.previewPanel = new PreviewPanel(this);
         wpContentPanel.add(this.instantiationMethodSelectionPanel);
+        wpContentPanel.add(this.entityCloningPanel);
+        wpContentPanel.add(this.entitySpecializationPanel);
+        wpContentPanel.add(this.restrictionsPanel);
         wpContentPanel.add(this.alignmentsPanel);
         wpContentPanel.add(this.previewPanel);
         
         // Set initial wizard state
+        this.entityCloningPanel.setVisible(false);
+        this.entitySpecializationPanel.setVisible(false);
+        this.restrictionsPanel.setVisible(false);
         this.alignmentsPanel.setVisible(false);
         this.previewPanel.setVisible(false);
         this.activeWizardScreen = ActiveWizardScreen.METHOD_SELECTION;
@@ -143,30 +158,70 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 				case METHOD_SELECTION:
 					// This should not be able to occur
 					break;
-					
-				case ALIGNMENTS:
-					//Moving ALIGNMENTS->METHOD_SELECTION
-					// Set panel visibility state
-					alignmentsPanel.setVisible(false);
-					instantiationMethodSelectionPanel.setVisible(true);
+
+				case ENTITY_CLONING:
+					// MOVING ENTITY_CLONING -> METHOD_SELECTION
+					// Set outgoing panel visibility state
+					entityCloningPanel.setVisible(false);
 					// Set button state
 					wizardBackButton.setEnabled(false);
-					// Set statekeeping enum
+					// Show incoming panel and set statekeeping enum
+					instantiationMethodSelectionPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.METHOD_SELECTION;
-					// TODO: Re-render newly selected panel
+					break;
+					
+				case ENTITY_SPECIALIZATION:
+					// MOVING ENTITY_SPECIALIZATION -> METHOD_SELECTION
+					// Set outgoing panel visibility state
+					entitySpecializationPanel.setVisible(false);
+					// Set button state
+					wizardBackButton.setEnabled(false);
+					// Show incoming panel and set statekeeping enum
+					instantiationMethodSelectionPanel.setVisible(true);
+					activeWizardScreen = ActiveWizardScreen.METHOD_SELECTION;
+					break;
+					
+				case RESTRICTIONS:
+					// MOVING RESTRICTIONS -> ENTITY_CLONING or ENTITY_SPECIALIZATION
+					// Set outgoing panel visibility state
+					restrictionsPanel.setVisible(false);					
+					// Figure out which method is being used and which panel should be displayed
+					switch (instantiationMethod) {
+					case TEMPLATE_BASED:
+						// Show incoming panel and set statekeeping enum
+						entityCloningPanel.setVisible(true);
+						activeWizardScreen = ActiveWizardScreen.ENTITY_CLONING;
+						break;
+					case IMPORT_BASED:
+						// Show incoming panel and set statekeeping enum
+						entitySpecializationPanel.setVisible(true);
+						activeWizardScreen = ActiveWizardScreen.ENTITY_SPECIALIZATION;
+						break;
+					}
+					break;
+					
+				case ALIGNMENTS:
+					//Moving ALIGNMENTS->RESTRICTIONS
+					// Set outgoing panel visibility state
+					alignmentsPanel.setVisible(false);
+					// Show incoming panel and set statekeeping enum
+					restrictionsPanel.setVisible(true);
+					activeWizardScreen = ActiveWizardScreen.RESTRICTIONS;
 					break;
 				
 				case PREVIEW:
 					// Moving PREVIEW->ALIGNMENTS
-					// Set panel visibility state
+					// Set outgoing panel visibility state
 					previewPanel.setVisible(false);
-					alignmentsPanel.setVisible(true);
 					// Set button state
 					wizardFinishButton.setVisible(false);
 					wizardNextButton.setVisible(true);
-					// Set statekeeping enum
+					// Show incoming panel and set statekeeping enum
+					alignmentsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
-					// TODO: Re-render newly selected panel
+					break;
+
+				default:
 					break;
 				}
 			}
@@ -177,31 +232,65 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		return new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent arg0) {
-				// TODO: fix this when more screens are added
 				switch (activeWizardScreen) {
 				case METHOD_SELECTION:
-					// Moving METHOD_SELECTION -> ALIGNMENTS
-					// Set panel visibility state
+					// Moving METHOD_SELECTION -> ENTITY_CLONING or ENTITY_SPECIALIZATION
+					// Set outgoing panel visibility state
 					instantiationMethodSelectionPanel.setVisible(false);
-					alignmentsPanel.setVisible(true);
 					// Set button state
-					wizardBackButton.setEnabled(true);
-					// Set statekeeping enum
+					wizardBackButton.setEnabled(true);					
+					// Figure out which method is being used and which panel should be displayed
+					switch (instantiationMethod) {
+					case TEMPLATE_BASED:
+						// Show panel and set statekeeping enum
+						entityCloningPanel.setVisible(true);
+						activeWizardScreen = ActiveWizardScreen.ENTITY_CLONING;
+						break;
+					case IMPORT_BASED:
+						// Show incoming panel and set statekeeping enum
+						entitySpecializationPanel.setVisible(true);
+						activeWizardScreen = ActiveWizardScreen.ENTITY_SPECIALIZATION;
+						break;
+					}
+					break;
+					
+				case ENTITY_CLONING:
+					// MOVING ENTITY_CLONING -> RESTRICTIONS
+					// Set outgoing panel visibility state
+					entityCloningPanel.setVisible(false);
+					// Show incoming panel and set statekeeping enum
+					restrictionsPanel.setVisible(true);
+					activeWizardScreen = ActiveWizardScreen.RESTRICTIONS;
+					break;
+					
+				case ENTITY_SPECIALIZATION:
+					// MOVING ENTITY_SPECIALIZATION -> RESTRICTIONS
+					// Set outgoing panel visibility state
+					entitySpecializationPanel.setVisible(false);
+					// Show incoming panel and set statekeeping enum
+					restrictionsPanel.setVisible(true);
+					activeWizardScreen = ActiveWizardScreen.RESTRICTIONS;
+					break;
+				
+				case RESTRICTIONS:
+					// MOVING RESTRICTIONS -> ALIGNMENTS
+					// Set outgoing panel visibility state
+					restrictionsPanel.setVisible(false);
+					// Show incoming panel and set statekeeping enum
+					alignmentsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
-					// TODO: Re-render newly selected panel
 					break;
 					
 				case ALIGNMENTS:
 					// Moving ALIGNMENTS->PREVIEW
-					// Set panel visibility state
+					// Set outgoing panel visibility state
 					alignmentsPanel.setVisible(false);
-					previewPanel.setVisible(true);
 					// Set button state
 					wizardNextButton.setVisible(false);
 					wizardFinishButton.setVisible(true);
-					// Set statekeeping enum
+					// Show incoming panel and set statekeeping enum
+					previewPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.PREVIEW;
-					// TODO: Re-render newly selected panel
 					break;
 					
 				case PREVIEW:
