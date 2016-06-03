@@ -244,6 +244,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					case TEMPLATE_BASED:
 						// Show panel and set statekeeping enum
 						entityCloningPanel.setVisible(true);
+						entityCloningPanel.render();
 						activeWizardScreen = ActiveWizardScreen.ENTITY_CLONING;
 						break;
 					case IMPORT_BASED:
@@ -299,6 +300,16 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 				}
 			}
 		};
+	}
+	
+	/**
+	 * Used to add a mapping between an original ODP label and a target user-added label when instantiating
+	 * ODPs in a template-based manner using cloning.
+	 * @param sourceLabel
+	 * @param targetLabel
+	 */
+	public void setClonedEntityLabel(String sourceLabel, String targetLabel) {
+		// TODO: Implement somehow?
 	}
 	
 	public OdpSpecialization getSpecialization() {
