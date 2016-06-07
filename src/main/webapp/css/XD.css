@@ -97,8 +97,20 @@ table.entitySpecializationToolbar button {
 	height: 2em;
 }
 
+
+
 div.entityTree {
 	height: 270px;
 	border: 1px solid Black;
+}
+
+div.entityTree .gwt-TreeItem {
+}
+
+div.entityTree .gwt-TreeItem-selected {
+	background-color: #DFE8F6;
+	border: 1px solid DarkBlue;
+	display: inline-block !important;
+	padding: 2px;
 }
  
