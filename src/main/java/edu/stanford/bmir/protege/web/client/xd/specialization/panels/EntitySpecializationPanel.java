@@ -5,6 +5,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -46,6 +47,8 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 		this.add(editingToolbar);
 		
 		// The tree itself
+		ScrollPanel sp = new ScrollPanel();
+		sp.addStyleName("entityTreeScrollWrapper");
 		entityTree = new Tree();
 		entityTree.addStyleName("entityTree");
 		entityTree.addSelectionHandler(new SelectionHandler<TreeItem>() {
@@ -65,7 +68,8 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 		TreeItem root = new TreeItem();
 	    root.setText("Placeholder");
 	    entityTree.addItem(root);
-		this.add(entityTree);
+	    sp.add(entityTree);
+		this.add(sp);
 	}
 
 	private DesignPatternInstantiationWizard parentWizard;

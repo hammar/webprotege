@@ -99,12 +99,9 @@ table.entitySpecializationToolbar button {
 
 
 
-div.entityTree {
+div.entityTreeScrollWrapper {
 	height: 270px;
 	border: 1px solid Black;
-}
-
-div.entityTree .gwt-TreeItem {
 }
 
 div.entityTree .gwt-TreeItem-selected {
