@@ -4,7 +4,7 @@ div.xdWizardNavBar {
 }
 
 div.xdWizardNavBar Button {
-	height: 1.5em;
+	height: 2em;
 	margin: 5px;
 }
 
@@ -61,4 +61,25 @@ div.odpDetailsPortlet div.odpDetailLabel {
 div.odpDetailsPortlet div.odpDetail ul {
 	list-style-type: disc;
 	list-style-position: inside;
+}
+
+div.entityCloningPanelSubheader {
+	border-bottom: 1px solid #DFE8F6;
+	font-weight: bold;
+}
+
+div.xdWizardContentPanel div.prefixLabel {
+	width: 2em;
+}
+
+div.xdWizardContentPanel div.originalLabelLabel {
+	width: 15em;
+}
+
+div.xdWizardContentPanel div.arrowLabel {
+	margin-right: 3em;
+}
+
+div.xdWizardContentPanel input.targetLabelTextBox {
+	width: 20em;
 }

@@ -10,7 +10,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 
-public class InstantiationMethodSelectionPanel extends FlowPanel {
+public class InstantiationMethodSelectionPanel extends FlowPanel implements InstantiationWizardPanel {
 
 	private DesignPatternInstantiationWizard parentWizard;
 	private RadioButton templateMethodButton;
@@ -54,5 +54,10 @@ public class InstantiationMethodSelectionPanel extends FlowPanel {
         else {
         	parentWizard.setInstantiationMethod(CodpInstantiationMethod.IMPORT_BASED);
         }
+	}
+	
+	@Override
+	public void renderPanel() {
+		this.templateMethodButton.setValue(true);
 	}
 }

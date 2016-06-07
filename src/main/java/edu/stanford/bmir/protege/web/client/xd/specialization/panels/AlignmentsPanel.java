@@ -7,9 +7,13 @@ import com.google.gwt.user.client.ui.Label;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
 
-public class AlignmentsPanel extends DockLayoutPanel {
+public class AlignmentsPanel extends DockLayoutPanel implements InstantiationWizardPanel {
 	
 	private DesignPatternInstantiationWizard parentWizard;
+	
+	// TODO: Figure out how to detect and handle the case when this panel needs to be cleared and
+	// re-rendered, i.e., when the entities and/or restrictions from the previous two panels are
+	// re-labelled or otherwise changed.
 	
 	public AlignmentsPanel(DesignPatternInstantiationWizard parent) {
 		super(Unit.EM);
@@ -27,5 +31,10 @@ public class AlignmentsPanel extends DockLayoutPanel {
         this.addNorth(instructionPanel, 4);
         
         this.add(new Label("Alignment interface to be implemented."));
+	}
+
+	@Override
+	public void renderPanel() {
+		// TODO Auto-generated method stub
 	}
 }

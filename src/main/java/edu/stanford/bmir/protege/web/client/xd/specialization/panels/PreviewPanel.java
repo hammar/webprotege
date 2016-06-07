@@ -16,7 +16,7 @@ import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationPreviewA
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationPreviewResult;
 
-public class PreviewPanel extends FlowPanel {
+public class PreviewPanel extends FlowPanel implements InstantiationWizardPanel {
 	
 	private TextArea instantationAxiomsPreview;
 	private final DesignPatternInstantiationWizard parentWizard;
@@ -62,5 +62,10 @@ public class PreviewPanel extends FlowPanel {
         instantiationAxiomsPanel.add(instantationAxiomsPreview);
         
         this.add(instantiationAxiomsPanel);
+	}
+
+	@Override
+	public void renderPanel() {
+		// TODO Auto-generated method stub
 	}
 }

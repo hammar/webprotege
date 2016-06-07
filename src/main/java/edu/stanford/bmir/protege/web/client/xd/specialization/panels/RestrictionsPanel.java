@@ -5,7 +5,7 @@ import com.google.gwt.user.client.ui.Label;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
 
-public class RestrictionsPanel extends FlowPanel {
+public class RestrictionsPanel extends FlowPanel implements InstantiationWizardPanel {
 	
 	private DesignPatternInstantiationWizard parentWizard;
 
@@ -17,4 +17,8 @@ public class RestrictionsPanel extends FlowPanel {
 		this.add(new Label("Restrictions interface to be implemented."));
 	}
 
+	@Override
+	public void renderPanel() {
+		// TODO Auto-generated method stub
+	}
 }

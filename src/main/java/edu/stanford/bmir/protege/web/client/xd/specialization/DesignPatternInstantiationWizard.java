@@ -10,7 +10,10 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.gwtext.client.widgets.MessageBox;
 
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
+import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.AlignmentsPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.EntityCloningPanel;
@@ -18,8 +21,15 @@ import edu.stanford.bmir.protege.web.client.xd.specialization.panels.EntitySpeci
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.InstantiationMethodSelectionPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PreviewPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.RestrictionsPanel;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
+import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 
 public class DesignPatternInstantiationWizard extends PopupPanel {
 
@@ -38,6 +48,10 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private CodpInstantiationMethod instantiationMethod;
 	private ActiveWizardScreen activeWizardScreen;
 
+	private FrameTreeNode<OntologyEntityFrame> odpClasses;
+	private FrameTreeNode<OntologyEntityFrame> odpObjectProperties;
+	private FrameTreeNode<OntologyEntityFrame> odpDataProperties;
+	
 	private enum ActiveWizardScreen {
         METHOD_SELECTION, ENTITY_CLONING, ENTITY_SPECIALIZATION, RESTRICTIONS, ALIGNMENTS, PREVIEW;
     }
@@ -67,6 +81,9 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		
 		// Default values
 		this.instantiationMethod = CodpInstantiationMethod.TEMPLATE_BASED;
+		this.odpClasses = new FrameTreeNode<OntologyEntityFrame>(new ClassFrame("nil"));
+		this.odpObjectProperties = new FrameTreeNode<OntologyEntityFrame>(new ObjectPropertyFrame("nil"));
+		this.odpDataProperties = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
 		
 		// Outer tab panel containing ODP visualization and instantiation wizard
 		TabLayoutPanel tabPanel = new TabLayoutPanel(3, Unit.EM);
@@ -107,7 +124,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		navBar.addEast(this.wizardFinishButton, 5);
 		// Set initial button state
 		this.wizardBackButton.setEnabled(false);
-		this.wizardFinishButton.setVisible(false);
+		this.wizardFinishButton.setEnabled(false);
 		wp.addSouth(navBar, 3);
         
 		// This is the main content field of the wizard interface
@@ -129,6 +146,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         wpContentPanel.add(this.previewPanel);
         
         // Set initial wizard state
+        this.instantiationMethodSelectionPanel.setVisible(true);
         this.entityCloningPanel.setVisible(false);
         this.entitySpecializationPanel.setVisible(false);
         this.restrictionsPanel.setVisible(false);
@@ -160,7 +178,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					break;
 
 				case ENTITY_CLONING:
-					// MOVING ENTITY_CLONING -> METHOD_SELECTION
+					// Moving ENTITY_CLONING -> METHOD_SELECTION
 					// Set outgoing panel visibility state
 					entityCloningPanel.setVisible(false);
 					// Set button state
@@ -171,7 +189,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					break;
 					
 				case ENTITY_SPECIALIZATION:
-					// MOVING ENTITY_SPECIALIZATION -> METHOD_SELECTION
+					// Moving ENTITY_SPECIALIZATION -> METHOD_SELECTION
 					// Set outgoing panel visibility state
 					entitySpecializationPanel.setVisible(false);
 					// Set button state
@@ -182,9 +200,18 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					break;
 					
 				case RESTRICTIONS:
-					// MOVING RESTRICTIONS -> ENTITY_CLONING or ENTITY_SPECIALIZATION
+					// Moving RESTRICTIONS -> ENTITY_SPECIALIZATION
 					// Set outgoing panel visibility state
 					restrictionsPanel.setVisible(false);					
+					// Show incoming panel and set statekeeping enum
+					entitySpecializationPanel.setVisible(true);
+					activeWizardScreen = ActiveWizardScreen.ENTITY_SPECIALIZATION;
+					break;
+					
+				case ALIGNMENTS:
+					// Moving ALIGNMENTS-> ENTITY_CLONING or RESTRICTIONS
+					// Set outgoing panel visibility state
+					alignmentsPanel.setVisible(false);
 					// Figure out which method is being used and which panel should be displayed
 					switch (instantiationMethod) {
 					case TEMPLATE_BASED:
@@ -194,19 +221,10 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 						break;
 					case IMPORT_BASED:
 						// Show incoming panel and set statekeeping enum
-						entitySpecializationPanel.setVisible(true);
-						activeWizardScreen = ActiveWizardScreen.ENTITY_SPECIALIZATION;
+						restrictionsPanel.setVisible(true);
+						activeWizardScreen = ActiveWizardScreen.RESTRICTIONS;
 						break;
 					}
-					break;
-					
-				case ALIGNMENTS:
-					//Moving ALIGNMENTS->RESTRICTIONS
-					// Set outgoing panel visibility state
-					alignmentsPanel.setVisible(false);
-					// Show incoming panel and set statekeeping enum
-					restrictionsPanel.setVisible(true);
-					activeWizardScreen = ActiveWizardScreen.RESTRICTIONS;
 					break;
 				
 				case PREVIEW:
@@ -214,8 +232,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// Set outgoing panel visibility state
 					previewPanel.setVisible(false);
 					// Set button state
-					wizardFinishButton.setVisible(false);
-					wizardNextButton.setVisible(true);
+					wizardFinishButton.setEnabled(false);
+					wizardNextButton.setEnabled(true);
 					// Show incoming panel and set statekeeping enum
 					alignmentsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
@@ -244,7 +262,6 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					case TEMPLATE_BASED:
 						// Show panel and set statekeeping enum
 						entityCloningPanel.setVisible(true);
-						entityCloningPanel.render();
 						activeWizardScreen = ActiveWizardScreen.ENTITY_CLONING;
 						break;
 					case IMPORT_BASED:
@@ -256,12 +273,12 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					break;
 					
 				case ENTITY_CLONING:
-					// MOVING ENTITY_CLONING -> RESTRICTIONS
+					// MOVING ENTITY_CLONING -> ALIGNMENTS
 					// Set outgoing panel visibility state
 					entityCloningPanel.setVisible(false);
 					// Show incoming panel and set statekeeping enum
-					restrictionsPanel.setVisible(true);
-					activeWizardScreen = ActiveWizardScreen.RESTRICTIONS;
+					alignmentsPanel.setVisible(true);
+					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
 					break;
 					
 				case ENTITY_SPECIALIZATION:
@@ -287,8 +304,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// Set outgoing panel visibility state
 					alignmentsPanel.setVisible(false);
 					// Set button state
-					wizardNextButton.setVisible(false);
-					wizardFinishButton.setVisible(true);
+					wizardNextButton.setEnabled(false);
+					wizardFinishButton.setEnabled(true);
 					// Show incoming panel and set statekeeping enum
 					previewPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.PREVIEW;
@@ -309,7 +326,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	 * @param targetLabel
 	 */
 	public void setClonedEntityLabel(String sourceLabel, String targetLabel) {
-		// TODO: Implement somehow?
+		// TODO: Implement
 	}
 	
 	public OdpSpecialization getSpecialization() {
@@ -318,11 +335,65 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	}
 
 	public void loadOdp(String uri) {
+		// TODO remove this debug once done
 		//Window.alert("Asked to load: " + uri);
-		// TODO Auto-generated method stub
+		
+		// Set default visibility of child panels and reset statekeeping enum
+		// This is prior to spinner UI activating as it is instantaneous, and we
+		// don't want to show old data to user
+		this.instantiationMethodSelectionPanel.setVisible(true);
+        this.entityCloningPanel.setVisible(false);
+        this.entitySpecializationPanel.setVisible(false);
+        this.restrictionsPanel.setVisible(false);
+        this.alignmentsPanel.setVisible(false);
+        this.previewPanel.setVisible(false);
+        this.activeWizardScreen = ActiveWizardScreen.METHOD_SELECTION;
+		
+		// Initiate some spinner UI
+		// TODO: Implement
+		
+		// Clear and re-populate wizard-level data structures with new data from server
+		// TODO: Implement!
+		this.instantiationMethod = CodpInstantiationMethod.TEMPLATE_BASED;
+		// Get ODP implementation from server
+        DispatchServiceManager.get().execute(new GetOdpContentsAction(uri), new DispatchServiceCallback<GetOdpContentsResult>() {
+        	@Override
+            public void handleSuccess(GetOdpContentsResult result) {
+        		
+        		odpClasses = result.getClasses();
+        		odpObjectProperties = result.getObjectProperties();
+        		odpDataProperties = result.getDataProperties();
+        		
+        		// Clear and re-render child panels
+        		// TODO: Implement
+        		instantiationMethodSelectionPanel.renderPanel();
+        		entityCloningPanel.renderPanel();
+        		entitySpecializationPanel.renderPanel();
+        		// TODO: the below three should perhaps not be called until the user
+        		// steps into them, after previous panels have been used and stored data..
+        		restrictionsPanel.renderPanel();
+        		alignmentsPanel.renderPanel();
+        		previewPanel.renderPanel();
+        		
+        		// Kill the spinner UI
+        		// TODO: Implement
+            }
+        });
 	}
 
 	public void setInstantiationMethod(CodpInstantiationMethod instantiationMethod) {
 		this.instantiationMethod = instantiationMethod;
+	}
+
+	public FrameTreeNode<OntologyEntityFrame> getOdpClasses() {
+		return odpClasses;
+	}
+
+	public FrameTreeNode<OntologyEntityFrame> getOdpObjectProperties() {
+		return odpObjectProperties;
+	}
+
+	public FrameTreeNode<OntologyEntityFrame> getOdpDataProperties() {
+		return odpDataProperties;
 	}
 }

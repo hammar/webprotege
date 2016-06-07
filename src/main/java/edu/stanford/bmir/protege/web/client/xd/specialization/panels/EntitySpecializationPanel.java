@@ -5,7 +5,7 @@ import com.google.gwt.user.client.ui.Label;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
 
-public class EntitySpecializationPanel extends FlowPanel {
+public class EntitySpecializationPanel extends FlowPanel implements InstantiationWizardPanel {
 	
 	public EntitySpecializationPanel(DesignPatternInstantiationWizard parentWizard) {
 		super();
@@ -17,4 +17,8 @@ public class EntitySpecializationPanel extends FlowPanel {
 
 	private DesignPatternInstantiationWizard parentWizard;
 
+	@Override
+	public void renderPanel() {
+		// TODO Auto-generated method stub
+	}
 }
