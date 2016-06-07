@@ -104,6 +104,10 @@ div.entityTreeScrollWrapper {
 	border: 1px solid Black;
 }
 
+div.entityCloningFieldsScrollWrapper {
+	border: 1px solid Black;
+}
+
 div.entityTree .gwt-TreeItem-selected {
 	background-color: #DFE8F6;
 	border: 1px solid DarkBlue;

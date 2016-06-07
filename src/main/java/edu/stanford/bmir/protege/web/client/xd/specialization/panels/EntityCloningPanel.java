@@ -2,6 +2,7 @@ package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
 
 import java.util.Map;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
@@ -33,20 +34,29 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 				+ "make sense when adapting the ODP to your domain. ");
 		this.add(instructionsLabel);
 		
+		VerticalPanel innerVp = new VerticalPanel();
+		innerVp.setSpacing(10);
+		ScrollPanel sp = new ScrollPanel(innerVp);
+		sp.setHeight("315px");
+		sp.addStyleName("entityCloningFieldsScrollWrapper");
+		sp.setAlwaysShowScrollBars(true);
+		
 		Label classesHeader = new Label("Classes");
 		classesHeader.addStyleName("entityCloningPanelSubheader");
-		this.add(classesHeader);
-		this.add(this.classHolderPanel);
+		innerVp.add(classesHeader);
+		innerVp.add(this.classHolderPanel);
 
 		Label opHeader = new Label("Object Properties");
 		opHeader.addStyleName("entityCloningPanelSubheader");
-		this.add(opHeader);
-		this.add(this.opHolderPanel);
+		innerVp.add(opHeader);
+		innerVp.add(this.opHolderPanel);
 		
 		Label dpHeader = new Label("Datatype Properties");
 		dpHeader.addStyleName("entityCloningPanelSubheader");
-		this.add(dpHeader);
-		this.add(this.dpHolderPanel);
+		innerVp.add(dpHeader);
+		innerVp.add(this.dpHolderPanel);
+		
+		this.add(sp);
 	}
 	
 	@Override
