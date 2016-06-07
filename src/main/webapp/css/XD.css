@@ -83,3 +83,22 @@ div.xdWizardContentPanel div.arrowLabel {
 div.xdWizardContentPanel input.targetLabelTextBox {
 	width: 20em;
 }
+
+table.entitySpecializationToolbar {
+	border-top: 1px solid DarkBlue;
+	border-bottom: 1px solid DarkBlue;
+	background-color: Silver;
+	height: 3em;
+	vertical-align: middle;
+	width: 100%;
+}
+
+table.entitySpecializationToolbar button {
+	height: 2em;
+}
+
+div.entityTree {
+	height: 270px;
+	border: 1px solid Black;
+}
+ 
