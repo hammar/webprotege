@@ -1,5 +1,8 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -10,8 +13,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
-import com.gwtext.client.widgets.MessageBox;
-
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
@@ -51,6 +52,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private FrameTreeNode<OntologyEntityFrame> odpClasses;
 	private FrameTreeNode<OntologyEntityFrame> odpObjectProperties;
 	private FrameTreeNode<OntologyEntityFrame> odpDataProperties;
+	private Map<OntologyEntityFrame, String> clonedEntityLabels;
 	
 	private enum ActiveWizardScreen {
         METHOD_SELECTION, ENTITY_CLONING, ENTITY_SPECIALIZATION, RESTRICTIONS, ALIGNMENTS, PREVIEW;
@@ -84,6 +86,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		this.odpClasses = new FrameTreeNode<OntologyEntityFrame>(new ClassFrame("nil"));
 		this.odpObjectProperties = new FrameTreeNode<OntologyEntityFrame>(new ObjectPropertyFrame("nil"));
 		this.odpDataProperties = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
+		this.clonedEntityLabels = new HashMap<OntologyEntityFrame, String>();
 		
 		// Outer tab panel containing ODP visualization and instantiation wizard
 		TabLayoutPanel tabPanel = new TabLayoutPanel(3, Unit.EM);
@@ -325,8 +328,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	 * @param sourceLabel
 	 * @param targetLabel
 	 */
-	public void setClonedEntityLabel(String sourceLabel, String targetLabel) {
-		// TODO: Implement
+	public void setClonedEntityLabel(OntologyEntityFrame entityFrame, String targetLabel) {
+		clonedEntityLabels.put(entityFrame, targetLabel);
 	}
 	
 	public OdpSpecialization getSpecialization() {
@@ -352,10 +355,14 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		// Initiate some spinner UI
 		// TODO: Implement
 		
-		// Clear and re-populate wizard-level data structures with new data from server
-		// TODO: Implement!
-		this.instantiationMethod = CodpInstantiationMethod.TEMPLATE_BASED;
-		// Get ODP implementation from server
+		// Clear wizard-level data structures
+        this.instantiationMethod = CodpInstantiationMethod.TEMPLATE_BASED;
+		this.odpClasses = new FrameTreeNode<OntologyEntityFrame>(new ClassFrame("nil"));
+		this.odpObjectProperties = new FrameTreeNode<OntologyEntityFrame>(new ObjectPropertyFrame("nil"));
+		this.odpDataProperties = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
+		this.clonedEntityLabels = new HashMap<OntologyEntityFrame, String>();
+		
+		// Re-populate wizard-level data structures w/ new data from server
         DispatchServiceManager.get().execute(new GetOdpContentsAction(uri), new DispatchServiceCallback<GetOdpContentsResult>() {
         	@Override
             public void handleSuccess(GetOdpContentsResult result) {

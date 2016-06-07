@@ -21,8 +21,11 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 		this.parentWizard = parentWizard;
 		
 		this.classHolderPanel = new VerticalPanel();
+		this.classHolderPanel.setSpacing(3);
 		this.opHolderPanel = new VerticalPanel();
+		this.opHolderPanel.setSpacing(3);
 		this.dpHolderPanel = new VerticalPanel();
+		this.dpHolderPanel.setSpacing(3);
 		
 		this.setTitle("Entity Cloning");
 		
@@ -57,21 +60,21 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 		Map<OntologyEntityFrame, Integer> classDepthMap = TreeMethods.getFrameTreeAsIndentMap(parentWizard.getOdpClasses(), 0);
 		for (Map.Entry<OntologyEntityFrame, Integer> entry : classDepthMap.entrySet()) {
 			String prefix = buildPrefix(entry.getValue());
-			this.classHolderPanel.add(new EntityCloningWidget(this.parentWizard, entry.getKey().getLabel(), prefix));
+			this.classHolderPanel.add(new EntityCloningWidget(this.parentWizard, entry.getKey(), prefix));
 		}
 		
 		// Render new object property cloning widgets
 		Map<OntologyEntityFrame, Integer> objectPropertyDepthMap = TreeMethods.getFrameTreeAsIndentMap(parentWizard.getOdpObjectProperties(), 0);
 		for (Map.Entry<OntologyEntityFrame, Integer> entry : objectPropertyDepthMap.entrySet()) {
 			String prefix = buildPrefix(entry.getValue());
-			this.opHolderPanel.add(new EntityCloningWidget(this.parentWizard, entry.getKey().getLabel(), prefix));
+			this.opHolderPanel.add(new EntityCloningWidget(this.parentWizard, entry.getKey(), prefix));
 		}
 		
 		// Render new datatype property cloning widgets
 		Map<OntologyEntityFrame, Integer> dataPropertyDepthMap = TreeMethods.getFrameTreeAsIndentMap(parentWizard.getOdpDataProperties(), 0);
 		for (Map.Entry<OntologyEntityFrame, Integer> entry : dataPropertyDepthMap.entrySet()) {
 			String prefix = buildPrefix(entry.getValue());
-			this.dpHolderPanel.add(new EntityCloningWidget(this.parentWizard, entry.getKey().getLabel(), prefix));
+			this.dpHolderPanel.add(new EntityCloningWidget(this.parentWizard, entry.getKey(), prefix));
 		}
 	}
 	
