@@ -1,16 +1,25 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization.panels;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import com.gwtext.client.core.EventObject;
+import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
+import edu.stanford.bmir.protege.web.client.xd.specialization.EntityDetailsPopup;
 import edu.stanford.bmir.protege.web.client.xd.specialization.widgets.EntityTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
@@ -21,6 +30,7 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 	private Button modifyButton;
 	private Button deleteButton;
 	private Tree entityTree;
+	private EntityDetailsPopup entityDetailsPopup;
 	
 	public EntitySpecializationPanel(DesignPatternInstantiationWizard parentWizard) {
 		this.parentWizard = parentWizard;
@@ -32,12 +42,28 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
         		+ "below.");
 		this.add(instruction);
 		
+		this.entityDetailsPopup = new EntityDetailsPopup(this.parentWizard);
+		
 		// Toolbar by which we interact with tree
 		HorizontalPanel editingToolbar = new HorizontalPanel();
 		editingToolbar.addStyleName("entitySpecializationToolbar");
 		HorizontalPanel innerEditingToolbar = new HorizontalPanel();
 		innerEditingToolbar.setSpacing(5);
 		specializeButton = new Button("Specialise");
+		
+		specializeButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				entityDetailsPopup.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+                    public void setPosition(int offsetWidth, int offsetHeight) {
+                        int left = (Window.getClientWidth() - offsetWidth) / 2;
+                        int top = (Window.getClientHeight() - offsetHeight) / 2;
+                        entityDetailsPopup.setPopupPosition(left, top);
+                    }
+                });
+			}
+		});
+		
 		modifyButton = new Button("Modify");
 		deleteButton = new Button("Delete");
 		innerEditingToolbar.add(specializeButton);
