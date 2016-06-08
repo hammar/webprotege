@@ -46,4 +46,11 @@ public class ClassFrame extends AbstractOntologyEntityFrame {
 	public Set<PropertyRestriction> getSubClassOfRestrictions() {
 		return subClassOfRestrictions;
 	}
+	
+	public Set<PropertyRestriction> getSubClassOfAndEquivalentToRestrictions() {
+		Set<PropertyRestriction> retVal = new HashSet<PropertyRestriction>();
+		retVal.addAll(this.subClassOfRestrictions);
+		retVal.addAll(this.equivalentToRestrictions);
+		return retVal;
+	}
 }

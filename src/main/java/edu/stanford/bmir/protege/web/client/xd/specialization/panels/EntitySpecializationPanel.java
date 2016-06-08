@@ -6,7 +6,6 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -14,10 +13,6 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
 import edu.stanford.bmir.protege.web.client.xd.specialization.EntityDetailsPopup;
 import edu.stanford.bmir.protege.web.client.xd.specialization.widgets.EntityTreeNode;
