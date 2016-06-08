@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
 import edu.stanford.bmir.protege.web.client.xd.specialization.util.TreeMethods;
 import edu.stanford.bmir.protege.web.client.xd.specialization.widgets.EntityCloningWidget;
+import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 public class EntityCloningPanel extends VerticalPanel implements InstantiationWizardPanel {
@@ -39,7 +40,6 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 		ScrollPanel sp = new ScrollPanel(innerVp);
 		sp.setHeight("315px");
 		sp.addStyleName("entityCloningFieldsScrollWrapper");
-		sp.setAlwaysShowScrollBars(true);
 		
 		Label classesHeader = new Label("Classes");
 		classesHeader.addStyleName("entityCloningPanelSubheader");
@@ -67,7 +67,8 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 		this.dpHolderPanel.clear();
 		
 		// Render new class cloning widgets
-		Map<OntologyEntityFrame, Integer> classDepthMap = TreeMethods.getFrameTreeAsIndentMap(parentWizard.getOdpClasses(), 0);
+		FrameTreeNode<OntologyEntityFrame> classesToCloneTree = TreeMethods.tightenTree(parentWizard.getOdpClasses());
+		Map<OntologyEntityFrame, Integer> classDepthMap = TreeMethods.getFrameTreeAsIndentMap(classesToCloneTree);
 		for (Map.Entry<OntologyEntityFrame, Integer> entry : classDepthMap.entrySet()) {
 			String prefix = buildPrefix(entry.getValue());
 			this.classHolderPanel.add(new EntityCloningWidget(this.parentWizard, entry.getKey(), prefix));
