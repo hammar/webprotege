@@ -8,15 +8,16 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.DesignPatternInstantiationWizard;
-import edu.stanford.bmir.protege.web.client.xd.specialization.EntityDetailsPopup;
 import edu.stanford.bmir.protege.web.client.xd.specialization.widgets.EntityTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 public class EntitySpecializationPanel extends VerticalPanel implements InstantiationWizardPanel {
@@ -25,7 +26,7 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 	private Button modifyButton;
 	private Button deleteButton;
 	private Tree entityTree;
-	private EntityDetailsPopup entityDetailsPopup;
+	private TreeItem selectedTreeItem;
 	
 	public EntitySpecializationPanel(DesignPatternInstantiationWizard parentWizard) {
 		this.parentWizard = parentWizard;
@@ -37,30 +38,81 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
         		+ "below.");
 		this.add(instruction);
 		
-		this.entityDetailsPopup = new EntityDetailsPopup(this.parentWizard);
+		
 		
 		// Toolbar by which we interact with tree
 		HorizontalPanel editingToolbar = new HorizontalPanel();
 		editingToolbar.addStyleName("entitySpecializationToolbar");
 		HorizontalPanel innerEditingToolbar = new HorizontalPanel();
 		innerEditingToolbar.setSpacing(5);
-		specializeButton = new Button("Specialise");
 		
+		specializeButton = new Button("Specialise");
 		specializeButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				entityDetailsPopup.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
-                    public void setPosition(int offsetWidth, int offsetHeight) {
-                        int left = (Window.getClientWidth() - offsetWidth) / 2;
-                        int top = (Window.getClientHeight() - offsetHeight) / 2;
-                        entityDetailsPopup.setPopupPosition(left, top);
-                    }
-                });
+				String newEntityLabel = Window.prompt("Please enter the specialised entity label.", "");
+				if (newEntityLabel != null && newEntityLabel != "") {
+					OntologyEntityFrame newFrame = createChildFrame(newEntityLabel, (OntologyEntityFrame)selectedTreeItem.getUserObject());
+					TreeItem newTreeItem = new TreeItem(new EntityTreeNode(newFrame));
+					newTreeItem.setUserObject(newFrame);
+					selectedTreeItem.addItem(newTreeItem);
+					selectedTreeItem.setState(true);
+					deleteButton.setEnabled(false);
+					// TODO: create new item/node in the parentwizard data structure.
+				}
+			}
+
+			private OntologyEntityFrame createChildFrame(String childFrameLabel, OntologyEntityFrame parentFrame) {
+				if (parentFrame instanceof ClassFrame) {
+					return new ClassFrame(childFrameLabel);
+				}
+				else if (parentFrame instanceof ObjectPropertyFrame) {
+					return new ObjectPropertyFrame(childFrameLabel);
+				}
+				else if (parentFrame instanceof DataPropertyFrame) {
+					return new DataPropertyFrame(childFrameLabel);
+				}
+				// The below should not occur
+				return null;
 			}
 		});
 		
 		modifyButton = new Button("Modify");
+		modifyButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				String oldEntityLabel = selectedTreeItem.getText();
+				String newEntityLabel = Window.prompt("Please enter the label ", oldEntityLabel);
+				if (newEntityLabel != null && newEntityLabel != oldEntityLabel)  {
+					// TODO: fix the below to update the widget, not just set the text
+					// (because we want to keep the nice icon)
+					selectedTreeItem.setText(newEntityLabel);
+					((OntologyEntityFrame)selectedTreeItem.getUserObject()).setLabel(newEntityLabel); 
+					// TODO: Modify node in the parentwizard data structure
+				}
+			}
+		});
+		
 		deleteButton = new Button("Delete");
+		deleteButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				Boolean confirmDelete = Window.confirm("Are you certain that you wish to delete \"" + selectedTreeItem.getText() + "\"?");
+				if (confirmDelete) {
+					entityTree.setSelectedItem(null);
+					specializeButton.setEnabled(false);
+					modifyButton.setEnabled(false);
+					deleteButton.setEnabled(false);
+					selectedTreeItem.remove();
+					selectedTreeItem = null;
+					// TODO: Remove tree node in parentwizard data structure
+				}
+			}
+		});
+		
+		specializeButton.setEnabled(false);
+		modifyButton.setEnabled(false);
+		deleteButton.setEnabled(false);
 		innerEditingToolbar.add(specializeButton);
 		innerEditingToolbar.add(modifyButton);
 		innerEditingToolbar.add(deleteButton);
@@ -75,6 +127,8 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 		entityTree.addSelectionHandler(new SelectionHandler<TreeItem>() {
 			@Override
 			public void onSelection(SelectionEvent<TreeItem> event) {
+				selectedTreeItem = event.getSelectedItem();
+				specializeButton.setEnabled(true);
 				OntologyEntityFrame oef = (OntologyEntityFrame)event.getSelectedItem().getUserObject();
 				if (oef.getIri().isPresent()) {
 					modifyButton.setEnabled(false);
@@ -82,7 +136,12 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 	        	}
 	        	else {
 	        		modifyButton.setEnabled(true);
-					deleteButton.setEnabled(true);
+	        		if (selectedTreeItem.getChildCount() == 0) {
+	        			deleteButton.setEnabled(true);
+	        		}
+	        		else {
+	        			deleteButton.setEnabled(false);
+	        		}
 				}
 			}
 		});
