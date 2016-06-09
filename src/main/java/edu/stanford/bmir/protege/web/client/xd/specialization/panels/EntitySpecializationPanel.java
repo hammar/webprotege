@@ -84,9 +84,7 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 				String oldEntityLabel = selectedTreeItem.getText();
 				String newEntityLabel = Window.prompt("Please enter the label ", oldEntityLabel);
 				if (newEntityLabel != null && newEntityLabel != oldEntityLabel)  {
-					// TODO: fix the below to update the widget, not just set the text
-					// (because we want to keep the nice icon)
-					selectedTreeItem.setText(newEntityLabel);
+					((EntityTreeNode)selectedTreeItem.getWidget()).setLabelText(newEntityLabel);
 					((OntologyEntityFrame)selectedTreeItem.getUserObject()).setLabel(newEntityLabel); 
 					// TODO: Modify node in the parentwizard data structure
 				}

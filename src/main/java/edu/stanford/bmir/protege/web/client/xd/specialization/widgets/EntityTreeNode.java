@@ -12,6 +12,8 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityF
 
 public class EntityTreeNode extends Composite {
 
+	private Label labelWidget;
+	
 	public EntityTreeNode(OntologyEntityFrame inputFrame) {
 		HorizontalPanel panel = new HorizontalPanel();
 		panel.setSpacing(3);
@@ -29,9 +31,14 @@ public class EntityTreeNode extends Composite {
 		Image image = new Image(imageUrl);
 		image.setWidth("20px");
 		panel.add(image);
-		panel.add(new Label(inputFrame.getLabel()));
+		labelWidget = new Label(inputFrame.getLabel());
+		panel.add(labelWidget);
 		
 		initWidget(panel);
 		setStyleName("xdp-EntityTreeNode");
+	}
+	
+	public void setLabelText(String newLabel) {
+		this.labelWidget.setText(newLabel);
 	}
 }
