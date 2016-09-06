@@ -1,7 +1,10 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -26,6 +29,7 @@ import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
@@ -48,11 +52,14 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private PreviewPanel previewPanel;
 	private CodpInstantiationMethod instantiationMethod;
 	private ActiveWizardScreen activeWizardScreen;
+	private Date instantiationModificationTimestamp = new Date();
+	private Date alignmentsModificationTimestamp = new Date();
 
 	private FrameTreeNode<OntologyEntityFrame> odpClasses;
 	private FrameTreeNode<OntologyEntityFrame> odpObjectProperties;
 	private FrameTreeNode<OntologyEntityFrame> odpDataProperties;
 	private Map<OntologyEntityFrame, String> clonedEntityLabels;
+	private Set<Alignment> alignments = new HashSet<Alignment>();
 	
 	private enum ActiveWizardScreen {
         METHOD_SELECTION, ENTITY_CLONING, ENTITY_SPECIALIZATION, RESTRICTIONS, ALIGNMENTS, PREVIEW;
@@ -282,6 +289,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// Show incoming panel and set statekeeping enum
 					alignmentsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
+					alignmentsPanel.renderPanel();
 					break;
 					
 				case ENTITY_SPECIALIZATION:
@@ -300,6 +308,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// Show incoming panel and set statekeeping enum
 					alignmentsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
+					alignmentsPanel.renderPanel();
 					break;
 					
 				case ALIGNMENTS:
@@ -329,12 +338,38 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	 * @param targetLabel
 	 */
 	public void setClonedEntityLabel(OntologyEntityFrame entityFrame, String targetLabel) {
+		this.updateInstantiationModificationTimestamp();
 		clonedEntityLabels.put(entityFrame, targetLabel);
+	}
+	
+	public void addAlignment(Alignment a) {
+		this.alignments.add(a);
+	}
+	
+	public void removeAlignment(Alignment a) {
+		this.alignments.remove(a);
 	}
 	
 	public OdpSpecialization getSpecialization() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private void updateInstantiationModificationTimestamp() {
+		this.instantiationModificationTimestamp = new Date();
+	}
+	
+	private void updateAlignmentModificationTimestamp() {
+		this.alignmentsModificationTimestamp = new Date();
+	}
+	
+	public Boolean areAlignmentsUpToDate() {
+		if (this.alignmentsModificationTimestamp.after(this.instantiationModificationTimestamp)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	public void loadOdp(String uri) {
@@ -351,6 +386,10 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         this.alignmentsPanel.setVisible(false);
         this.previewPanel.setVisible(false);
         this.activeWizardScreen = ActiveWizardScreen.METHOD_SELECTION;
+        
+		// Reset initial timestamps that keep track of alignments being up to date or not 
+        this.updateInstantiationModificationTimestamp();
+        this.updateAlignmentModificationTimestamp();
 		
 		// Initiate some spinner UI
 		// TODO: Implement
@@ -371,15 +410,15 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         		odpObjectProperties = result.getObjectProperties();
         		odpDataProperties = result.getDataProperties();
         		
-        		// Clear and re-render child panels
-        		// TODO: Implement
+        		// Render (or re-render) those panels for which all necessary data exists already at ODP load time 
+        		// (e.g., that do not depend on any data generated or selections made in previous steps of the wizard)
         		instantiationMethodSelectionPanel.renderPanel();
         		entityCloningPanel.renderPanel();
         		entitySpecializationPanel.renderPanel();
-        		// TODO: the below three should perhaps not be called until the user
+        		
+        		// TODO: the below two should perhaps not be called until the user
         		// steps into them, after previous panels have been used and stored data..
         		restrictionsPanel.renderPanel();
-        		alignmentsPanel.renderPanel();
         		previewPanel.renderPanel();
         		
         		// Kill the spinner UI

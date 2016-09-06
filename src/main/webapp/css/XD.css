@@ -97,7 +97,14 @@ table.entitySpecializationToolbar button {
 	height: 2em;
 }
 
+.xdpAlignmentPanelAlignmentHolder {
+	width: 600px;
+}
 
+div.xdpAlignmentPanelAlignmentGroupHeading {
+	border-bottom: 1px solid #DFE8F6;
+	font-weight: bold;
+}
 
 div.entityTreeScrollWrapper {
 	height: 270px;
@@ -114,4 +121,6 @@ div.entityTree .gwt-TreeItem-selected {
 	display: inline-block !important;
 	padding: 2px;
 }
+
+
  
