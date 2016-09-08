@@ -159,7 +159,7 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 		this.dpHolderPanel.clear();
 		
 		// Render new class cloning widgets
-		FrameTreeNode<OntologyEntityFrame> classesToCloneTree = TreeMethods.tightenTree(parentWizard.getOdpClasses());
+		FrameTreeNode<OntologyEntityFrame> classesToCloneTree = TreeMethods.tightenTree(parentWizard.getClassTree());
 		Map<OntologyEntityFrame, Integer> classesToCloneDepthMap = TreeMethods.getFrameTreeAsIndentMap(classesToCloneTree);
 		if (classesToCloneDepthMap.size()>0) {
 			classesHeader.setVisible(true);
@@ -193,7 +193,7 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 		}
 		
 		// Render new object property cloning widgets
-		FrameTreeNode<OntologyEntityFrame> objectPropertyTree = parentWizard.getOdpObjectProperties();
+		FrameTreeNode<OntologyEntityFrame> objectPropertyTree = parentWizard.getObjectPropertyTree();
 		FrameTreeNode<OntologyEntityFrame> filteredObjectPropertyTree = filterPropertyTree(objectPropertyTree, null, restrictionPropertyIris, clonedClassIris);
 		Map<OntologyEntityFrame, Integer> objectPropertyDepthMap = TreeMethods.getFrameTreeAsIndentMap(filteredObjectPropertyTree);
 		if (objectPropertyDepthMap.size()>0) {
@@ -208,7 +208,7 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 		}
 		
 		// Render new datatype property cloning widgets
-		FrameTreeNode<OntologyEntityFrame> dataPropertyTree = parentWizard.getOdpDataProperties();
+		FrameTreeNode<OntologyEntityFrame> dataPropertyTree = parentWizard.getDataPropertyTree();
 		FrameTreeNode<OntologyEntityFrame> filteredDataPropertyTree = filterPropertyTree(dataPropertyTree, null, restrictionPropertyIris, clonedClassIris);
 		Map<OntologyEntityFrame, Integer> dataPropertyDepthMap = TreeMethods.getFrameTreeAsIndentMap(filteredDataPropertyTree);
 		if (dataPropertyDepthMap.size()>0) {

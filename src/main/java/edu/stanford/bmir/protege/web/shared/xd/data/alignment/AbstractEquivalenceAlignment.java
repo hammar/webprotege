@@ -13,6 +13,6 @@ public abstract class AbstractEquivalenceAlignment implements Alignment {
 	public abstract OntologyEntityFrame getOtherEntity();
 	
 	public String getSortableEntityLabel() {
-		return getHomeEntity().getLabel(); 
+		return getHomeEntity().getCurrentLabel(); 
 	}
 }

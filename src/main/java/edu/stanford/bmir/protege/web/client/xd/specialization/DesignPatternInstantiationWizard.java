@@ -1,9 +1,7 @@
 package edu.stanford.bmir.protege.web.client.xd.specialization;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.dom.client.Style.Unit;
@@ -25,6 +23,7 @@ import edu.stanford.bmir.protege.web.client.xd.specialization.panels.EntitySpeci
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.InstantiationMethodSelectionPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.PreviewPanel;
 import edu.stanford.bmir.protege.web.client.xd.specialization.panels.RestrictionsPanel;
+import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
@@ -55,18 +54,23 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private Date instantiationModificationTimestamp = new Date();
 	private Date alignmentsModificationTimestamp = new Date();
 
-	private FrameTreeNode<OntologyEntityFrame> odpClasses;
-	private FrameTreeNode<OntologyEntityFrame> odpObjectProperties;
-	private FrameTreeNode<OntologyEntityFrame> odpDataProperties;
-	private Map<OntologyEntityFrame, String> clonedEntityLabels;
+	private FrameTreeNode<OntologyEntityFrame> classTree;
+	private FrameTreeNode<OntologyEntityFrame> objectPropertyTree;
+	private FrameTreeNode<OntologyEntityFrame> dataPropertyTree;
+
 	private Set<Alignment> alignments = new HashSet<Alignment>();
-	
+	private ProjectId projectId;
+
 	private enum ActiveWizardScreen {
         METHOD_SELECTION, ENTITY_CLONING, ENTITY_SPECIALIZATION, RESTRICTIONS, ALIGNMENTS, PREVIEW;
     }
 	
+	@SuppressWarnings("deprecation")
 	public DesignPatternInstantiationWizard(DesignPatternDetailsPortlet parent) {
 		super(false, true);
+		
+		this.projectId = parent.getProjectId();
+		
 		this.addStyleName("xdInstantiationWizard");
 		
 		DockLayoutPanel wizardFramePanel = new DockLayoutPanel(Unit.EM);
@@ -90,10 +94,9 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		
 		// Default values
 		this.instantiationMethod = CodpInstantiationMethod.TEMPLATE_BASED;
-		this.odpClasses = new FrameTreeNode<OntologyEntityFrame>(new ClassFrame("nil"));
-		this.odpObjectProperties = new FrameTreeNode<OntologyEntityFrame>(new ObjectPropertyFrame("nil"));
-		this.odpDataProperties = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
-		this.clonedEntityLabels = new HashMap<OntologyEntityFrame, String>();
+		this.classTree = new FrameTreeNode<OntologyEntityFrame>(new ClassFrame("nil"));
+		this.objectPropertyTree = new FrameTreeNode<OntologyEntityFrame>(new ObjectPropertyFrame("nil"));
+		this.dataPropertyTree = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
 		
 		// Outer tab panel containing ODP visualization and instantiation wizard
 		TabLayoutPanel tabPanel = new TabLayoutPanel(3, Unit.EM);
@@ -331,15 +334,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		};
 	}
 	
-	/**
-	 * Used to add a mapping between an original ODP label and a target user-added label when instantiating
-	 * ODPs in a template-based manner using cloning.
-	 * @param sourceLabel
-	 * @param targetLabel
-	 */
-	public void setClonedEntityLabel(OntologyEntityFrame entityFrame, String targetLabel) {
-		this.updateInstantiationModificationTimestamp();
-		clonedEntityLabels.put(entityFrame, targetLabel);
+	public ProjectId getProjectId() {
+		return projectId;
 	}
 	
 	public void addAlignment(Alignment a) {
@@ -355,7 +351,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		return null;
 	}
 	
-	private void updateInstantiationModificationTimestamp() {
+	public void updateInstantiationModificationTimestamp() {
 		this.instantiationModificationTimestamp = new Date();
 	}
 	
@@ -396,19 +392,18 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		
 		// Clear wizard-level data structures
         this.instantiationMethod = CodpInstantiationMethod.TEMPLATE_BASED;
-		this.odpClasses = new FrameTreeNode<OntologyEntityFrame>(new ClassFrame("nil"));
-		this.odpObjectProperties = new FrameTreeNode<OntologyEntityFrame>(new ObjectPropertyFrame("nil"));
-		this.odpDataProperties = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
-		this.clonedEntityLabels = new HashMap<OntologyEntityFrame, String>();
+		this.classTree = new FrameTreeNode<OntologyEntityFrame>(new ClassFrame("nil"));
+		this.objectPropertyTree = new FrameTreeNode<OntologyEntityFrame>(new ObjectPropertyFrame("nil"));
+		this.dataPropertyTree = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
 		
 		// Re-populate wizard-level data structures w/ new data from server
         DispatchServiceManager.get().execute(new GetOdpContentsAction(uri), new DispatchServiceCallback<GetOdpContentsResult>() {
         	@Override
             public void handleSuccess(GetOdpContentsResult result) {
         		
-        		odpClasses = result.getClasses();
-        		odpObjectProperties = result.getObjectProperties();
-        		odpDataProperties = result.getDataProperties();
+        		classTree = result.getClasses();
+        		objectPropertyTree = result.getObjectProperties();
+        		dataPropertyTree = result.getDataProperties();
         		
         		// Render (or re-render) those panels for which all necessary data exists already at ODP load time 
         		// (e.g., that do not depend on any data generated or selections made in previous steps of the wizard)
@@ -427,19 +422,23 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         });
 	}
 
+	public CodpInstantiationMethod getInstantiationMethod() {
+		return this.instantiationMethod;
+	}
+	
 	public void setInstantiationMethod(CodpInstantiationMethod instantiationMethod) {
 		this.instantiationMethod = instantiationMethod;
 	}
 
-	public FrameTreeNode<OntologyEntityFrame> getOdpClasses() {
-		return odpClasses;
+	public FrameTreeNode<OntologyEntityFrame> getClassTree() {
+		return classTree;
 	}
 
-	public FrameTreeNode<OntologyEntityFrame> getOdpObjectProperties() {
-		return odpObjectProperties;
+	public FrameTreeNode<OntologyEntityFrame> getObjectPropertyTree() {
+		return objectPropertyTree;
 	}
 
-	public FrameTreeNode<OntologyEntityFrame> getOdpDataProperties() {
-		return odpDataProperties;
+	public FrameTreeNode<OntologyEntityFrame> getDataPropertyTree() {
+		return dataPropertyTree;
 	}
 }

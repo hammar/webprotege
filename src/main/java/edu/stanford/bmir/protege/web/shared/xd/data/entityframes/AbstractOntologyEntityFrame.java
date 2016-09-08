@@ -10,6 +10,7 @@ public class AbstractOntologyEntityFrame implements OntologyEntityFrame {
 	private static final long serialVersionUID = 3210642949486447600L;
 	
 	private String label;
+	private Optional<String> clonedLabel;
 	private Optional<String> comment;
 	private Optional<IRI> iri;
 	
@@ -17,14 +18,15 @@ public class AbstractOntologyEntityFrame implements OntologyEntityFrame {
 	protected AbstractOntologyEntityFrame() {
 	}
 	
-	// Co-comment no-OWL-entity constructor
+	// No-comment no-OWL-entity constructor
 	public AbstractOntologyEntityFrame(String label) {
 		this.label = label;
+		this.clonedLabel = Optional.absent();
 		this.comment = Optional.absent();
 		this.iri = Optional.absent();
 	}
 	
-	// -entity constructor
+	// No-entity constructor
 	public AbstractOntologyEntityFrame(String label, String comment) {
 		this(label);
 		this.setComment(comment);
@@ -37,7 +39,20 @@ public class AbstractOntologyEntityFrame implements OntologyEntityFrame {
 
 	// Access methods
 	public String getLabel() {
-		return label;
+		return this.label;
+	}
+	
+	public String getCurrentLabel() {
+		if (this.clonedLabel.isPresent()) {
+			if (this.clonedLabel.get().trim().length()>0) {
+				return this.clonedLabel.get();
+			}
+		}
+		return this.label;
+	}
+	
+	public Optional<String> getClonedLabel() {
+		return this.clonedLabel;
 	}
 
 	public Optional<String> getComment() {
@@ -48,6 +63,10 @@ public class AbstractOntologyEntityFrame implements OntologyEntityFrame {
 		this.label = label;
 	}
 
+	public void setClonedLabel(String clonedLabel) {
+		this.clonedLabel = Optional.of(clonedLabel);
+	}
+	
 	public void setComment(String comment) {
 		this.comment = Optional.of(comment);
 	}

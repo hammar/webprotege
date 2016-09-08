@@ -3,6 +3,7 @@ package edu.stanford.bmir.protege.web.shared.xd.actions;
 import edu.stanford.bmir.protege.web.shared.HasProjectId;
 import edu.stanford.bmir.protege.web.shared.dispatch.Action;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationAlignmentSuggestionsResult;
@@ -12,6 +13,7 @@ public class GetSpecializationAlignmentSuggestionsAction implements Action<GetSp
 	private FrameTreeNode<OntologyEntityFrame> classes;
 	private FrameTreeNode<OntologyEntityFrame> dataProperties;
 	private FrameTreeNode<OntologyEntityFrame> objectProperties;
+	private CodpInstantiationMethod instantiationMethod;
 	private ProjectId projectId;
 	
 	/**
@@ -24,14 +26,21 @@ public class GetSpecializationAlignmentSuggestionsAction implements Action<GetSp
 	
 	public GetSpecializationAlignmentSuggestionsAction(ProjectId projectId,
 			FrameTreeNode<OntologyEntityFrame> classes, 
-			FrameTreeNode<OntologyEntityFrame> dataProperties, 
-			FrameTreeNode<OntologyEntityFrame> objectProperties) {
+			FrameTreeNode<OntologyEntityFrame> objectProperties,
+			FrameTreeNode<OntologyEntityFrame> dataProperties,
+			CodpInstantiationMethod instantiationMethod) {
 		this.projectId = projectId;
 		this.classes = classes;
-		this.dataProperties = dataProperties;
 		this.objectProperties = objectProperties;
+		this.dataProperties = dataProperties;
+		this.instantiationMethod = instantiationMethod;
 	}
 
+	@Override
+	public ProjectId getProjectId() {
+		return projectId;
+	}
+	
 	public FrameTreeNode<OntologyEntityFrame> getClasses() {
 		return classes;
 	}
@@ -44,8 +53,7 @@ public class GetSpecializationAlignmentSuggestionsAction implements Action<GetSp
 		return objectProperties;
 	}
 
-	@Override
-	public ProjectId getProjectId() {
-		return projectId;
+	public CodpInstantiationMethod getInstantiationMethod() {
+		return this.instantiationMethod;
 	}
 }

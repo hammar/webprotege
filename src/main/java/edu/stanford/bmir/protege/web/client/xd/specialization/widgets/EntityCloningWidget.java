@@ -25,7 +25,8 @@ public class EntityCloningWidget extends HorizontalPanel {
 		this.targetTextBox.addValueChangeHandler(new ValueChangeHandler<String>() {
 			@Override
 			public void onValueChange(ValueChangeEvent<String> event) {
-				EntityCloningWidget.this.parentWizard.setClonedEntityLabel(EntityCloningWidget.this.entityFrame, event.getValue());
+				EntityCloningWidget.this.entityFrame.setClonedLabel(event.getValue());
+				EntityCloningWidget.this.parentWizard.updateInstantiationModificationTimestamp();
 			}
 		});
 		Label prefixLabel = new Label(this.prefix);

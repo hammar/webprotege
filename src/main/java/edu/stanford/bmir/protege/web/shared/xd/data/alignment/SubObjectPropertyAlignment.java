@@ -30,7 +30,7 @@ public class SubObjectPropertyAlignment extends AbstractSubsumptionAlignment {
 	}
 
 	public String toString() {
-		return (subProperty.getLabel() + " is a subobjectproperty of " + superProperty.getLabel());
+		return (subProperty.getCurrentLabel() + " is a subobjectproperty of " + superProperty.getCurrentLabel());
 	}
 
 }

@@ -34,6 +34,7 @@ import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.specialization.old.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.client.xd.util.UUID;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationAlignmentSuggestionsAction;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationAlignmentSuggestionsResult;
 
@@ -127,7 +128,7 @@ public class AlignmentsPanel extends Panel {
 		GetSpecializationAlignmentSuggestionsAction action = new GetSpecializationAlignmentSuggestionsAction(parentWizard.getProjectId(), 
 				parentWizard.getAllClasses(), 
 				parentWizard.getAllDataProperties(), 
-				parentWizard.getAllObjectProperties());
+				parentWizard.getAllObjectProperties(), null);
 		DispatchServiceManager.get().execute(action, new DispatchServiceCallback<GetSpecializationAlignmentSuggestionsResult>() {
         	@Override
             public void handleSuccess(GetSpecializationAlignmentSuggestionsResult result) {

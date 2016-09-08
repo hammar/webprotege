@@ -10,6 +10,6 @@ public abstract class AbstractSubsumptionAlignment implements Alignment {
 	public abstract OntologyEntityFrame getSubEntity();
 	
 	public String getSortableEntityLabel() {
-		return getSubEntity().getLabel(); 
+		return getSubEntity().getCurrentLabel(); 
 	}
 }

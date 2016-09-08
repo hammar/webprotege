@@ -30,7 +30,7 @@ public class SubClassAlignment extends AbstractSubsumptionAlignment {
 	}
 
 	public String toString() {
-		return (subClass.getLabel() + " is a subclass of " + superClass.getLabel());
+		return (subClass.getCurrentLabel() + " is a subclass of " + superClass.getCurrentLabel());
 	}
 
 }

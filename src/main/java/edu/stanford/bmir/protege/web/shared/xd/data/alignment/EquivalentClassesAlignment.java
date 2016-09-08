@@ -34,7 +34,7 @@ public class EquivalentClassesAlignment extends AbstractEquivalenceAlignment {
 	}
 	
 	public String toString() {
-		return (homeClass.getLabel() + " is equivalent to " + otherClass.getLabel());
+		return (homeClass.getCurrentLabel() + " is equivalent to " + otherClass.getCurrentLabel());
 	}
 
 }

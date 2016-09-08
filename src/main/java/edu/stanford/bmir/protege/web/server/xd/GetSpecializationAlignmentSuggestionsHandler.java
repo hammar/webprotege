@@ -1,6 +1,7 @@
 package edu.stanford.bmir.protege.web.server.xd;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import edu.stanford.bmir.protege.web.server.xd.util.AnnotationOperations;
 import edu.stanford.bmir.protege.web.server.xd.util.OntologyOperations;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationAlignmentSuggestionsAction;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalentClassesAlignment;
@@ -114,7 +116,7 @@ public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasPro
 	private Boolean isSubEntityOf(OntologyEntityFrame specializationFrame, OWLEntity existingEntity, OWLOntology ontology) {
 		String existingLabel = AnnotationOperations.getLabel(existingEntity, ontology, false);
 		String existingFragment = existingEntity.getIRI().getFragment();
-		String specializationLabel = specializationFrame.getLabel();
+		String specializationLabel = specializationFrame.getCurrentLabel();
 		String specializationFragment = "";
 		if (specializationFrame.getIri().isPresent()) {
 			specializationFragment = specializationFrame.getIri().get().getFragment();
@@ -132,7 +134,7 @@ public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasPro
 	private Boolean isSubEntityOf(OWLEntity existingEntity, OntologyEntityFrame specializationFrame, OWLOntology ontology) {
 		String existingLabel = AnnotationOperations.getLabel(existingEntity, ontology, false);
 		String existingFragment = existingEntity.getIRI().getFragment();
-		String specializationLabel = specializationFrame.getLabel();
+		String specializationLabel = specializationFrame.getCurrentLabel();
 		String specializationFragment = "";
 		if (specializationFrame.getIri().isPresent()) {
 			specializationFragment = specializationFrame.getIri().get().getFragment();
@@ -253,33 +255,53 @@ public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasPro
 		return retVal;
 	}
 	
+	private Set<OntologyEntityFrame> pruneNonClonedFrames(Set<OntologyEntityFrame> inputFrames) {
+		Iterator<OntologyEntityFrame> iterator = inputFrames.iterator();
+		while (iterator.hasNext()) {
+			OntologyEntityFrame frame = iterator.next();
+			if (!frame.getClonedLabel().isPresent()) {
+				iterator.remove();
+			}
+		}
+		return inputFrames;
+	}
+	
 	@Override
 	protected GetSpecializationAlignmentSuggestionsResult execute(GetSpecializationAlignmentSuggestionsAction action,
 			OWLAPIProject project, ExecutionContext executionContext) {
-		Set<Alignment> alignments = new HashSet<Alignment>();
 		
 		OWLOntology ontology = project.getRootOntology();
+		Set<OntologyEntityFrame> instantiationClasses = flattenFrameTree(action.getClasses());
+		Set<OntologyEntityFrame> instantiationObjectProperties = flattenFrameTree(action.getObjectProperties());
+		Set<OntologyEntityFrame> instantiationDataProperties = flattenFrameTree(action.getDataProperties());
 		
-		// 1. Generate class alignment suggestions
-		Set<OntologyEntityFrame> specializationClasses = flattenFrameTree(action.getClasses());
+		// 0. If doing template-based instantiation, only generate alignment suggestions for the frames that have been cloned
+		if (action.getInstantiationMethod() == CodpInstantiationMethod.TEMPLATE_BASED) {
+			instantiationClasses = pruneNonClonedFrames(instantiationClasses);
+			instantiationObjectProperties = pruneNonClonedFrames(instantiationObjectProperties);
+			instantiationDataProperties = pruneNonClonedFrames(instantiationDataProperties);
+		}
+		
+		// 1. Create return value
+		Set<Alignment> alignments = new HashSet<Alignment>();
+		
+		// 2. Generate class alignment suggestions
 		Set<OWLClass> allOntologyClasses = ontology.getClassesInSignature(true);
 		OWLClass owlThing = DataFactory.getOWLThing();
 		allOntologyClasses.remove(owlThing);
 		OWLClass owlNothing = DataFactory.getOWLClass(IRI.create("http://www.w3.org/2002/07/owl#Nothing"));
 		allOntologyClasses.remove(owlNothing);
-		alignments.addAll(generateCandidateAlignments(specializationClasses, allOntologyClasses, ontology));
-		
-		// 2. Generate data property alignment suggestions
-		Set<OntologyEntityFrame> specializationDataProperties = flattenFrameTree(action.getDataProperties());
-		Set<OWLDataProperty> allOntologyDataProperties = ontology.getDataPropertiesInSignature(true);
-		alignments.addAll(generateCandidateAlignments(specializationDataProperties, allOntologyDataProperties, ontology));
-		
+		alignments.addAll(generateCandidateAlignments(instantiationClasses, allOntologyClasses, ontology));
+
 		// 3. Generate object property alignment suggestions
-		Set<OntologyEntityFrame> specializationObjectProperties = flattenFrameTree(action.getObjectProperties());
 		Set<OWLObjectProperty> allOntologyObjectProperties = ontology.getObjectPropertiesInSignature(true);
-		alignments.addAll(generateCandidateAlignments(specializationObjectProperties, allOntologyObjectProperties, ontology));
+		alignments.addAll(generateCandidateAlignments(instantiationObjectProperties, allOntologyObjectProperties, ontology));
 		
-		// 4. Log generated suggestions for later analysis
+		// 4. Generate data property alignment suggestions
+		Set<OWLDataProperty> allOntologyDataProperties = ontology.getDataPropertiesInSignature(true);
+		alignments.addAll(generateCandidateAlignments(instantiationDataProperties, allOntologyDataProperties, ontology));
+
+		// 5. Log generated suggestions for later analysis
 		xdpLog.logSuggestedOdpAlignments(executionContext.getUserId(), project, alignments);
 		
 		return new GetSpecializationAlignmentSuggestionsResult(alignments);

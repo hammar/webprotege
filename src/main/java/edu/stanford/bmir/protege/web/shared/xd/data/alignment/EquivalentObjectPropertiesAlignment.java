@@ -34,7 +34,7 @@ public class EquivalentObjectPropertiesAlignment extends AbstractEquivalenceAlig
 	}
 	
 	public String toString() {
-		return (homeProperty.getLabel() + " is equivalent to " + otherProperty.getLabel());
+		return (homeProperty.getCurrentLabel() + " is equivalent to " + otherProperty.getCurrentLabel());
 	}
 
 }

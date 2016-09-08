@@ -104,6 +104,7 @@ table.entitySpecializationToolbar button {
 div.xdpAlignmentPanelAlignmentGroupHeading {
 	border-bottom: 1px solid #DFE8F6;
 	font-weight: bold;
+	text-transform: capitalize;
 }
 
 div.entityTreeScrollWrapper {
@@ -122,5 +123,7 @@ div.entityTree .gwt-TreeItem-selected {
 	padding: 2px;
 }
 
-
+table.xdpAlignmentWidget input {
+	margin-right: 5px;
+}
  

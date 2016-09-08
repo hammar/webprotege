@@ -158,9 +158,9 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 		entityTree.clear();
 		
 		// Render classes, object properties, and datatype properties
-		renderEntityTree(parentWizard.getOdpClasses());
-		renderEntityTree(parentWizard.getOdpObjectProperties());
-		renderEntityTree(parentWizard.getOdpDataProperties());
+		renderEntityTree(parentWizard.getClassTree());
+		renderEntityTree(parentWizard.getObjectPropertyTree());
+		renderEntityTree(parentWizard.getDataPropertyTree());
 	}
 	
 	private void renderEntityTree(FrameTreeNode<OntologyEntityFrame> inputFrameTree) {

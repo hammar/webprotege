@@ -2,10 +2,28 @@ package edu.stanford.bmir.protege.web.client.xd.specialization.util;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 public class TreeMethods {
+	
+	
+	public static Integer countClonedEntities(FrameTreeNode<OntologyEntityFrame> topNode) {
+		// If cloned, count yourself
+		Integer c = 0;	
+		if (topNode.getData().getClonedLabel().isPresent()) {
+			String label = topNode.getData().getClonedLabel().get();
+			if (label.trim().length()>0) {
+				c += 1;
+			}
+		}
+		// Count all your children
+		for (FrameTreeNode<OntologyEntityFrame> childNode: topNode.getChildren()) {
+			c += countClonedEntities(childNode);
+		}
+		return c;
+	}
 	
 	/**
 	 * Generate from a tree a map of nodes (as keys) and their depth in the tree (as values), excluding
