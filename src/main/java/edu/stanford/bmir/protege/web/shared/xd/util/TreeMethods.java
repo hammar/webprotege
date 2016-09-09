@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.instantiation.util;
+package edu.stanford.bmir.protege.web.shared.xd.util;
 
 import java.util.HashMap;
 import java.util.Map;

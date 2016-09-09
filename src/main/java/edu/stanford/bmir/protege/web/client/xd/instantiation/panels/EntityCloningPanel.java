@@ -11,7 +11,6 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
-import edu.stanford.bmir.protege.web.client.xd.instantiation.util.TreeMethods;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.widgets.EntityCloningWidget;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
@@ -20,6 +19,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.PropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.util.TreeMethods;
 
 public class EntityCloningPanel extends VerticalPanel implements InstantiationWizardPanel {
 	

@@ -16,8 +16,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
-import com.gwtext.client.widgets.MessageBox;
-
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
@@ -396,6 +394,11 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         this.alignmentsPanel.setVisible(false);
         this.previewPanel.setVisible(false);
         this.activeWizardScreen = ActiveWizardScreen.METHOD_SELECTION;
+        
+        // Set default state of buttons
+        this.wizardBackButton.setEnabled(false);
+        this.wizardNextButton.setEnabled(true);
+		this.wizardFinishButton.setEnabled(false);
         
 		// Reset initial timestamps that keep track of alignments being up to date or not 
         this.updateInstantiationModificationTimestamp();

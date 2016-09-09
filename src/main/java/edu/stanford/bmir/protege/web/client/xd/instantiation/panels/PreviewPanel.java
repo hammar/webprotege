@@ -60,6 +60,6 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
 
 	@Override
 	public void renderPanel() {
-		// TODO Auto-generated method stub
+		this.instantationAxiomsPreview.setText("");
 	}
 }

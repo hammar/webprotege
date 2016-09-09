@@ -2,6 +2,7 @@ package edu.stanford.bmir.protege.web.client.xd.instantiation.widgets;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
@@ -43,6 +44,11 @@ public class EntityCloningWidget extends HorizontalPanel {
 		
 		this.targetTextBox.addStyleName("targetLabelTextBox");
 		this.add(this.targetTextBox);
+		
+		// Set initial label that the user may replace if they wish.
+		String initialLabel = this.entityFrame.getLabel();
+		this.targetTextBox.setText(initialLabel);
+		this.entityFrame.setClonedLabel(initialLabel);
 	}
 	
 	public EntityCloningWidget(DesignPatternInstantiationWizard parentWizard, OntologyEntityFrame entityFrame) {
