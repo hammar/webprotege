@@ -19,49 +19,49 @@ import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
 import edu.stanford.bmir.protege.web.server.xd.log.XdpLogger;
 import edu.stanford.bmir.protege.web.shared.event.ProjectEvent;
 import edu.stanford.bmir.protege.web.shared.events.EventList;
-import edu.stanford.bmir.protege.web.shared.xd.actions.PersistSpecializationAction;
-import edu.stanford.bmir.protege.web.shared.xd.results.PersistSpecializationResult;
+import edu.stanford.bmir.protege.web.shared.xd.actions.PersistInstantiationAction;
+import edu.stanford.bmir.protege.web.shared.xd.results.PersistInstantiationResult;
 
-public class PersistSpecializationHandler extends AbstractProjectChangeHandler<OWLEntity, PersistSpecializationAction,PersistSpecializationResult> {
+public class PersistInstantiationHandler extends AbstractProjectChangeHandler<OWLEntity, PersistInstantiationAction,PersistInstantiationResult> {
 	
 	private final XdpLogger xdpLog;
 	
 	@Inject
-	public PersistSpecializationHandler(OWLAPIProjectManager projectManager) {
+	public PersistInstantiationHandler(OWLAPIProjectManager projectManager) {
 		super(projectManager);
 		this.xdpLog = XdpLogger.getInstance();
 	}
 
 	@Override
-	public Class<PersistSpecializationAction> getActionClass() {
-		return PersistSpecializationAction.class;
+	public Class<PersistInstantiationAction> getActionClass() {
+		return PersistInstantiationAction.class;
 	}
 
 	@Override
-	protected ChangeListGenerator<OWLEntity> getChangeListGenerator(PersistSpecializationAction action, 
+	protected ChangeListGenerator<OWLEntity> getChangeListGenerator(PersistInstantiationAction action, 
 			OWLAPIProject project,ExecutionContext executionContext) {
-		return new OdpSpecializationChangeListGenerator(action.getOdpSpecialization());
+		return new OdpInstantiationChangeListGenerator(action.getOdpInstantiation());
 	}
 
 	@Override
-	protected ChangeDescriptionGenerator<OWLEntity> getChangeDescription(PersistSpecializationAction action, 
+	protected ChangeDescriptionGenerator<OWLEntity> getChangeDescription(PersistInstantiationAction action, 
 			OWLAPIProject project,ExecutionContext executionContext) {
-		return new FixedMessageChangeDescriptionGenerator<OWLEntity>(OWLMessageFormatter.formatMessage("Specialised the Ontology Design Pattern {0}", project, action.getOdpSpecialization().getOdpIri().toString()));
+		return new FixedMessageChangeDescriptionGenerator<OWLEntity>(OWLMessageFormatter.formatMessage("Instantiated the Ontology Design Pattern {0}", project, action.getOdpInstantiation().getOdpIri().toString()));
 	}
 
 	@Override
-	protected PersistSpecializationResult createActionResult(ChangeApplicationResult<OWLEntity> changeApplicationResult,
-			PersistSpecializationAction action, OWLAPIProject project, ExecutionContext executionContext,
+	protected PersistInstantiationResult createActionResult(ChangeApplicationResult<OWLEntity> changeApplicationResult,
+			PersistInstantiationAction action, OWLAPIProject project, ExecutionContext executionContext,
 			EventList<ProjectEvent<?>> eventList) {
 		
 		// Log alignments used, for later analysis
-		xdpLog.logUsedOdpAlignments(executionContext.getUserId(), project, action.getOdpSpecialization().getAlignments());
+		xdpLog.logUsedOdpAlignments(executionContext.getUserId(), project, action.getOdpInstantiation().getAlignments());
 		
-		return new PersistSpecializationResult(eventList);
+		return new PersistInstantiationResult(eventList);
 	}
 
 	@Override
-	protected RequestValidator<PersistSpecializationAction> getAdditionalRequestValidator(PersistSpecializationAction action, RequestContext requestContext) {
-		return new UserHasProjectWritePermissionValidator<PersistSpecializationAction>();
+	protected RequestValidator<PersistInstantiationAction> getAdditionalRequestValidator(PersistInstantiationAction action, RequestContext requestContext) {
+		return new UserHasProjectWritePermissionValidator<PersistInstantiationAction>();
 	}
 }

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.StreamDocumentSource;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
@@ -101,7 +102,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	        // Log request and user ID for later analysis
 	        xdpLog.logOdpContentsRetrieved(executionContext.getUserId(), action.getOdpUri());
 	        
-	        return new GetOdpContentsResult(classes,objectProperties,datatypeProperties);
+	        return new GetOdpContentsResult(IRI.create(action.getOdpUri()), classes,objectProperties,datatypeProperties);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

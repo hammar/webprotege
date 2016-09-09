@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.semanticweb.owlapi.model.IRI;
+
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -14,6 +16,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.gwtext.client.widgets.MessageBox;
+
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
@@ -25,15 +29,18 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.PreviewPanel
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.RestrictionsPanel;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
+import edu.stanford.bmir.protege.web.shared.xd.actions.PersistInstantiationAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
+import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
+import edu.stanford.bmir.protege.web.shared.xd.results.PersistInstantiationResult;
 
 public class DesignPatternInstantiationWizard extends PopupPanel {
 
@@ -54,6 +61,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private Date instantiationModificationTimestamp = new Date();
 	private Date alignmentsModificationTimestamp = new Date();
 
+	private IRI odpIri;
 	private FrameTreeNode<OntologyEntityFrame> classTree;
 	private FrameTreeNode<OntologyEntityFrame> objectPropertyTree;
 	private FrameTreeNode<OntologyEntityFrame> dataPropertyTree;
@@ -178,7 +186,16 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	}
 	
 	protected void saveAndClose() {
-		// TODO Auto-generated method stub
+		PersistInstantiationAction pia = new PersistInstantiationAction(this.getInstantiation());
+		// TODO: Instantiate some spinner UI
+		
+		DispatchServiceManager.get().execute(pia, new DispatchServiceCallback<PersistInstantiationResult>() {
+        	@Override
+            public void handleSuccess(PersistInstantiationResult result) {
+        		// TODO: Kill the spinner UI
+        		hide();
+            }
+        });
 	}
 	
 	private ClickHandler makeBackButtonClickHandler() {
@@ -346,9 +363,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		this.alignments.remove(a);
 	}
 	
-	public OdpSpecialization getSpecialization() {
-		// TODO Auto-generated method stub
-		return null;
+	public OdpInstantiation getInstantiation() {
+		return new OdpInstantiation(this.projectId, this.odpIri, this.classTree, this.objectPropertyTree, this.dataPropertyTree, this.alignments, this.instantiationMethod, OdpSpecializationStrategy.PROPERTY_ORIENTED);
 	}
 	
 	public void updateInstantiationModificationTimestamp() {
@@ -369,8 +385,6 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	}
 
 	public void loadOdp(String uri) {
-		// TODO remove this debug once done
-		//Window.alert("Asked to load: " + uri);
 		
 		// Set default visibility of child panels and reset statekeeping enum
 		// This is prior to spinner UI activating as it is instantaneous, and we
@@ -401,6 +415,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         	@Override
             public void handleSuccess(GetOdpContentsResult result) {
         		
+        		odpIri = result.getOdpIri();
         		classTree = result.getClasses();
         		objectPropertyTree = result.getObjectProperties();
         		dataPropertyTree = result.getDataProperties();
@@ -429,7 +444,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	public void setInstantiationMethod(CodpInstantiationMethod instantiationMethod) {
 		this.instantiationMethod = instantiationMethod;
 	}
-
+	
 	public FrameTreeNode<OntologyEntityFrame> getClassTree() {
 		return classTree;
 	}

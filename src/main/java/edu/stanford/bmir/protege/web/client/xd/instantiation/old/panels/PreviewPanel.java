@@ -16,9 +16,9 @@ import com.gwtext.client.widgets.layout.RowLayout;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.DesignPatternSpecializationWizard;
-import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationPreviewAction;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
-import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationPreviewResult;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationPreviewAction;
+import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationPreviewResult;
 
 public class PreviewPanel extends Panel {
 	
@@ -64,13 +64,13 @@ public class PreviewPanel extends Panel {
                 }); 
 
             	// Get specialization object from parent wizard and send to server for preview generation
-            	OdpSpecialization spec = parentWizard.getSpecialization();
-                DispatchServiceManager.get().execute(new GetSpecializationPreviewAction(spec), 
-                		new DispatchServiceCallback<GetSpecializationPreviewResult>() {
+            	OdpInstantiation spec = parentWizard.getSpecialization();
+                DispatchServiceManager.get().execute(new GetInstantiationPreviewAction(spec), 
+                		new DispatchServiceCallback<GetInstantiationPreviewResult>() {
                 	@Override
-                    public void handleSuccess(GetSpecializationPreviewResult result) {
+                    public void handleSuccess(GetInstantiationPreviewResult result) {
                 		MessageBox.hide();
-                		instantationAxiomsPreview.setText(result.getSpecializationPreview());
+                		instantationAxiomsPreview.setText(result.getInstantiationPreview());
                     }
                 });
             }

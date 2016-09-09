@@ -10,28 +10,28 @@ import edu.stanford.bmir.protege.web.shared.dispatch.Result;
  * @author Karl Hammar <karl@karlhammar.com>
  *
  */
-public class GetSpecializationPreviewResult implements Result {
+public class GetInstantiationPreviewResult implements Result {
 
 	/**
 	 * No-arg constructor, for GWT-RPC serialization purpose only
 	 */
 	@SuppressWarnings("unused")
-	private GetSpecializationPreviewResult() {
+	private GetInstantiationPreviewResult() {
 	}
 	
 	/**
 	 * Constructor
-	 * @param specializationPreview
+	 * @param instantiationPreview
 	 */
-	public GetSpecializationPreviewResult(String specializationPreview) {
-		this.specializationPreview = specializationPreview;
+	public GetInstantiationPreviewResult(String instantiationPreview) {
+		this.instantiationPreview = instantiationPreview;
 	}
 	
 	// Data fields
-	private String specializationPreview;
+	private String instantiationPreview;
 	
 	// Access methods
-	public String getSpecializationPreview() {
-		return specializationPreview;
+	public String getInstantiationPreview() {
+		return instantiationPreview;
 	}
 }

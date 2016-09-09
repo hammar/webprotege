@@ -40,9 +40,10 @@ import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
 import edu.stanford.bmir.protege.web.server.owlapi.RenameMap;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
+import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction.ValueConstraint;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.AbstractEquivalenceAlignment;
@@ -54,7 +55,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyF
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.PropertyFrame;
 
-public class OdpSpecializationChangeListGenerator implements ChangeListGenerator<OWLEntity> {
+public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<OWLEntity> {
 
 	
 	@Inject private WebProtegeLogger log;
@@ -63,10 +64,10 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 	private Map<String,OWLEntity> freshEntities;
 	private Set<OWLOntology> odpClosure;
 	
-	public OdpSpecializationChangeListGenerator(OdpSpecialization specialization) {
+	public OdpInstantiationChangeListGenerator(OdpInstantiation instantiation) {
 		super();
 		
-		this.specialization = specialization;
+		this.instantiation = instantiation;
 		this.freshEntities = new HashMap<String,OWLEntity>();
 		
 		try {
@@ -80,21 +81,43 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 		}
 	}
 
-	private OdpSpecialization specialization;
+	private OdpInstantiation instantiation;
 	
-	@Override
-	public OntologyChangeList<OWLEntity> generateChanges(OWLAPIProject project, ChangeGenerationContext context) {
-		
-		// Initiate map used to keep track of created OWL Entities when linking restrictions and such
-		// involving both newly created classes and properties
-		
-		
-		// Initiate change builder
+	/**
+	 *  Returns a filtered subset of the input set of class or property trees, containing
+	 *  only those that have been specialized in this wizard (e.g., those that do not have
+	 *  any minted IRI), flattened to a set of root nodes.
+	 * @param inputFrameTreeRoot - root node to search through
+	 * @return
+	 */
+	private Set<FrameTreeNode<OntologyEntityFrame>> getSpecializedEntityTrees(FrameTreeNode<OntologyEntityFrame> inputFrameTreeRoot) {
+		Set<FrameTreeNode<OntologyEntityFrame>> specializedEntityRoots = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
+		// This node has an IRI, e.g., is a pre-existing concept in the ontology, e.g., recurse deeper into child nodes.
+		if (inputFrameTreeRoot.getData().getIri().isPresent()) {
+			for (FrameTreeNode<OntologyEntityFrame> childNode: inputFrameTreeRoot.getChildren()) {
+				specializedEntityRoots.addAll(getSpecializedEntityTrees(childNode));
+			}
+		}
+		// This node has no IRI so it is a specialized subtree. Add it to the set to be returned.
+		else {
+			specializedEntityRoots.add(inputFrameTreeRoot);
+		}
+		return specializedEntityRoots;
+	}
+	
+	/**
+	 * Construct an ontology change list builder using the specialization strategy, i.e. by importing the
+	 * entire existing ODP transitive closure and adding on subclasses and subproperties when instantiating
+	 * the ODP.
+	 * @param project
+	 * @return
+	 */
+	private OntologyChangeList.Builder<OWLEntity> makeBuilderBySpecialization(OWLAPIProject project) {
 		OntologyChangeList.Builder<OWLEntity> builder = new OntologyChangeList.Builder<OWLEntity>();
 		
 		// Load ODP closure
 		if (odpClosure == null) {
-			odpClosure = getOdpClosure(specialization.getOdpIri());
+			odpClosure = getOdpClosure(instantiation.getOdpIri());
 		}
 		
 		// For every axiom in ODP closure, add to change builder (e.g., copy the ODP closure into the target ontology)
@@ -120,32 +143,37 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 			}
 		}
 		
-		// 1. Create class hierarchy from input specialization
-		for (FrameTreeNode<OntologyEntityFrame> classTree: specialization.getClassFrameTrees()) {
+		// 0. Now filter out only the specialized frames, i.e., those that do not yet have a minted IRI for further processing
+		Set<FrameTreeNode<OntologyEntityFrame>> specializedClasses = getSpecializedEntityTrees(instantiation.getClassFrameTree());
+		Set<FrameTreeNode<OntologyEntityFrame>> specializedObjectProperties = getSpecializedEntityTrees(instantiation.getObjectPropertyFrameTree());
+		Set<FrameTreeNode<OntologyEntityFrame>> specializedDataProperties = getSpecializedEntityTrees(instantiation.getDataPropertyFrameTree());
+		
+		// 1. Create class hierarchy from input specialization, ignoring top node
+		for (FrameTreeNode<OntologyEntityFrame> classTree: specializedClasses) {
 			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, classTree, Optional.<OWLEntity>absent());
 			for (OWLAxiom axiom: axioms) {
 				builder.addAxiom(project.getRootOntology(), axiom);
 			}
 		}
 		
-		// 2. Create data property hierarchy from input specialization
-		for (FrameTreeNode<OntologyEntityFrame> dataPropertyTree: specialization.getDataPropertyFrameTrees()) {
+		// 2. Create data property hierarchy from input specialization, ignoring top node
+		for (FrameTreeNode<OntologyEntityFrame> dataPropertyTree: specializedDataProperties) {
 			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, dataPropertyTree, Optional.<OWLEntity>absent());
 			for (OWLAxiom axiom: axioms) {
 				builder.addAxiom(project.getRootOntology(), axiom);
 			}
 		}
 		
-		// 3. Create object property hierarchy from input specialization
-		for (FrameTreeNode<OntologyEntityFrame> objectPropertyTree: specialization.getObjectPropertyFrameTrees()) {
+		// 3. Create object property hierarchy from input specialization, ignoring top node
+		for (FrameTreeNode<OntologyEntityFrame> objectPropertyTree: specializedObjectProperties) {
 			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, objectPropertyTree, Optional.<OWLEntity>absent());
 			for (OWLAxiom axiom: axioms) {
 				builder.addAxiom(project.getRootOntology(), axiom);
 			}
 		}
 		
-		// 4. Create existential/universal restriction axioms on classes using properties
-		for (FrameTreeNode<OntologyEntityFrame> classTree: specialization.getClassFrameTrees()) {
+		// 4. Create existential/universal restriction axioms on classes using properties, ignoring top node
+		for (FrameTreeNode<OntologyEntityFrame> classTree: specializedClasses) {
 			Set<OWLAxiom> axioms = generateComplexRestrictionAxioms(project, classTree);
 			for (OWLAxiom axiom: axioms) {
 				builder.addAxiom(project.getRootOntology(), axiom);
@@ -153,7 +181,7 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 		}
 		
 		// 5. Create alignment axioms
-		for (Alignment alignment: specialization.getAlignments()) {
+		for (Alignment alignment: instantiation.getAlignments()) {
 			if (alignment instanceof AbstractSubsumptionAlignment) {
 				OntologyEntityFrame superFrame = ((AbstractSubsumptionAlignment) alignment).getSuperEntity();
 				OntologyEntityFrame subFrame = ((AbstractSubsumptionAlignment) alignment).getSubEntity();
@@ -175,8 +203,52 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 				}
 			}
 		}
+		return builder;
+	}
+	
+	/**
+	 * Make an ontology change list builder by adhering to the template-based instantiation method, i.e., by
+	 * cloning only some of the entities from scratch, regardless of existing ODP imports hierarchy or IRIs, but keeping
+	 * the conceptual structure of the CODP.
+	 * @param project
+	 * @return
+	 */
+	private OntologyChangeList.Builder<OWLEntity> makeBuilderByTemplate(OWLAPIProject project) {
+		// TODO: Actually implement this code for template-based instantiation.
+		OntologyChangeList.Builder<OWLEntity> builder = new OntologyChangeList.Builder<OWLEntity>();
 		
-		// 6. Build change list and return it
+		// TODO: Remove below test code.
+		Set<OWLAxiom> allAxioms = new HashSet<OWLAxiom>();
+		OWLClass cls1 = DataFactory.getFreshOWLEntity(EntityType.CLASS, "Test Class 1");
+		OWLClass cls2 = DataFactory.getFreshOWLEntity(EntityType.CLASS, "Test Class 2");
+		OWLObjectProperty objProp1 = DataFactory.getFreshOWLEntity(EntityType.OBJECT_PROPERTY, "Object Property 1");
+		allAxioms.add(project.getDataFactory().getOWLDeclarationAxiom(cls1));
+		allAxioms.add(project.getDataFactory().getOWLDeclarationAxiom(cls2));
+		allAxioms.add(project.getDataFactory().getOWLDeclarationAxiom(objProp1));
+		allAxioms.add(DataFactory.get().getOWLObjectPropertyDomainAxiom(objProp1, cls1));
+		allAxioms.add(DataFactory.get().getOWLObjectPropertyRangeAxiom(objProp1, cls2));
+		for (OWLAxiom ax: allAxioms) {
+			builder.addAxiom(project.getRootOntology(), ax);
+		}
+		
+		return builder;
+	}
+	
+	
+	@Override
+	public OntologyChangeList<OWLEntity> generateChanges(OWLAPIProject project, ChangeGenerationContext context) {		
+		
+		// Initiate change builder
+		OntologyChangeList.Builder<OWLEntity> builder;
+		
+		if (this.instantiation.getInstantiationMethod() == CodpInstantiationMethod.TEMPLATE_BASED) {
+			builder = makeBuilderByTemplate(project);
+		}
+		else {
+			builder = makeBuilderBySpecialization(project);
+		}
+		
+		// Build change list and return it
 		return builder.build();
 	}
 
@@ -283,9 +355,10 @@ public class OdpSpecializationChangeListGenerator implements ChangeListGenerator
 	}
 
 	public Map<String,String> getPrefixes() {
+		// TODO: Fix this to only include reasonable prefixes if template-based instantiation.
 		Map<String,String> prefixes = new HashMap<String,String>();
 		if (odpClosure == null) {
-			odpClosure = getOdpClosure(specialization.getOdpIri());
+			odpClosure = getOdpClosure(instantiation.getOdpIri());
 		}
 		for (OWLOntology odpImport: odpClosure) {
 			OWLOntologyFormat format = odpImport.getOWLOntologyManager().getOntologyFormat(odpImport);

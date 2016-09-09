@@ -6,26 +6,25 @@ import edu.stanford.bmir.protege.web.shared.event.ProjectEvent;
 import edu.stanford.bmir.protege.web.shared.events.EventList;
 
 /**
- * The response to a ODP specialization persistence action. Contains a reference to the new revision
- * numer this specialization caused. 
+ * The response to a ODP instantiation persistence action. Contains a reference to the new revision
+ * number this instantiation caused. 
  * 
  * @author Karl Hammar <karl@karlhammar.com>
  *
  */
-public class PersistSpecializationResult implements Result, HasEventList<ProjectEvent<?>> {
+public class PersistInstantiationResult implements Result, HasEventList<ProjectEvent<?>> {
 
 	/**
 	 * No-arg constructor, for GWT-RPC serialization purpose only
 	 */
 	@SuppressWarnings("unused")
-	private PersistSpecializationResult() {
+	private PersistInstantiationResult() {
 	}
 	
 	/**
 	 * Constructor
-	 * @param specializationPreview
 	 */
-	public PersistSpecializationResult(EventList<ProjectEvent<?>> events) {
+	public PersistInstantiationResult(EventList<ProjectEvent<?>> events) {
 		this.events = events;
 	}
 	

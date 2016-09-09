@@ -127,3 +127,24 @@ table.xdpAlignmentWidget input {
 	margin-right: 5px;
 }
  
+ table.xdpPreviewPanel {
+ 	width: 100%;
+ }
+ 
+ table.xdpPreviewPanelNavBar {
+    height: 33px;
+    vertical-align: middle;
+    border-bottom: 1px solid darkblue;
+    width: 100%;
+    background-color: #DBEBF0;
+}
+
+ table.xdpPreviewPanelNavBar button {
+    height: 2em;
+    margin: 5px;
+}
+
+table.xdpPreviewPanel textarea {
+	width: 612px;
+	height: 320px;
+}

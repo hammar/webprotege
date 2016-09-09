@@ -24,26 +24,26 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.UserHasProjectReadPermissionValidator;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProjectManager;
-import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationPreviewAction;
-import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationPreviewResult;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationPreviewAction;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationPreviewResult;
 
-public class GetSpecializationPreviewHandler extends AbstractHasProjectActionHandler<GetSpecializationPreviewAction,GetSpecializationPreviewResult> {
+public class GetInstantiationPreviewHandler extends AbstractHasProjectActionHandler<GetInstantiationPreviewAction,GetInstantiationPreviewResult> {
 
 	@Inject
-	public GetSpecializationPreviewHandler(OWLAPIProjectManager projectManager) {
+	public GetInstantiationPreviewHandler(OWLAPIProjectManager projectManager) {
 		super(projectManager);
 	}
 	
 	@Override
-	public Class<GetSpecializationPreviewAction> getActionClass() {
-		return GetSpecializationPreviewAction.class;
+	public Class<GetInstantiationPreviewAction> getActionClass() {
+		return GetInstantiationPreviewAction.class;
 	}
 
 	@Override
-	protected GetSpecializationPreviewResult execute(GetSpecializationPreviewAction action, OWLAPIProject project, ExecutionContext executionContext) {
+	protected GetInstantiationPreviewResult execute(GetInstantiationPreviewAction action, OWLAPIProject project, ExecutionContext executionContext) {
 		try {
 			
-			OdpSpecializationChangeListGenerator generator = new OdpSpecializationChangeListGenerator(action.getOdpSpecialization());
+			OdpInstantiationChangeListGenerator generator = new OdpInstantiationChangeListGenerator(action.getOdpSpecialization());
 			OntologyChangeList<OWLEntity> changes = generator.generateChanges(project, new ChangeGenerationContext(executionContext.getUserId()));
 			
 			// Get out the axioms from the change generator
@@ -67,7 +67,7 @@ public class GetSpecializationPreviewHandler extends AbstractHasProjectActionHan
 	        // Save demo ontology into Turtle format into an output stream, send to client
 	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	        manager.saveOntology(demoOntology, manchesterSyntax, baos);
-	        GetSpecializationPreviewResult result = new GetSpecializationPreviewResult(baos.toString());
+	        GetInstantiationPreviewResult result = new GetInstantiationPreviewResult(baos.toString());
 	        return result;
 	        
 		}
@@ -78,7 +78,7 @@ public class GetSpecializationPreviewHandler extends AbstractHasProjectActionHan
 	}
 
 	@Override
-	protected RequestValidator<GetSpecializationPreviewAction> getAdditionalRequestValidator(GetSpecializationPreviewAction action, RequestContext requestContext) {
-		return new UserHasProjectReadPermissionValidator<GetSpecializationPreviewAction>();
+	protected RequestValidator<GetInstantiationPreviewAction> getAdditionalRequestValidator(GetInstantiationPreviewAction action, RequestContext requestContext) {
+		return new UserHasProjectReadPermissionValidator<GetInstantiationPreviewAction>();
 	}
 }

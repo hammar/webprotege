@@ -25,14 +25,15 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.old.panels.Property
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.panels.StrategySelectionPanel;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
-import edu.stanford.bmir.protege.web.shared.xd.actions.PersistSpecializationAction;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecialization;
+import edu.stanford.bmir.protege.web.shared.xd.actions.PersistInstantiationAction;
+import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
-import edu.stanford.bmir.protege.web.shared.xd.results.PersistSpecializationResult;
+import edu.stanford.bmir.protege.web.shared.xd.results.PersistInstantiationResult;
 
 public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets.Window {
 	
@@ -243,8 +244,8 @@ public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets
 	 * and then closes down the wizard. 
 	 */
 	private void saveAndClose() {	
-		OdpSpecialization odpSpec = this.getSpecialization();
-		PersistSpecializationAction psa = new PersistSpecializationAction(odpSpec);
+		OdpInstantiation odpSpec = this.getSpecialization();
+		PersistInstantiationAction psa = new PersistInstantiationAction(odpSpec);
 		
 		// Put up progress window
 		MessageBox.show(new MessageBoxConfig() {  
@@ -261,9 +262,9 @@ public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets
             }  
         }); 
 		
-		DispatchServiceManager.get().execute(psa, new DispatchServiceCallback<PersistSpecializationResult>() {
+		DispatchServiceManager.get().execute(psa, new DispatchServiceCallback<PersistInstantiationResult>() {
         	@Override
-            public void handleSuccess(PersistSpecializationResult result) {
+            public void handleSuccess(PersistInstantiationResult result) {
         		// Hide progress window once done
         		MessageBox.hide();
         		closeAndResetSpecializationWizard();
@@ -279,6 +280,7 @@ public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets
 		this.hide();
 	}
 	
+
 	// This is where we clear out old data, load new data required 
 	// to run the wizard, prepare fields, etc etc
 	public void loadOdp(String uri) {
@@ -342,14 +344,11 @@ public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets
 		return allDataProperties;
 	}
 	
-	public OdpSpecialization getSpecialization() {
+	public OdpInstantiation getSpecialization() {
 		Set<Alignment> selectedAlignments = alignmentsPanel.getSelectedAlignments();
 		selectedAlignments.addAll(alignments);
 		
-		return new OdpSpecialization(projectId, odpIRI, specializationStrategy, selectedAlignments,
-    			this.getSpecializedClasses(),
-    			this.getSpecializedObjectProperties(),
-    			this.getSpecializedDataProperties());
+		return new OdpInstantiation(projectId, odpIRI, this.allClasses, this.allObjectProperties, this.allDataProperties, selectedAlignments, CodpInstantiationMethod.IMPORT_BASED, specializationStrategy);
 	}
 
 	public ProjectId getProjectId() {
