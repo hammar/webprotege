@@ -6,7 +6,7 @@ import java.util.Set;
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 
-public class GetSpecializationAlignmentSuggestionsResult implements Result, Serializable {
+public class GetInstantiationAlignmentSuggestionsResult implements Result, Serializable {
 
 	private static final long serialVersionUID = 4552909169511071901L;
 	
@@ -16,11 +16,11 @@ public class GetSpecializationAlignmentSuggestionsResult implements Result, Seri
 	 * GWT-RPC constructor
 	 */
 	@SuppressWarnings("unused")
-	private GetSpecializationAlignmentSuggestionsResult() {
+	private GetInstantiationAlignmentSuggestionsResult() {
 		
 	}
 	
-	public GetSpecializationAlignmentSuggestionsResult(Set<Alignment> alignments) {
+	public GetInstantiationAlignmentSuggestionsResult(Set<Alignment> alignments) {
 		this.alignments = alignments;
 	}
 

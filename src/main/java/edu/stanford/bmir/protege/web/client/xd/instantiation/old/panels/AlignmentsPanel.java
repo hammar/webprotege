@@ -33,10 +33,10 @@ import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.client.xd.util.UUID;
-import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationAlignmentSuggestionsAction;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationAlignmentSuggestionsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
-import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationAlignmentSuggestionsResult;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationAlignmentSuggestionsResult;
 
 public class AlignmentsPanel extends Panel {
 	
@@ -125,13 +125,13 @@ public class AlignmentsPanel extends Panel {
             }  
         }); 
 		
-		GetSpecializationAlignmentSuggestionsAction action = new GetSpecializationAlignmentSuggestionsAction(parentWizard.getProjectId(), 
+		GetInstantiationAlignmentSuggestionsAction action = new GetInstantiationAlignmentSuggestionsAction(parentWizard.getProjectId(), 
 				parentWizard.getAllClasses(), 
 				parentWizard.getAllDataProperties(), 
 				parentWizard.getAllObjectProperties(), null);
-		DispatchServiceManager.get().execute(action, new DispatchServiceCallback<GetSpecializationAlignmentSuggestionsResult>() {
+		DispatchServiceManager.get().execute(action, new DispatchServiceCallback<GetInstantiationAlignmentSuggestionsResult>() {
         	@Override
-            public void handleSuccess(GetSpecializationAlignmentSuggestionsResult result) {
+            public void handleSuccess(GetInstantiationAlignmentSuggestionsResult result) {
         		MessageBox.hide();
         		
         		for (Alignment alignment: result.getAlignments()) {

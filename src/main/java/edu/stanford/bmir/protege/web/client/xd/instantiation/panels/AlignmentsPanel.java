@@ -16,9 +16,9 @@ import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.widgets.AlignmentWidget;
-import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationAlignmentSuggestionsAction;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationAlignmentSuggestionsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
-import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationAlignmentSuggestionsResult;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationAlignmentSuggestionsResult;
 
 public class AlignmentsPanel extends VerticalPanel implements InstantiationWizardPanel {
 	
@@ -85,14 +85,14 @@ public class AlignmentsPanel extends VerticalPanel implements InstantiationWizar
 			this.alignmentsHolderPanel.clear();
 			
 			// Call server wait for results
-			GetSpecializationAlignmentSuggestionsAction action = new GetSpecializationAlignmentSuggestionsAction(parentWizard.getProjectId(), 
+			GetInstantiationAlignmentSuggestionsAction action = new GetInstantiationAlignmentSuggestionsAction(parentWizard.getProjectId(), 
 					parentWizard.getClassTree(),
 					parentWizard.getObjectPropertyTree(),
 					parentWizard.getDataPropertyTree(), 
 					parentWizard.getInstantiationMethod());
-			DispatchServiceManager.get().execute(action, new DispatchServiceCallback<GetSpecializationAlignmentSuggestionsResult>() {
+			DispatchServiceManager.get().execute(action, new DispatchServiceCallback<GetInstantiationAlignmentSuggestionsResult>() {
 	        	@Override
-	            public void handleSuccess(GetSpecializationAlignmentSuggestionsResult result) {
+	            public void handleSuccess(GetInstantiationAlignmentSuggestionsResult result) {
 	        		
 	        		// Render results
 	        		renderAlignmentWidgets(result.getAlignments());

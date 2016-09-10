@@ -6,9 +6,9 @@ import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
-import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationAlignmentSuggestionsResult;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationAlignmentSuggestionsResult;
 
-public class GetSpecializationAlignmentSuggestionsAction implements Action<GetSpecializationAlignmentSuggestionsResult>, HasProjectId {
+public class GetInstantiationAlignmentSuggestionsAction implements Action<GetInstantiationAlignmentSuggestionsResult>, HasProjectId {
 	
 	private FrameTreeNode<OntologyEntityFrame> classes;
 	private FrameTreeNode<OntologyEntityFrame> dataProperties;
@@ -20,11 +20,11 @@ public class GetSpecializationAlignmentSuggestionsAction implements Action<GetSp
 	 * GWT-RPC constructor
 	 */
 	@SuppressWarnings("unused")
-	private GetSpecializationAlignmentSuggestionsAction() {
+	private GetInstantiationAlignmentSuggestionsAction() {
 		
 	}
 	
-	public GetSpecializationAlignmentSuggestionsAction(ProjectId projectId,
+	public GetInstantiationAlignmentSuggestionsAction(ProjectId projectId,
 			FrameTreeNode<OntologyEntityFrame> classes, 
 			FrameTreeNode<OntologyEntityFrame> objectProperties,
 			FrameTreeNode<OntologyEntityFrame> dataProperties,

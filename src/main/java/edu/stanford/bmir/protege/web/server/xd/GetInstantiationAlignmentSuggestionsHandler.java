@@ -24,7 +24,7 @@ import edu.stanford.bmir.protege.web.server.xd.log.XdpLogger;
 import edu.stanford.bmir.protege.web.server.xd.util.AnnotationOperations;
 import edu.stanford.bmir.protege.web.server.xd.util.OntologyOperations;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
-import edu.stanford.bmir.protege.web.shared.xd.actions.GetSpecializationAlignmentSuggestionsAction;
+import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationAlignmentSuggestionsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
@@ -38,28 +38,28 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
-import edu.stanford.bmir.protege.web.shared.xd.results.GetSpecializationAlignmentSuggestionsResult;
+import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationAlignmentSuggestionsResult;
 
-public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasProjectActionHandler<GetSpecializationAlignmentSuggestionsAction,GetSpecializationAlignmentSuggestionsResult> {
+public class GetInstantiationAlignmentSuggestionsHandler extends AbstractHasProjectActionHandler<GetInstantiationAlignmentSuggestionsAction,GetInstantiationAlignmentSuggestionsResult> {
 
 	private final XdpLogger xdpLog;
 	
 	@Inject
-	public GetSpecializationAlignmentSuggestionsHandler(OWLAPIProjectManager projectManager) {
+	public GetInstantiationAlignmentSuggestionsHandler(OWLAPIProjectManager projectManager) {
 		super(projectManager);
 		this.xdpLog = XdpLogger.getInstance();
 	}
 
 	@Override
-	public Class<GetSpecializationAlignmentSuggestionsAction> getActionClass() {
-		return GetSpecializationAlignmentSuggestionsAction.class;
+	public Class<GetInstantiationAlignmentSuggestionsAction> getActionClass() {
+		return GetInstantiationAlignmentSuggestionsAction.class;
 	}
 
 	@Override
-	protected RequestValidator<GetSpecializationAlignmentSuggestionsAction> getAdditionalRequestValidator(
-			GetSpecializationAlignmentSuggestionsAction action,
+	protected RequestValidator<GetInstantiationAlignmentSuggestionsAction> getAdditionalRequestValidator(
+			GetInstantiationAlignmentSuggestionsAction action,
 			RequestContext requestContext) {
-		return new UserHasProjectReadPermissionValidator<GetSpecializationAlignmentSuggestionsAction>();
+		return new UserHasProjectReadPermissionValidator<GetInstantiationAlignmentSuggestionsAction>();
 	}
 	
 	private Set<OntologyEntityFrame> flattenFrameTree(FrameTreeNode<OntologyEntityFrame> treeNode) {
@@ -267,7 +267,7 @@ public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasPro
 	}
 	
 	@Override
-	protected GetSpecializationAlignmentSuggestionsResult execute(GetSpecializationAlignmentSuggestionsAction action,
+	protected GetInstantiationAlignmentSuggestionsResult execute(GetInstantiationAlignmentSuggestionsAction action,
 			OWLAPIProject project, ExecutionContext executionContext) {
 		
 		OWLOntology ontology = project.getRootOntology();
@@ -304,6 +304,6 @@ public class GetSpecializationAlignmentSuggestionsHandler extends AbstractHasPro
 		// 5. Log generated suggestions for later analysis
 		xdpLog.logSuggestedOdpAlignments(executionContext.getUserId(), project, alignments);
 		
-		return new GetSpecializationAlignmentSuggestionsResult(alignments);
+		return new GetInstantiationAlignmentSuggestionsResult(alignments);
 	}
 }

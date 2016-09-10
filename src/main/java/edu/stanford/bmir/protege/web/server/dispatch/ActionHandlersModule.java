@@ -54,7 +54,7 @@ import edu.stanford.bmir.protege.web.server.xd.GetOdpContentsHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetOdpDetailsHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetOdpSearchHitsHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetOdpsByCategoryHandler;
-import edu.stanford.bmir.protege.web.server.xd.GetSpecializationAlignmentSuggestionsHandler;
+import edu.stanford.bmir.protege.web.server.xd.GetInstantiationAlignmentSuggestionsHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetInstantiationPreviewHandler;
 import edu.stanford.bmir.protege.web.server.xd.PersistInstantiationHandler;
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdCompletionsAction;
@@ -198,7 +198,7 @@ public class ActionHandlersModule extends AbstractModule {
         multibinder.addBinding().to(GetOdpsByCategoryHandler.class);
         multibinder.addBinding().to(GetOdpDetailsHandler.class);
         multibinder.addBinding().to(GetOdpContentsHandler.class);
-        multibinder.addBinding().to(GetSpecializationAlignmentSuggestionsHandler.class);
+        multibinder.addBinding().to(GetInstantiationAlignmentSuggestionsHandler.class);
         multibinder.addBinding().to(GetInstantiationPreviewHandler.class);
         multibinder.addBinding().to(PersistInstantiationHandler.class);
     }
