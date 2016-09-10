@@ -9,7 +9,6 @@ import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
  *
  * @author Karl Hammar <karl@karlhammar.com>
  */
-@SuppressWarnings("unchecked")
 public class DesignPatternsTab extends AbstractTab {
 
 	private DesignPatternSelectorPortlet patternSearchPortlet;

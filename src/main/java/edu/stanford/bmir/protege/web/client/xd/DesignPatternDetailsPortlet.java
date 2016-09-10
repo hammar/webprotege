@@ -41,7 +41,6 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpDetailsResult;
  * @author Karl Hammar <karl@karlhammar.com>
  *
  */
-@SuppressWarnings("unchecked")
 public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implements SelectionListener {
 	
 	// Core stuff
