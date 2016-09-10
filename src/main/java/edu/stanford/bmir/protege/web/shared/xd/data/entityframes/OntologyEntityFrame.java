@@ -20,4 +20,5 @@ public interface OntologyEntityFrame extends Serializable {
 	
 	public Optional<IRI> getIri();
 	public void setIri(IRI iri);
+	public void removeIRI();
 }

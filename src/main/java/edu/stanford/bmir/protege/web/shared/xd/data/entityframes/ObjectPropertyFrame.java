@@ -43,6 +43,10 @@ public class ObjectPropertyFrame extends PropertyFrame implements Serializable {
 		return this.ranges;
 	}
 
+	public void setRanges(Set<LabelOrIri> ranges) {
+		this.ranges = ranges;
+	}
+	
 	public boolean getSymmetric() {
 		return symmetric;
 	}

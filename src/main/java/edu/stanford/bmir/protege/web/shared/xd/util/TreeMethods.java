@@ -2,13 +2,12 @@ package edu.stanford.bmir.protege.web.shared.xd.util;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 public class TreeMethods {
 	
-	
+	/*
 	public static Integer countClonedEntities(FrameTreeNode<OntologyEntityFrame> topNode) {
 		// If cloned, count yourself
 		Integer c = 0;	
@@ -23,7 +22,7 @@ public class TreeMethods {
 			c += countClonedEntities(childNode);
 		}
 		return c;
-	}
+	}*/
 	
 	/**
 	 * Generate from a tree a map of nodes (as keys) and their depth in the tree (as values), excluding
@@ -82,4 +81,33 @@ public class TreeMethods {
 		}
 		return retVal;
 	}
+	
+	
+	
+	public static FrameTreeNode<OntologyEntityFrame> filterTreeKeepingClonedEntities(FrameTreeNode<OntologyEntityFrame> inputTree, FrameTreeNode<OntologyEntityFrame> parentNode) {
+		// Construct a new tree
+		FrameTreeNode<OntologyEntityFrame> retVal = new FrameTreeNode<OntologyEntityFrame>(inputTree.getData());
+		
+		// Check if the node should be added to the target tree or if it should be skipped and 
+		// its children attached to its parent instead. Recurse.
+		if (inputTree.getData().getClonedLabel().isPresent() || parentNode==null) {
+			for (FrameTreeNode<OntologyEntityFrame> childNode: inputTree.getChildren()) {
+				FrameTreeNode<OntologyEntityFrame> newChildTree = filterTreeKeepingClonedEntities(childNode, retVal);
+				if (!newChildTree.getData().equals(retVal.getData())) {
+					retVal.addChildTree(newChildTree);
+				}
+			}
+		}
+		else {
+			for (FrameTreeNode<OntologyEntityFrame> childNode: inputTree.getChildren()) {
+				FrameTreeNode<OntologyEntityFrame> newChildTree = filterTreeKeepingClonedEntities(childNode, parentNode);
+				if (!newChildTree.getData().equals(parentNode.getData())) {
+					parentNode.addChildTree(newChildTree);
+				}
+			}
+			return parentNode;
+		}
+		return retVal;
+	}
+	
 }

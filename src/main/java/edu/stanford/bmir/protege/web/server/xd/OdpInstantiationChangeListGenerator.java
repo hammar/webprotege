@@ -54,6 +54,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFra
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.PropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.util.TreeMethods;
 
 public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<OWLEntity> {
 
@@ -62,6 +63,7 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	private String XdpServiceUriBase;
 	
 	private Map<String,OWLEntity> freshEntities;
+	private Map<IRI,String> clonedClassesToNewLabelsMap;
 	private Set<OWLOntology> odpClosure;
 	
 	public OdpInstantiationChangeListGenerator(CodpInstantiation instantiation) {
@@ -69,6 +71,7 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		
 		this.instantiation = instantiation;
 		this.freshEntities = new HashMap<String,OWLEntity>();
+		this.clonedClassesToNewLabelsMap = new HashMap<IRI,String>();
 		
 		try {
 			Properties XdServiceProperties = new Properties();
@@ -104,6 +107,35 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		}
 		return specializedEntityRoots;
 	}
+	
+	
+	/**
+	 *  Returns a filtered subset of the input set of class or property trees, containing
+	 *  only those that have been cloned in this wizard (e.g., those that have a cloned label), 
+	 *  flattened to a set of root nodes.
+	 * @param inputFrameTreeRoot - root node to search through
+	 * @return
+	 */
+	private Set<FrameTreeNode<OntologyEntityFrame>> getClonedEntityTrees(FrameTreeNode<OntologyEntityFrame> inputFrameTreeRoot) {
+		
+		FrameTreeNode<OntologyEntityFrame> clonedTree = TreeMethods.filterTreeKeepingClonedEntities(inputFrameTreeRoot,null);
+		Set<FrameTreeNode<OntologyEntityFrame>> retVal = new HashSet<FrameTreeNode<OntologyEntityFrame>>(clonedTree.getChildren());
+		return retVal;
+		/*
+		Set<FrameTreeNode<OntologyEntityFrame>> clonedEntityRoots = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
+		// This node has no cloned label, e.g., is an ODP-level construct not to be included in target instantiation, e.g., recurse deeper into child nodes.
+		if (!inputFrameTreeRoot.getData().getClonedLabel().isPresent()) {
+			for (FrameTreeNode<OntologyEntityFrame> childNode: inputFrameTreeRoot.getChildren()) {
+				clonedEntityRoots.addAll(getSpecializedEntityTrees(childNode));
+			}
+		}
+		// This node has a cloned label so it is a cloned subtree. Add it to the set to be returned.
+		else {
+			clonedEntityRoots.add(inputFrameTreeRoot);
+		}
+		return clonedEntityRoots;*/
+	}
+	
 	
 	/**
 	 * Construct an ontology change list builder using the specialization strategy, i.e. by importing the
@@ -148,29 +180,37 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		Set<FrameTreeNode<OntologyEntityFrame>> specializedObjectProperties = getSpecializedEntityTrees(instantiation.getObjectPropertyFrameTree());
 		Set<FrameTreeNode<OntologyEntityFrame>> specializedDataProperties = getSpecializedEntityTrees(instantiation.getDataPropertyFrameTree());
 		
+		// 1. Generate and add creation axioms for each of the frame tree sets
+		generateAndAddFrameTreeCreationAxioms(project, builder, specializedClasses);
+		generateAndAddFrameTreeCreationAxioms(project, builder, specializedObjectProperties);
+		generateAndAddFrameTreeCreationAxioms(project, builder, specializedDataProperties);
+		
 		// 1. Create class hierarchy from input specialization, ignoring top node
-		for (FrameTreeNode<OntologyEntityFrame> classTree: specializedClasses) {
+		
+		/*for (FrameTreeNode<OntologyEntityFrame> classTree: specializedClasses) {
 			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, classTree, Optional.<OWLEntity>absent());
 			for (OWLAxiom axiom: axioms) {
 				builder.addAxiom(project.getRootOntology(), axiom);
 			}
-		}
+		}*/
 		
 		// 2. Create data property hierarchy from input specialization, ignoring top node
-		for (FrameTreeNode<OntologyEntityFrame> dataPropertyTree: specializedDataProperties) {
+		
+		/*for (FrameTreeNode<OntologyEntityFrame> dataPropertyTree: specializedDataProperties) {
 			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, dataPropertyTree, Optional.<OWLEntity>absent());
 			for (OWLAxiom axiom: axioms) {
 				builder.addAxiom(project.getRootOntology(), axiom);
 			}
-		}
+		}*/
 		
 		// 3. Create object property hierarchy from input specialization, ignoring top node
-		for (FrameTreeNode<OntologyEntityFrame> objectPropertyTree: specializedObjectProperties) {
+		
+		/*for (FrameTreeNode<OntologyEntityFrame> objectPropertyTree: specializedObjectProperties) {
 			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, objectPropertyTree, Optional.<OWLEntity>absent());
 			for (OWLAxiom axiom: axioms) {
 				builder.addAxiom(project.getRootOntology(), axiom);
 			}
-		}
+		}*/
 		
 		// 4. Create existential/universal restriction axioms on classes using properties, ignoring top node
 		for (FrameTreeNode<OntologyEntityFrame> classTree: specializedClasses) {
@@ -181,6 +221,20 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		}
 		
 		// 5. Create alignment axioms
+		generateAndAddAlignmentAxioms(project, builder);
+		
+		return builder;
+	}
+	
+	/**
+	 * Using the set of alignments held within this change list generator's instantiation member variable, 
+	 * create equivalent OWL subsumption or equivalence axioms. NOTE that for this to work properly the generateAndAddFrameTreeCreationAxioms
+	 * method must first have been such that all classes, object properties, and datatype properties that the
+	 * instantiation creates have been placed in the freshEntities member variable. 
+	 * @param project
+	 * @param builder
+	 */
+	private void generateAndAddAlignmentAxioms(OWLAPIProject project, OntologyChangeList.Builder<OWLEntity> builder) {
 		for (Alignment alignment: instantiation.getAlignments()) {
 			if (alignment instanceof AbstractSubsumptionAlignment) {
 				OntologyEntityFrame superFrame = ((AbstractSubsumptionAlignment) alignment).getSuperEntity();
@@ -203,7 +257,79 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 				}
 			}
 		}
-		return builder;
+	}
+	
+	/**
+	 * From a set of input ontology entity frame trees, generate the equivalent OWL definition axioms, including domain and ranges
+	 * of properties (NOTE! that for the latter to work, this method MUST first have been run over class frame entity trees, so that
+	 * any newly minted classes exist within the freshEntities member variable on this change list generator object).  
+	 * @param project
+	 * @param builder
+	 * @param frameTrees
+	 */
+	private void generateAndAddFrameTreeCreationAxioms(OWLAPIProject project, OntologyChangeList.Builder<OWLEntity> builder, Set<FrameTreeNode<OntologyEntityFrame>> frameTrees) {
+		for (FrameTreeNode<OntologyEntityFrame> frameTree: frameTrees) {
+			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, frameTree, Optional.<OWLEntity>absent());
+			for (OWLAxiom axiom: axioms) {
+				builder.addAxiom(project.getRootOntology(), axiom);
+			}
+		}
+	}	
+	
+	/**
+	 * Recursive update a property frame tree so that domain and ranges are translated from CODP entity IRIs into
+	 * the new labels of the cloned entities created using the template-based instantiation method.
+	 * @param inputFrameTree
+	 */
+	private void updatePropertyDomainAndRanges(FrameTreeNode<OntologyEntityFrame> inputFrameTree) {
+		if (inputFrameTree.getData() instanceof PropertyFrame) {
+			PropertyFrame pf = (PropertyFrame)inputFrameTree.getData();
+			
+			// Update property frame domains
+			Set<LabelOrIri> domains = pf.getDomains();
+			for (LabelOrIri domain: domains) {
+				if (domain.getIri().isPresent()) {
+					IRI domainIri = domain.getIri().get();
+					// If the class which is domain of this property has been cloned, update domain to point
+					// to the cloned label rather than the original IRI
+					if (this.clonedClassesToNewLabelsMap.containsKey(domainIri)) {
+						domain.removeIri();
+						domain.setLabel(this.clonedClassesToNewLabelsMap.get(domainIri));
+					}
+					else {
+						// Otherwise, check if the domain class exists higher up in the class tree. 
+						// If so, try to narrow it as far as possible.
+						// TODO: IMPLEMENT THIS
+					}
+				}
+			}
+			
+			// Update object property frame ranges
+			if (pf instanceof ObjectPropertyFrame) {
+				ObjectPropertyFrame opf = (ObjectPropertyFrame)pf;
+				Set<LabelOrIri> ranges = opf.getRanges();
+				for (LabelOrIri range: ranges) {
+					if (range.getIri().isPresent()) {
+						IRI rangeIri = range.getIri().get();
+						// If the class which is range of this property has been cloned, update range to point
+						// to the cloned label rather than the original IRI
+						if (this.clonedClassesToNewLabelsMap.containsKey(range)) {
+							range.removeIri();
+							range.setLabel(this.clonedClassesToNewLabelsMap.get(rangeIri));
+						}
+						else {
+							// Otherwise, check if the range class exists higher up in the class tree. 
+							// If so, try to narrow it as far as possible.
+							// TODO: IMPLEMENT THIS
+						}
+					}
+				}
+			}
+		}
+		
+		for (FrameTreeNode<OntologyEntityFrame> childFrameTree: inputFrameTree.getChildren()) {
+			updatePropertyDomainAndRanges(childFrameTree);
+		}
 	}
 	
 	/**
@@ -214,24 +340,36 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	 * @return
 	 */
 	private OntologyChangeList.Builder<OWLEntity> makeBuilderByTemplate(OWLAPIProject project) {
-		// TODO: Actually implement this code for template-based instantiation.
 		OntologyChangeList.Builder<OWLEntity> builder = new OntologyChangeList.Builder<OWLEntity>();
 		
+		// 1. Prune the input trees, keeping only such entities which have cloned labels (e.g., have been selected by
+		// client side code to be instantiated into the final ontology).
+		Set<FrameTreeNode<OntologyEntityFrame>> clonedClasses = getClonedEntityTrees(instantiation.getClassFrameTree());
+		Set<FrameTreeNode<OntologyEntityFrame>> clonedObjectProperties = getClonedEntityTrees(instantiation.getObjectPropertyFrameTree());
+		Set<FrameTreeNode<OntologyEntityFrame>> clonedDataProperties = getClonedEntityTrees(instantiation.getDataPropertyFrameTree());
+
+		// 2. Generate and add class creation axioms.
+		generateAndAddFrameTreeCreationAxioms(project, builder, clonedClasses);
 		
-		
-		// TODO: Remove below test code.
-		Set<OWLAxiom> allAxioms = new HashSet<OWLAxiom>();
-		OWLClass cls1 = DataFactory.getFreshOWLEntity(EntityType.CLASS, "Test Class 1");
-		OWLClass cls2 = DataFactory.getFreshOWLEntity(EntityType.CLASS, "Test Class 2");
-		OWLObjectProperty objProp1 = DataFactory.getFreshOWLEntity(EntityType.OBJECT_PROPERTY, "Object Property 1");
-		allAxioms.add(project.getDataFactory().getOWLDeclarationAxiom(cls1));
-		allAxioms.add(project.getDataFactory().getOWLDeclarationAxiom(cls2));
-		allAxioms.add(project.getDataFactory().getOWLDeclarationAxiom(objProp1));
-		allAxioms.add(DataFactory.get().getOWLObjectPropertyDomainAxiom(objProp1, cls1));
-		allAxioms.add(DataFactory.get().getOWLObjectPropertyRangeAxiom(objProp1, cls2));
-		for (OWLAxiom ax: allAxioms) {
-			builder.addAxiom(project.getRootOntology(), ax);
+		// 3. Update the property trees - remove any domain or range references to existing class IRIs, instead replacing them
+		// by references to the newly cloned class labels, so that the generateAndAddFrameTreeCreationAxioms method can work on these
+		// trees just as if they were trees from the specialization based approach.
+		for (FrameTreeNode<OntologyEntityFrame> clonedObjectPropertyTree: clonedObjectProperties) {
+			updatePropertyDomainAndRanges(clonedObjectPropertyTree);
+			// Also narrow down unmatched half of domain/range pair if possible
 		}
+		for (FrameTreeNode<OntologyEntityFrame> clonedDataPropertyTree: clonedDataProperties) {
+			updatePropertyDomainAndRanges(clonedDataPropertyTree);
+		}
+		
+		// 4. Generate and add property creation axioms.
+		generateAndAddFrameTreeCreationAxioms(project, builder, clonedObjectProperties);
+		generateAndAddFrameTreeCreationAxioms(project, builder, clonedDataProperties);
+		
+		// 4. TODO: Create existential/universal restriction axioms on classes
+		
+		// 5. Create alignment axioms
+		generateAndAddAlignmentAxioms(project, builder);
 		
 		return builder;
 	}
@@ -409,12 +547,15 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		
 		// Get data about the current frame
 		OntologyEntityFrame frame = tree.getData();
-		String entityLabel = frame.getLabel();
+		String entityLabel = frame.getCurrentLabel();
 		
 		// Generate an entity declaration axiom of the correct type
 		OWLEntity freshEntity;
 		if (frame instanceof ClassFrame) {
 			freshEntity = DataFactory.getFreshOWLEntity(EntityType.CLASS, entityLabel);
+			if (frame.getClonedLabel().isPresent() && frame.getIri().isPresent()) {
+				this.clonedClassesToNewLabelsMap.put(frame.getIri().get(), entityLabel);
+			}
 		}
 		else if (frame instanceof DataPropertyFrame) {
 			freshEntity = DataFactory.getFreshOWLEntity(EntityType.DATA_PROPERTY, entityLabel);
@@ -504,19 +645,52 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	}
 	
 	/**
-	 * Retrieve or create an OWL Entity from an OntologyEntityFrame object. If the frame object has an assigned minted
-	 * IRI then an entity of the correct type is created using the OWLAPI Data Factory from that IRI. Otherwise, if 
-	 * the label is associated with a freshly created (but not yet persisted to ontology) entity, then that freshly
-	 * created entity is fetched from cache. Otherwise, a new entity is created and persisted in the fresh entity
-	 * cache. 
+	 * Retrieve or create an OWL Entity from an OntologyEntityFrame object. If the frame is intended to be cloned or 
+	 * if it has no minted IRI already, then the entity is either created and added to the fresh entities cache, 
+	 * or fetched from that cache (if it exists there already). Otherwise an entity of the correct type is created 
+	 * using the OWLAPI Data Factory from the frame IRI. 
 	 * @param frame
 	 * @return
 	 */
 	private OWLEntity getEntityFromFrame(OntologyEntityFrame frame) {
+		
+		Boolean isFrameCloned = frame.getClonedLabel().isPresent();
 		Optional<IRI> entityIri = frame.getIri();
-		String entityLabel = frame.getLabel();
-		if (entityIri.isPresent()) {
-			// An IRI exists already, use DataFactory to construct corresponding entity type
+		
+		// If this is an entity intended to be cloned, or if no prior IRI exists, either 
+		// retrieve the entity from the fresh entities cache or generate it new.
+		if (isFrameCloned || !entityIri.isPresent()) {
+			String entityLabel = frame.getCurrentLabel();
+			if (freshEntities.containsKey(entityLabel)) {
+				// This is a newly created entity that has not yet been persisted to the ontology
+				if (frame instanceof ClassFrame) {
+					return (OWLClass)freshEntities.get(entityLabel);
+				}
+				else if (frame instanceof DataPropertyFrame) {
+					return (OWLDataProperty)freshEntities.get(entityLabel);
+				}
+				else {
+					return (OWLObjectProperty)freshEntities.get(entityLabel);
+				}
+			}
+			else {
+				// Create a new entity and return
+				OWLEntity freshEntity;
+				if (frame instanceof ClassFrame) {
+					freshEntity = DataFactory.getFreshOWLEntity(EntityType.CLASS, entityLabel);
+				}
+				else if (frame instanceof DataPropertyFrame) {
+					freshEntity = DataFactory.getFreshOWLEntity(EntityType.DATA_PROPERTY, entityLabel);
+				}
+				else {
+					freshEntity = DataFactory.getFreshOWLEntity(EntityType.OBJECT_PROPERTY, entityLabel);
+				}
+				freshEntities.put(entityLabel, freshEntity);
+				return freshEntity;
+			}
+		}
+		// An IRI exists already, use DataFactory to construct corresponding entity type 
+		else {
 			if (frame instanceof ClassFrame) {
 				return DataFactory.getOWLClass(entityIri.get());
 			}
@@ -526,33 +700,6 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 			else {
 				return DataFactory.getOWLObjectProperty(entityIri.get());
 			}
-		}
-		else if (freshEntities.containsKey(entityLabel)) {
-			// This is a newly created entity that has not yet been persisted to the ontology
-			if (frame instanceof ClassFrame) {
-				return (OWLClass)freshEntities.get(entityLabel);
-			}
-			else if (frame instanceof DataPropertyFrame) {
-				return (OWLDataProperty)freshEntities.get(entityLabel);
-			}
-			else {
-				return (OWLObjectProperty)freshEntities.get(entityLabel);
-			}
-		}
-		else {
-			// Create a new entity and return
-			OWLEntity freshEntity;
-			if (frame instanceof ClassFrame) {
-				freshEntity = DataFactory.getFreshOWLEntity(EntityType.CLASS, entityLabel);
-			}
-			else if (frame instanceof DataPropertyFrame) {
-				freshEntity = DataFactory.getFreshOWLEntity(EntityType.DATA_PROPERTY, entityLabel);
-			}
-			else {
-				freshEntity = DataFactory.getFreshOWLEntity(EntityType.OBJECT_PROPERTY, entityLabel);
-			}
-			freshEntities.put(entityLabel, freshEntity);
-			return freshEntity;
 		}
 	}
 
