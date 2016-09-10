@@ -19,7 +19,7 @@ import com.gwtext.client.widgets.tree.TreeNode;
 import com.gwtext.client.widgets.tree.TreePanel;
 import com.gwtext.client.widgets.tree.event.TreePanelListenerAdapter;
 
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.EntityDetailsWindow;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
@@ -79,7 +79,7 @@ public class EntitySpecializationPanel extends Panel {
         			modifyButton.setDisabled(false);
         			deleteButton.setDisabled(false);
         		}
-        		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.CLASS_ORIENTED) {
+        		if (parentWizard.getSpecializationStrategy() == CodpSpecializationStrategy.CLASS_ORIENTED) {
         			if (node.getAttribute("type").equalsIgnoreCase("owlClassTreeNode")) {
         				specializeButton.setDisabled(false);
         			}

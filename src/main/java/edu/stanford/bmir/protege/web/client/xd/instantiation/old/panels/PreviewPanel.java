@@ -17,7 +17,7 @@ import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.DesignPatternSpecializationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationPreviewAction;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationPreviewResult;
 
 public class PreviewPanel extends Panel {
@@ -64,7 +64,7 @@ public class PreviewPanel extends Panel {
                 }); 
 
             	// Get specialization object from parent wizard and send to server for preview generation
-            	OdpInstantiation spec = parentWizard.getSpecialization();
+            	CodpInstantiation spec = parentWizard.getSpecialization();
                 DispatchServiceManager.get().execute(new GetInstantiationPreviewAction(spec), 
                 		new DispatchServiceCallback<GetInstantiationPreviewResult>() {
                 	@Override

@@ -9,24 +9,24 @@ import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
-public class OdpInstantiation implements Serializable {
+public class CodpInstantiation implements Serializable {
 	private static final long serialVersionUID = 3079727766627945835L;
 	
 	/**
 	 * GWT-RPC-required empty constructor.
 	 */
 	@SuppressWarnings("unused")
-	private OdpInstantiation() {
+	private CodpInstantiation() {
 	}
 	
-	public OdpInstantiation(ProjectId projectId,
+	public CodpInstantiation(ProjectId projectId,
 			IRI odpIri,
 			FrameTreeNode<OntologyEntityFrame> classFrameTree,
 			FrameTreeNode<OntologyEntityFrame> objectPropertyFrameTree,
 			FrameTreeNode<OntologyEntityFrame> dataPropertyFrameTree,
 			Set<Alignment> alignments, 
 			CodpInstantiationMethod instantiationMethod,
-			OdpSpecializationStrategy specializationStrategy) {
+			CodpSpecializationStrategy specializationStrategy) {
 		this.projectId = projectId;
 		this.odpIri = odpIri;
 		this.classFrameTree = classFrameTree;
@@ -45,7 +45,7 @@ public class OdpInstantiation implements Serializable {
 	private FrameTreeNode<OntologyEntityFrame> dataPropertyFrameTree;
 	private Set<Alignment> alignments;
 	private CodpInstantiationMethod instantiationMethod;
-	private OdpSpecializationStrategy specializationStrategy;
+	private CodpSpecializationStrategy specializationStrategy;
 	
 	// Access methods
 	public ProjectId getProjectId() {
@@ -69,7 +69,7 @@ public class OdpInstantiation implements Serializable {
 	public CodpInstantiationMethod getInstantiationMethod() {
 		return this.instantiationMethod;
 	}
-	public OdpSpecializationStrategy getSpecializationStrategy() {
+	public CodpSpecializationStrategy getSpecializationStrategy() {
 		return this.specializationStrategy;
 	}
 }

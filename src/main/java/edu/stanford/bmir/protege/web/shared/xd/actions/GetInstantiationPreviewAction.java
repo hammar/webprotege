@@ -3,7 +3,7 @@ package edu.stanford.bmir.protege.web.shared.xd.actions;
 import edu.stanford.bmir.protege.web.shared.HasProjectId;
 import edu.stanford.bmir.protege.web.shared.dispatch.Action;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationPreviewResult;
 
 public class GetInstantiationPreviewAction implements Action<GetInstantiationPreviewResult>, HasProjectId {
@@ -19,22 +19,22 @@ public class GetInstantiationPreviewAction implements Action<GetInstantiationPre
 	 * Constructor
 	 * @param odpUri
 	 */
-	public GetInstantiationPreviewAction(OdpInstantiation odpInstantiation) {
-		this.odpInstantiation = odpInstantiation;
+	public GetInstantiationPreviewAction(CodpInstantiation codpInstantiation) {
+		this.codpInstantiation = codpInstantiation;
 	}
 	
-	private OdpInstantiation odpInstantiation;
+	private CodpInstantiation codpInstantiation;
 
 	/**
 	 * ODP Specialization wrapper.
 	 * @return
 	 */
-	public OdpInstantiation getOdpSpecialization() {
-		return odpInstantiation;
+	public CodpInstantiation getOdpSpecialization() {
+		return codpInstantiation;
 	}
 
 	@Override
 	public ProjectId getProjectId() {
-		return odpInstantiation.getProjectId();
+		return codpInstantiation.getProjectId();
 	}
 }

@@ -26,8 +26,8 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.old.panels.Strategy
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.PersistInstantiationAction;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
@@ -63,7 +63,7 @@ public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets
 	private FrameTreeNode<OntologyEntityFrame> allDataProperties;
 	private Set<Alignment> alignments;
 	
-	private OdpSpecializationStrategy specializationStrategy;
+	private CodpSpecializationStrategy specializationStrategy;
 	
 	@SuppressWarnings("deprecation")
 	public DesignPatternSpecializationWizard(DesignPatternDetailsPortlet parent) {
@@ -244,7 +244,7 @@ public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets
 	 * and then closes down the wizard. 
 	 */
 	private void saveAndClose() {	
-		OdpInstantiation odpSpec = this.getSpecialization();
+		CodpInstantiation odpSpec = this.getSpecialization();
 		PersistInstantiationAction psa = new PersistInstantiationAction(odpSpec);
 		
 		// Put up progress window
@@ -328,7 +328,7 @@ public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets
 		
 	}
 
-	public OdpSpecializationStrategy getSpecializationStrategy() {
+	public CodpSpecializationStrategy getSpecializationStrategy() {
 		return specializationStrategy;
 	}
 
@@ -344,11 +344,11 @@ public class DesignPatternSpecializationWizard extends com.gwtext.client.widgets
 		return allDataProperties;
 	}
 	
-	public OdpInstantiation getSpecialization() {
+	public CodpInstantiation getSpecialization() {
 		Set<Alignment> selectedAlignments = alignmentsPanel.getSelectedAlignments();
 		selectedAlignments.addAll(alignments);
 		
-		return new OdpInstantiation(projectId, odpIRI, this.allClasses, this.allObjectProperties, this.allDataProperties, selectedAlignments, CodpInstantiationMethod.IMPORT_BASED, specializationStrategy);
+		return new CodpInstantiation(projectId, odpIRI, this.allClasses, this.allObjectProperties, this.allDataProperties, selectedAlignments, CodpInstantiationMethod.IMPORT_BASED, specializationStrategy);
 	}
 
 	public ProjectId getProjectId() {

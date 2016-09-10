@@ -37,7 +37,7 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.Sub
 import edu.stanford.bmir.protege.web.client.xd.util.UUID;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction.ValueConstraint;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
@@ -182,8 +182,8 @@ public class PropertyRestrictionPanel extends Panel {
 		}
         
 		// Render property-oriented restrictions
-		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.PROPERTY_ORIENTED ||
-				parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.HYBRID) {
+		if (parentWizard.getSpecializationStrategy() == CodpSpecializationStrategy.PROPERTY_ORIENTED ||
+				parentWizard.getSpecializationStrategy() == CodpSpecializationStrategy.HYBRID) {
 			
 			allRestrictions.addAll(generateObjectPropertyRangeRestrictions());
 			allRestrictions.addAll(generatePropertyDomainRestrictions(this.objectProperties));
@@ -191,8 +191,8 @@ public class PropertyRestrictionPanel extends Panel {
 		}
 		
 		// Render class-oriented restrictions
-		if (parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.CLASS_ORIENTED ||
-				parentWizard.getSpecializationStrategy() == OdpSpecializationStrategy.HYBRID) {
+		if (parentWizard.getSpecializationStrategy() == CodpSpecializationStrategy.CLASS_ORIENTED ||
+				parentWizard.getSpecializationStrategy() == CodpSpecializationStrategy.HYBRID) {
 			allRestrictions.addAll(generateComplexObjectPropertyRestrictions());
 		}
 		

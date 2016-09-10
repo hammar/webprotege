@@ -43,7 +43,7 @@ import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction.ValueConstraint;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.AbstractEquivalenceAlignment;
@@ -64,7 +64,7 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	private Map<String,OWLEntity> freshEntities;
 	private Set<OWLOntology> odpClosure;
 	
-	public OdpInstantiationChangeListGenerator(OdpInstantiation instantiation) {
+	public OdpInstantiationChangeListGenerator(CodpInstantiation instantiation) {
 		super();
 		
 		this.instantiation = instantiation;
@@ -81,7 +81,7 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		}
 	}
 
-	private OdpInstantiation instantiation;
+	private CodpInstantiation instantiation;
 	
 	/**
 	 *  Returns a filtered subset of the input set of class or property trees, containing

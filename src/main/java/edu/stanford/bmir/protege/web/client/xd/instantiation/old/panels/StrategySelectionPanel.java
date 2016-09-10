@@ -5,7 +5,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.gwtext.client.widgets.Panel;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpSpecializationStrategy;
 
 public class StrategySelectionPanel extends Panel {
 	
@@ -54,16 +54,16 @@ public class StrategySelectionPanel extends Panel {
        this.add(strategyPanel);
 	}
 
-	public OdpSpecializationStrategy getSelectedStrategy() {
+	public CodpSpecializationStrategy getSelectedStrategy() {
 		if (propStrategyButton.getValue()) {
-			return OdpSpecializationStrategy.PROPERTY_ORIENTED;
+			return CodpSpecializationStrategy.PROPERTY_ORIENTED;
 		}
 		else if (classStrategyButton.getValue()) {
-			return OdpSpecializationStrategy.CLASS_ORIENTED;
+			return CodpSpecializationStrategy.CLASS_ORIENTED;
 		}
 		else if (hybridStrategyButton.getValue()) {
-			return OdpSpecializationStrategy.HYBRID;
+			return CodpSpecializationStrategy.HYBRID;
 		}
-		return OdpSpecializationStrategy.PROPERTY_ORIENTED;
+		return CodpSpecializationStrategy.PROPERTY_ORIENTED;
 	}
 }

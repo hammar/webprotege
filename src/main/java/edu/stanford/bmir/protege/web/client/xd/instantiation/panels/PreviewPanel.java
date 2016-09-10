@@ -11,7 +11,7 @@ import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationPreviewAction;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationPreviewResult;
 
 public class PreviewPanel extends VerticalPanel implements InstantiationWizardPanel {
@@ -34,7 +34,7 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
 			public void onClick(ClickEvent arg0) {
 				// TODO: implement some sort of spinner here, that does not depend on PopupPanel
 				// Get specialization object from parent wizard and send to server for preview generation
-            	OdpInstantiation spec = parentWizard.getInstantiation();
+            	CodpInstantiation spec = parentWizard.getInstantiation();
                 DispatchServiceManager.get().execute(new GetInstantiationPreviewAction(spec), 
                 		new DispatchServiceCallback<GetInstantiationPreviewResult>() {
                 			@Override

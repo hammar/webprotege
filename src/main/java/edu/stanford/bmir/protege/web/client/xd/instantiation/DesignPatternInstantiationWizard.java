@@ -30,8 +30,8 @@ import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.PersistInstantiationAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpSpecializationStrategy;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
@@ -361,8 +361,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		this.alignments.remove(a);
 	}
 	
-	public OdpInstantiation getInstantiation() {
-		return new OdpInstantiation(this.projectId, this.odpIri, this.classTree, this.objectPropertyTree, this.dataPropertyTree, this.alignments, this.instantiationMethod, OdpSpecializationStrategy.PROPERTY_ORIENTED);
+	public CodpInstantiation getInstantiation() {
+		return new CodpInstantiation(this.projectId, this.odpIri, this.classTree, this.objectPropertyTree, this.dataPropertyTree, this.alignments, this.instantiationMethod, CodpSpecializationStrategy.PROPERTY_ORIENTED);
 	}
 	
 	public void updateInstantiationModificationTimestamp() {

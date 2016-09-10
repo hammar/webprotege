@@ -3,7 +3,7 @@ package edu.stanford.bmir.protege.web.shared.xd.actions;
 import edu.stanford.bmir.protege.web.shared.HasProjectId;
 import edu.stanford.bmir.protege.web.shared.dispatch.Action;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
-import edu.stanford.bmir.protege.web.shared.xd.data.OdpInstantiation;
+import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.results.PersistInstantiationResult;
 
 public class PersistInstantiationAction implements Action<PersistInstantiationResult>, HasProjectId {
@@ -19,22 +19,22 @@ public class PersistInstantiationAction implements Action<PersistInstantiationRe
 	 * Constructor
 	 * @param odpUri
 	 */
-	public PersistInstantiationAction(OdpInstantiation odpInstantiation) {
-		this.odpInstantiation = odpInstantiation;
+	public PersistInstantiationAction(CodpInstantiation codpInstantiation) {
+		this.codpInstantiation = codpInstantiation;
 	}
 	
-	private OdpInstantiation odpInstantiation;
+	private CodpInstantiation codpInstantiation;
 
 	/**
 	 * ODP Instantiation wrapper.
 	 * @return
 	 */
-	public OdpInstantiation getOdpInstantiation() {
-		return odpInstantiation;
+	public CodpInstantiation getOdpInstantiation() {
+		return codpInstantiation;
 	}
 
 	@Override
 	public ProjectId getProjectId() {
-		return odpInstantiation.getProjectId();
+		return codpInstantiation.getProjectId();
 	}
 }
