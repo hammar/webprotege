@@ -174,7 +174,6 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 		
 		// Get the list of source class iris to be cloned from the above, and the list
 		// of property iris involved in class restrictions on such classes.
-		// TODO: check whether the below used subclassof and equivalent restrictions are actually created server-side!
 		Set<IRI> clonedClassIris = new HashSet<IRI>();
 		Set<IRI> restrictionPropertyIris = new HashSet<IRI>();
 		Set<OntologyEntityFrame> classesToCloneAsOefs = classesToCloneDepthMap.keySet();

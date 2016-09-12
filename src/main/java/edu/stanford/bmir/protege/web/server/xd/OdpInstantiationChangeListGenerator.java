@@ -185,34 +185,7 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		generateAndAddFrameTreeCreationAxioms(project, builder, specializedObjectProperties);
 		generateAndAddFrameTreeCreationAxioms(project, builder, specializedDataProperties);
 		
-		// 1. Create class hierarchy from input specialization, ignoring top node
-		
-		/*for (FrameTreeNode<OntologyEntityFrame> classTree: specializedClasses) {
-			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, classTree, Optional.<OWLEntity>absent());
-			for (OWLAxiom axiom: axioms) {
-				builder.addAxiom(project.getRootOntology(), axiom);
-			}
-		}*/
-		
-		// 2. Create data property hierarchy from input specialization, ignoring top node
-		
-		/*for (FrameTreeNode<OntologyEntityFrame> dataPropertyTree: specializedDataProperties) {
-			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, dataPropertyTree, Optional.<OWLEntity>absent());
-			for (OWLAxiom axiom: axioms) {
-				builder.addAxiom(project.getRootOntology(), axiom);
-			}
-		}*/
-		
-		// 3. Create object property hierarchy from input specialization, ignoring top node
-		
-		/*for (FrameTreeNode<OntologyEntityFrame> objectPropertyTree: specializedObjectProperties) {
-			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, objectPropertyTree, Optional.<OWLEntity>absent());
-			for (OWLAxiom axiom: axioms) {
-				builder.addAxiom(project.getRootOntology(), axiom);
-			}
-		}*/
-		
-		// 4. Create existential/universal restriction axioms on classes using properties, ignoring top node
+		// 2. Create existential/universal restriction axioms on classes using properties, ignoring top node
 		for (FrameTreeNode<OntologyEntityFrame> classTree: specializedClasses) {
 			Set<OWLAxiom> axioms = generateComplexRestrictionAxioms(project, classTree);
 			for (OWLAxiom axiom: axioms) {
@@ -220,7 +193,7 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 			}
 		}
 		
-		// 5. Create alignment axioms
+		// 3. Create alignment axioms
 		generateAndAddAlignmentAxioms(project, builder);
 		
 		return builder;
@@ -275,6 +248,7 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 			}
 		}
 	}	
+
 	
 	/**
 	 * Recursive update a property frame tree so that domain and ranges are translated from CODP entity IRIs into
@@ -297,9 +271,12 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 						domain.setLabel(this.clonedClassesToNewLabelsMap.get(domainIri));
 					}
 					else {
-						// Otherwise, check if the domain class exists higher up in the class tree. 
-						// If so, try to narrow it as far as possible.
-						// TODO: IMPLEMENT THIS
+						Optional<FrameTreeNode<OntologyEntityFrame>> domainSubFrameTree = TreeMethods.getSubFrameTreeByIri(domainIri, instantiation.getClassFrameTree());
+						if (domainSubFrameTree.isPresent()) {
+							OntologyEntityFrame narrowerDomain = TreeMethods.getNarrowestFrame(domainIri, domainSubFrameTree.get());
+							domain.removeIri();
+							domain.setLabel(narrowerDomain.getCurrentLabel());
+						}
 					}
 				}
 			}
@@ -318,9 +295,12 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 							range.setLabel(this.clonedClassesToNewLabelsMap.get(rangeIri));
 						}
 						else {
-							// Otherwise, check if the range class exists higher up in the class tree. 
-							// If so, try to narrow it as far as possible.
-							// TODO: IMPLEMENT THIS
+							Optional<FrameTreeNode<OntologyEntityFrame>> rangeSubFrameTree = TreeMethods.getSubFrameTreeByIri(rangeIri, instantiation.getClassFrameTree());
+							if (rangeSubFrameTree.isPresent()) {
+								OntologyEntityFrame narrowerDomain = TreeMethods.getNarrowestFrame(rangeIri, rangeSubFrameTree.get());
+								range.removeIri();
+								range.setLabel(narrowerDomain.getCurrentLabel());
+							}
 						}
 					}
 				}
@@ -356,7 +336,6 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		// trees just as if they were trees from the specialization based approach.
 		for (FrameTreeNode<OntologyEntityFrame> clonedObjectPropertyTree: clonedObjectProperties) {
 			updatePropertyDomainAndRanges(clonedObjectPropertyTree);
-			// Also narrow down unmatched half of domain/range pair if possible
 		}
 		for (FrameTreeNode<OntologyEntityFrame> clonedDataPropertyTree: clonedDataProperties) {
 			updatePropertyDomainAndRanges(clonedDataPropertyTree);
@@ -366,9 +345,15 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		generateAndAddFrameTreeCreationAxioms(project, builder, clonedObjectProperties);
 		generateAndAddFrameTreeCreationAxioms(project, builder, clonedDataProperties);
 		
-		// 4. TODO: Create existential/universal restriction axioms on classes
+		// 5. Create existential/universal restriction axioms on classes using properties, ignoring top node
+		for (FrameTreeNode<OntologyEntityFrame> classTree: clonedClasses) {
+			Set<OWLAxiom> axioms = generateComplexRestrictionAxioms(project, classTree);
+			for (OWLAxiom axiom: axioms) {
+				builder.addAxiom(project.getRootOntology(), axiom);
+			}
+		}
 		
-		// 5. Create alignment axioms
+		// 6. Create alignment axioms
 		generateAndAddAlignmentAxioms(project, builder);
 		
 		return builder;

@@ -1,28 +1,58 @@
 package edu.stanford.bmir.protege.web.shared.xd.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
+import org.semanticweb.owlapi.model.IRI;
+
+import com.google.common.base.Optional;
+
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
 public class TreeMethods {
 	
-	/*
-	public static Integer countClonedEntities(FrameTreeNode<OntologyEntityFrame> topNode) {
-		// If cloned, count yourself
-		Integer c = 0;	
-		if (topNode.getData().getClonedLabel().isPresent()) {
-			String label = topNode.getData().getClonedLabel().get();
-			if (label.trim().length()>0) {
-				c += 1;
+	public static Optional<FrameTreeNode<OntologyEntityFrame>> getSubFrameTreeByIri(IRI iri, FrameTreeNode<OntologyEntityFrame> inputFrameTree) {
+		// Shortcut to not get the frame for OWL:Thing, which might be in the 
+		// input frame tree but which is to be ignored if that is the case.
+		if (iri.isTopEntity()) {
+			return Optional.absent();
+		}
+		if (inputFrameTree.getData().getIri().isPresent()) {
+			if (inputFrameTree.getData().getIri().get().toString().equalsIgnoreCase(iri.toString())) {
+				return Optional.of(inputFrameTree);
 			}
 		}
-		// Count all your children
-		for (FrameTreeNode<OntologyEntityFrame> childNode: topNode.getChildren()) {
-			c += countClonedEntities(childNode);
+		for (FrameTreeNode<OntologyEntityFrame> childTree: inputFrameTree.getChildren()) {
+			Optional<FrameTreeNode<OntologyEntityFrame>> childResult = getSubFrameTreeByIri(iri, childTree);
+			if (childResult.isPresent()) {
+				return childResult;
+			}
 		}
-		return c;
-	}*/
+		return Optional.absent();
+	}
+	
+	
+	public static OntologyEntityFrame getNarrowestFrame(IRI iri, FrameTreeNode<OntologyEntityFrame> inputFrameTree) {
+		if (inputFrameTree.getChildren().size() == 1) {
+			return getNarrowestFrame(iri, inputFrameTree.getChildren().get(0));
+		}
+		else {
+			return inputFrameTree.getData();
+			
+		}
+	}
+	
+	public static Set<OntologyEntityFrame> flattenFrameTree(FrameTreeNode<OntologyEntityFrame> inputFrameTree) {
+		Set<OntologyEntityFrame> retVal = new HashSet<OntologyEntityFrame>();
+		retVal.add(inputFrameTree.getData());
+		for (FrameTreeNode<OntologyEntityFrame> childFrameTree: inputFrameTree.getChildren()) {
+			retVal.addAll(flattenFrameTree(childFrameTree));
+		}
+		return retVal;
+	}
 	
 	/**
 	 * Generate from a tree a map of nodes (as keys) and their depth in the tree (as values), excluding

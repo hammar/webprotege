@@ -412,6 +412,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		this.classTree = new FrameTreeNode<OntologyEntityFrame>(new ClassFrame("nil"));
 		this.objectPropertyTree = new FrameTreeNode<OntologyEntityFrame>(new ObjectPropertyFrame("nil"));
 		this.dataPropertyTree = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
+		this.alignments.clear();
 		
 		// Re-populate wizard-level data structures w/ new data from server
         DispatchServiceManager.get().execute(new GetOdpContentsAction(uri), new DispatchServiceCallback<GetOdpContentsResult>() {
