@@ -154,3 +154,11 @@ table.xdpPreviewPanel textarea {
 div.xdpInstantiationWizardSpinner table {
 	background-color: white;
 }
+
+div.xdpInstantiationMethodSelectionPanel {
+	line-height: 1.5;
+}
+
+div.xdpInstantiationMethodSelectionPanel span.gwt-RadioButton {
+	font-weight: bold;
+}

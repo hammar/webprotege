@@ -3,6 +3,7 @@ package edu.stanford.bmir.protege.web.client.xd.instantiation.panels;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -21,6 +22,7 @@ public class InstantiationMethodSelectionPanel extends FlowPanel implements Inst
 		
 		this.parentWizard = parent;
         this.setTitle("Instantiation Method Selection");
+        this.addStyleName("xdpInstantiationMethodSelectionPanel");
         
         this.templateMethodButton = new RadioButton("methodGroup","Template-Based Instantiation");
         this.importMethodButton = new RadioButton("methodGroup", "Import-Based Instantiation");
@@ -39,11 +41,21 @@ public class InstantiationMethodSelectionPanel extends FlowPanel implements Inst
         // Render the instructions and buttons.
         VerticalPanel vp = new VerticalPanel();
         vp.setSpacing(10);
-        vp.add(new Label("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque finibus imperdiet orci, a convallis tortor. Nunc luctus turpis nisl, ut posuere ante blandit a. Cras quis ex at elit hendrerit vehicula ut a purus. Nam vestibulum dapibus sapien in pulvinar. Cras pharetra congue suscipit. Etiam dictum erat at placerat blandit."));
+        HTML instruction = new HTML("<strong>Select the appropriate Content Ontology Design Pattern instantiation method "
+          		+ "from the choices below. For a discussion on their respective attributes and effects, see "
+          		+ "<a href=\"http://goo.gl/dv8pA3\" target=\"_blank\">http://goo.gl/dv8pA3</a></strong>");
+        vp.add(instruction);
         vp.add(templateMethodButton);
-        vp.add(new Label("Integer lacus ligula, ultricies ut odio et, vehicula tempor orci. Cras sem lorem, convallis eu felis ac, volutpat fringilla purus. Nulla turpis mauris, pulvinar pretium dignissim at, rhoncus eu leo. In neque tortor, volutpat at tempor vitae, tincidunt ut neque. Donec et consectetur orci."));
+        String templateText ="In this method the CODP building block is treated as a template that is instantiated into the target ontology module by way of copying and renaming "
+        		+ "its constituent classes and properties. Advantages of this method include that CODP-level generic concepts that may be off-putting to less experienced modellers "
+        		+ "are not included in the final ontology, but only the CODP structure is kept. Disadvantages include that future alignment to other ontologies using the same CODPs "
+        		+ "may be complicated, as the IRIs of COPD-level concepts are not kept."; 
+        vp.add(new Label(templateText));
         vp.add(importMethodButton);
-        vp.add(new Label("Quisque felis risus, rutrum et blandit malesuada, viverra et risus. Nam luctus, neque ac ultrices ultricies, erat odio pellentesque augue, in porttitor arcu nulla et magna."));
+        String importText = "In this method the original CODP is imported into the target ontology module, and instantiation is performed via specialization of CODP classes and "
+        		+ "properties using subsumption axioms. Advantages of this method include increased traceability and ease of alignment with other CODPs, as IRIs of CODP-level concepts"
+        		+ "are maintained.";
+        vp.add(new Label(importText));
         this.add(vp);
 	}
 	
