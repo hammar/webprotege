@@ -78,8 +78,8 @@ public class AlignmentsPanel extends VerticalPanel implements InstantiationWizar
 		
 		if (!parentWizard.areAlignmentsUpToDate()) {
 			
-			// Initiate some spinner UI
-			// TODO: Implement
+			// Initiate spinner UI
+			parentWizard.showSpinner("Loading alignment suggestions...");
 			
 			// Clear out the existing UI and widgets
 			this.alignmentsHolderPanel.clear();
@@ -98,7 +98,7 @@ public class AlignmentsPanel extends VerticalPanel implements InstantiationWizar
 	        		renderAlignmentWidgets(result.getAlignments());
 	        		
 	        		// Kill the spinner UI
-	    			// TODO: Implement
+	        		parentWizard.hideSpinner();
 
 	            }
 	        });

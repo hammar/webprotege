@@ -9,6 +9,7 @@ import org.semanticweb.owlapi.model.IRI;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -42,7 +43,6 @@ import edu.stanford.bmir.protege.web.shared.xd.results.PersistInstantiationResul
 
 public class DesignPatternInstantiationWizard extends PopupPanel {
 
-	//private CardLayout wizardCardLayout;
 	private Button wizardBackButton;
 	private Button wizardNextButton;
 	private Button wizardFinishButton;
@@ -58,6 +58,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private ActiveWizardScreen activeWizardScreen;
 	private Date instantiationModificationTimestamp = new Date();
 	private Date alignmentsModificationTimestamp = new Date();
+	private Spinner spinner = new Spinner();
 
 	private IRI odpIri;
 	private FrameTreeNode<OntologyEntityFrame> classTree;
@@ -119,6 +120,21 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		
 		// Set popup widget to be the tab panel
 		this.setWidget(wizardFramePanel);
+	}
+	
+	public void showSpinner(String text) {
+		this.spinner.setText(text);
+		this.spinner.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+				public void setPosition(int offsetWidth, int offsetHeight) {
+	                int left = (Window.getClientWidth() - offsetWidth) / 2;
+	                int top = (Window.getClientHeight() - offsetHeight) / 2;
+	                spinner.setPopupPosition(left, top);
+				}
+			});
+	}
+	
+	public void hideSpinner() {
+		this.spinner.hide();
 	}
 
 	private DockLayoutPanel makeWizardPanel() {
@@ -185,12 +201,13 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	
 	protected void saveAndClose() {
 		PersistInstantiationAction pia = new PersistInstantiationAction(this.getInstantiation());
-		// TODO: Instantiate some spinner UI
+		this.showSpinner("Persisting CODP Instantiation...");
 		
 		DispatchServiceManager.get().execute(pia, new DispatchServiceCallback<PersistInstantiationResult>() {
         	@Override
             public void handleSuccess(PersistInstantiationResult result) {
-        		// TODO: Kill the spinner UI
+        		// Kill spinner and hide self
+        		hideSpinner();
         		hide();
             }
         });
@@ -404,8 +421,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         this.updateInstantiationModificationTimestamp();
         this.updateAlignmentModificationTimestamp();
 		
-		// Initiate some spinner UI
-		// TODO: Implement
+		// Initiate spinner UI
+        this.showSpinner("Loading CODP...");
 		
 		// Clear wizard-level data structures
         this.instantiationMethod = CodpInstantiationMethod.TEMPLATE_BASED;
@@ -436,7 +453,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         		previewPanel.renderPanel();
         		
         		// Kill the spinner UI
-        		// TODO: Implement
+        		hideSpinner();
             }
         });
 	}

@@ -145,6 +145,12 @@ table.xdpAlignmentWidget input {
 }
 
 table.xdpPreviewPanel textarea {
-	width: 612px;
-	height: 320px;
+	width: 610px;
+	height: 318px;
+	border: 1px solid black;
+	padding: 5px;
+}
+
+div.xdpInstantiationWizardSpinner table {
+	background-color: white;
 }

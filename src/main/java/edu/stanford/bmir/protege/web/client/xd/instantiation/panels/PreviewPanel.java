@@ -1,10 +1,7 @@
 package edu.stanford.bmir.protege.web.client.xd.instantiation.panels;
 
-import java.util.Set;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextArea;
@@ -15,10 +12,7 @@ import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationPreviewAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationPreviewResult;
-import edu.stanford.bmir.protege.web.shared.xd.util.TreeMethods;
 
 public class PreviewPanel extends VerticalPanel implements InstantiationWizardPanel {
 	
@@ -38,7 +32,8 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
         buildPreviewButton.addClickHandler(new ClickHandler(){
 			@Override
 			public void onClick(ClickEvent arg0) {
-				// TODO: implement some sort of spinner here, that does not depend on PopupPanel
+				// Initiate spinner
+				parentWizard.showSpinner("Loading preview...");
 				// Get specialization object from parent wizard and send to server for preview generation
             	CodpInstantiation spec = parentWizard.getInstantiation();
                 DispatchServiceManager.get().execute(new GetInstantiationPreviewAction(spec), 
@@ -46,32 +41,13 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
                 			@Override
                 			public void handleSuccess(GetInstantiationPreviewResult result) {
                 				instantationAxiomsPreview.setText(result.getInstantiationPreview());
-                				// TODO: kill spinner UI here
+                				// Kill the spinner
+                				parentWizard.hideSpinner();
                 			}
                 		});
 			}
         });
-        navBar.add(buildPreviewButton);
-        
-        // TODO: Remove the below testing code
-        /*
-        final Button countRestrictionsButton = new Button("Count restrictions");
-        countRestrictionsButton.addClickHandler(new ClickHandler(){
-			@Override
-			public void onClick(ClickEvent arg0) {
-				Integer equivalentRestrictionsCounter = 0;
-				Integer subclassRestrictionsCounter = 0;
-				Set<OntologyEntityFrame> classTreeAsSet = TreeMethods.flattenFrameTree(parentWizard.getClassTree());
-				for (OntologyEntityFrame oef: classTreeAsSet) {
-					ClassFrame frame = (ClassFrame)oef;
-					equivalentRestrictionsCounter += frame.getEquivalentToRestrictions().size();
-					subclassRestrictionsCounter += frame.getSubClassOfRestrictions().size();
-				}
-				Window.alert("EquivalentClass restrictions count = " + equivalentRestrictionsCounter + "\nSubclass restrictions count = " + subclassRestrictionsCounter);
-			}
-        });
-        navBar.add(countRestrictionsButton);*/
-        
+        navBar.add(buildPreviewButton);    
         
         this.add(navBar);
         
