@@ -53,7 +53,7 @@ public class InstantiationMethodSelectionPanel extends FlowPanel implements Inst
         vp.add(new Label(templateText));
         vp.add(importMethodButton);
         String importText = "In this method the original CODP is imported into the target ontology module, and instantiation is performed via specialization of CODP classes and "
-        		+ "properties using subsumption axioms. Advantages of this method include increased traceability and ease of alignment with other CODPs, as IRIs of CODP-level concepts"
+        		+ "properties using subsumption axioms. Advantages of this method include increased traceability and ease of alignment with other CODPs, as IRIs of CODP-level concepts "
         		+ "are maintained.";
         vp.add(new Label(importText));
         this.add(vp);

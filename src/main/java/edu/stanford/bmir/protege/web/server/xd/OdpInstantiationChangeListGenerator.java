@@ -49,7 +49,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction.ValueCon
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.CodpAsSuperEntityAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalenceAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubsumptionAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.AbstractSubsumptionAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
@@ -196,9 +196,9 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	 */
 	private void generateAndAddAlignmentAxioms(OWLAPIProject project, OntologyChangeList.Builder<OWLEntity> builder) {
 		for (Alignment alignment: instantiation.getAlignments()) {
-			if (alignment instanceof SubsumptionAlignment) {
-				OntologyEntityFrame odpFrame = ((SubsumptionAlignment) alignment).getInstantiationEntityFrame();
-				OntologyEntityFrame ontologyFrame = ((SubsumptionAlignment) alignment).getOntologyEntityFrame();
+			if (alignment instanceof AbstractSubsumptionAlignment) {
+				OntologyEntityFrame odpFrame = ((AbstractSubsumptionAlignment) alignment).getInstantiationEntityFrame();
+				OntologyEntityFrame ontologyFrame = ((AbstractSubsumptionAlignment) alignment).getOntologyEntityFrame();
 				OWLEntity odpEntity = getEntityFromFrame(odpFrame);
 				OWLEntity ontologyEntity = getEntityFromFrame(ontologyFrame);
 				Optional<OWLAxiom> subsumptionAxiom = Optional.absent();

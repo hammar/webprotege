@@ -9,6 +9,12 @@ public abstract class AbstractAlignment implements Alignment {
 	private OntologyEntityFrame instantiationEntityFrame;
 	private OntologyEntityFrame ontologyEntityFrame;
 	
+	/**
+	 * GWT-RPC constructor
+	 */
+	protected AbstractAlignment() {
+	}
+	
 	public AbstractAlignment(OntologyEntityFrame odpEntity, OntologyEntityFrame ontologyEntity) {
 		this.instantiationEntityFrame = odpEntity;
 		this.ontologyEntityFrame = ontologyEntity;

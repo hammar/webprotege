@@ -4,6 +4,13 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityF
 
 public class EquivalenceAlignment extends AbstractAlignment {
 
+	/**
+	 * GWT-RPC constructor
+	 */
+	@SuppressWarnings("unused")
+	private EquivalenceAlignment() {
+	}
+	
 	private static final long serialVersionUID = 2931022338738519548L;
 
 	public EquivalenceAlignment(OntologyEntityFrame odpEntity, OntologyEntityFrame ontologyEntity) {
