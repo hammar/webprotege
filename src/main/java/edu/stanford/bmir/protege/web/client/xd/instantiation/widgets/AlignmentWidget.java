@@ -4,7 +4,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-
 import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 
@@ -20,8 +19,11 @@ public class AlignmentWidget extends HorizontalPanel {
 		
 		this.addStyleName("xdpAlignmentWidget");
 		
-		// Update the below line to actually render alignment in a more communicative manner 
-		this.checkBox = new CheckBox(alignment.toString());
+		String instantiationEntityLabel = "CODP entity <em>" + alignment.getInstantiationEntityFrame().getCurrentLabel() + "</em>";
+		String alignmentDescriptionLabel = " "  + alignment.getAlignmentDescription() + " ";
+		String ontologyEntityLabel = "Ontology entity <em>" + alignment.getOntologyEntityFrame().getCurrentLabel() + "</em>";
+		String checkBoxLabel = instantiationEntityLabel + alignmentDescriptionLabel + ontologyEntityLabel;
+		this.checkBox = new CheckBox(checkBoxLabel,true);
 		
 		this.checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 			@Override

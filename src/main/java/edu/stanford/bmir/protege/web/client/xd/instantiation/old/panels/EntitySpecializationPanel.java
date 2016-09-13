@@ -24,9 +24,6 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.old.DesignPatternSp
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.EntityDetailsWindow;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.old.SubClassAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.old.SubDataPropertyAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.old.SubObjectPropertyAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
@@ -283,20 +280,20 @@ public class EntitySpecializationPanel extends Panel {
 					if (childType.equalsIgnoreCase("owlClassTreeNode")) {
 						ClassFrame parentFrame = (ClassFrame)rootNode.getAttributeAsObject("frame");
 						ClassFrame childFrame = (ClassFrame)childTreeNode.getAttributeAsObject("frame");
-						SubClassAlignment alignment = new SubClassAlignment(parentFrame, childFrame);
-						alignments.add(alignment);
+						//SubClassAlignment alignment = new SubClassAlignment(parentFrame, childFrame);
+						//alignments.add(alignment);
 					}
 					else if (childType.equalsIgnoreCase("owlDataPropertyTreeNode")) {
 						DataPropertyFrame parentFrame = (DataPropertyFrame)rootNode.getAttributeAsObject("frame");
 						DataPropertyFrame childFrame = (DataPropertyFrame)childTreeNode.getAttributeAsObject("frame");
-						SubDataPropertyAlignment alignment = new SubDataPropertyAlignment(parentFrame, childFrame);
-						alignments.add(alignment);
+						//SubDataPropertyAlignment alignment = new SubDataPropertyAlignment(parentFrame, childFrame);
+						//alignments.add(alignment);
 					}
 					else if (childType.equalsIgnoreCase("owlObjectPropertyTreeNode")) {
 						ObjectPropertyFrame parentFrame = (ObjectPropertyFrame)rootNode.getAttributeAsObject("frame");
 						ObjectPropertyFrame childFrame = (ObjectPropertyFrame)childTreeNode.getAttributeAsObject("frame");
-						SubObjectPropertyAlignment alignment = new SubObjectPropertyAlignment(parentFrame, childFrame);
-						alignments.add(alignment);
+						//SubObjectPropertyAlignment alignment = new SubObjectPropertyAlignment(parentFrame, childFrame);
+						//alignments.add(alignment);
 					}
 				}
 				else {

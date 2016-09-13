@@ -126,12 +126,16 @@ div.entityTree .gwt-TreeItem-selected {
 table.xdpAlignmentWidget input {
 	margin-right: 5px;
 }
+
+table.xdpAlignmentWidget label em {
+	font-style: italic;
+}
  
- table.xdpPreviewPanel {
- 	width: 100%;
- }
+table.xdpPreviewPanel {
+	width: 100%;
+}
  
- table.xdpPreviewPanelNavBar {
+table.xdpPreviewPanelNavBar {
     height: 33px;
     vertical-align: middle;
     border-bottom: 1px solid darkblue;
