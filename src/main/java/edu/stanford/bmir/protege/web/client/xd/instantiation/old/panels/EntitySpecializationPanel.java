@@ -24,9 +24,9 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.old.DesignPatternSp
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.EntityDetailsWindow;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubClassAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubDataPropertyAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubObjectPropertyAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.old.SubClassAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.old.SubDataPropertyAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.old.SubObjectPropertyAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;

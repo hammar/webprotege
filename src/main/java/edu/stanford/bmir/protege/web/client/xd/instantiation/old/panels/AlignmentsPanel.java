@@ -139,7 +139,7 @@ public class AlignmentsPanel extends Panel {
         			// Put into map for later retrieval reference
         			alignmentsMap.put(alignmentKey, alignment);
         			// Create record and add to store
-        			Record record = recordDef.createRecord(new Object[]{alignment.toString(), alignment.getSortableEntityLabel(), alignmentKey});
+        			Record record = recordDef.createRecord(new Object[]{alignment.toString(), alignment.getInstantiationEntityFrame().getCurrentLabel(), alignmentKey});
         			store.add(record);
         		}
         		store.groupBy("entity", true);

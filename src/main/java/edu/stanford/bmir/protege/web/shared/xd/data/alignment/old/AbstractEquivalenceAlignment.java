@@ -1,7 +1,9 @@
-package edu.stanford.bmir.protege.web.shared.xd.data.alignment;
+package edu.stanford.bmir.protege.web.shared.xd.data.alignment.old;
 
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
+@Deprecated
 public abstract class AbstractEquivalenceAlignment implements Alignment {
 
 	private static final long serialVersionUID = 4906645333610819096L;

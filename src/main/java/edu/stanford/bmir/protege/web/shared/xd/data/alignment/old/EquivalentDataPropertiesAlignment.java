@@ -1,8 +1,9 @@
-package edu.stanford.bmir.protege.web.shared.xd.data.alignment;
+package edu.stanford.bmir.protege.web.shared.xd.data.alignment.old;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
+@Deprecated
 public class EquivalentDataPropertiesAlignment extends AbstractEquivalenceAlignment {
 
 	private static final long serialVersionUID = 2019720192826227962L;
@@ -35,6 +36,24 @@ public class EquivalentDataPropertiesAlignment extends AbstractEquivalenceAlignm
 	
 	public String toString() {
 		return (homeProperty.getCurrentLabel() + " is equivalent to " + otherProperty.getCurrentLabel());
+	}
+
+	@Override
+	public OntologyEntityFrame getInstantiationEntityFrame() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OntologyEntityFrame getOntologyEntityFrame() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getAlignmentDescription() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

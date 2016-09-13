@@ -26,19 +26,13 @@ import edu.stanford.bmir.protege.web.server.xd.util.OntologyOperations;
 import edu.stanford.bmir.protege.web.shared.DataFactory;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationAlignmentSuggestionsAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
-import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalentClassesAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalentDataPropertiesAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalentObjectPropertiesAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubClassAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubDataPropertyAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubObjectPropertyAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
-import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.CodpAsSubEntityAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.CodpAsSuperEntityAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalenceAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationAlignmentSuggestionsResult;
+import edu.stanford.bmir.protege.web.shared.xd.util.TreeMethods;
 
 public class GetInstantiationAlignmentSuggestionsHandler extends AbstractHasProjectActionHandler<GetInstantiationAlignmentSuggestionsAction,GetInstantiationAlignmentSuggestionsResult> {
 
@@ -60,15 +54,6 @@ public class GetInstantiationAlignmentSuggestionsHandler extends AbstractHasProj
 			GetInstantiationAlignmentSuggestionsAction action,
 			RequestContext requestContext) {
 		return new UserHasProjectReadPermissionValidator<GetInstantiationAlignmentSuggestionsAction>();
-	}
-	
-	private Set<OntologyEntityFrame> flattenFrameTree(FrameTreeNode<OntologyEntityFrame> treeNode) {
-		Set<OntologyEntityFrame> retVal = new HashSet<OntologyEntityFrame>();
-		retVal.add(treeNode.getData());
-		for (FrameTreeNode<OntologyEntityFrame> childNode: treeNode.getChildren()) {
-			retVal.addAll(flattenFrameTree(childNode));
-		}
-		return retVal;
 	}
 	
 	/**
@@ -178,27 +163,27 @@ public class GetInstantiationAlignmentSuggestionsHandler extends AbstractHasProj
 	/**
 	 * Compare every combination of input specialization ontology entity frame and existing OWL entity and suggest any
 	 * possible equivalency or subsumption alignments.
-	 * @param specializationFrames
+	 * @param instantiationFrames
 	 * @param ontologyEntites
 	 * @param ontology
 	 * @return
 	 */
-	private Set<Alignment> generateCandidateAlignments(Set<OntologyEntityFrame> specializationFrames, Set<? extends OWLEntity> ontologyEntites, OWLOntology ontology) {
+	private Set<Alignment> generateCandidateAlignments(Set<OntologyEntityFrame> instantiationFrames, Set<? extends OWLEntity> ontologyEntites, OWLOntology ontology) {
 		Set<Alignment> retVal = new HashSet<Alignment>();
-		for (OntologyEntityFrame specializedFrame: specializationFrames) {
+		for (OntologyEntityFrame instantiationFrame: instantiationFrames) {
 			for (OWLEntity ontologyEntity: ontologyEntites) {
 				
 				// By default neither entity is subclass of other
-				Boolean specializationIsSubEntity = false;
+				Boolean instantiationIsSubEntity = false;
 				Boolean existingIsSubEntity = false;
 				Boolean entitiesAreEquivalent = false;
 				
 				Boolean entitiesHaveSameNamespace = false;
 				// If frame has an IRI already, compare the IRIs
-				if (specializedFrame.getIri().isPresent()) {
-					IRI specializedFrameIri = specializedFrame.getIri().get();
+				if (instantiationFrame.getIri().isPresent()) {
+					IRI instantiationFrameIri = instantiationFrame.getIri().get();
 					IRI ontologyEntityIri = ontologyEntity.getIRI();
-					if (specializedFrameIri.getNamespace().equalsIgnoreCase(ontologyEntityIri.getNamespace())) {
+					if (instantiationFrameIri.getNamespace().equalsIgnoreCase(ontologyEntityIri.getNamespace())) {
 						entitiesHaveSameNamespace = true;
 					}
 				}
@@ -206,49 +191,25 @@ public class GetInstantiationAlignmentSuggestionsHandler extends AbstractHasProj
 				// Do not suggest alignments for entities which are from the same ontology namespace to begin 
 				// with (assume that that namespace is reasonably structured at the outset..)
 				if (!entitiesHaveSameNamespace) {
-					specializationIsSubEntity = isSubEntityOf(specializedFrame, ontologyEntity, ontology);
-					existingIsSubEntity = isSubEntityOf(ontologyEntity, specializedFrame, ontology);
-					entitiesAreEquivalent = specializationIsSubEntity && existingIsSubEntity;
+					instantiationIsSubEntity = isSubEntityOf(instantiationFrame, ontologyEntity, ontology);
+					existingIsSubEntity = isSubEntityOf(ontologyEntity, instantiationFrame, ontology);
+					entitiesAreEquivalent = instantiationIsSubEntity && existingIsSubEntity;
 				}
 				
 				if (entitiesAreEquivalent) {
 					// Construct equality alignment
 					OntologyEntityFrame ontologyFrame = OntologyOperations.getFrame(ontologyEntity, ontology, false);
-					if (specializedFrame instanceof ClassFrame) {
-						retVal.add(new EquivalentClassesAlignment((ClassFrame)specializedFrame, (ClassFrame)ontologyFrame));
-					}
-					else if (specializedFrame instanceof DataPropertyFrame) {
-						retVal.add(new EquivalentDataPropertiesAlignment((DataPropertyFrame)specializedFrame, (DataPropertyFrame)ontologyFrame));
-					}
-					else if (specializedFrame instanceof ObjectPropertyFrame) {
-						retVal.add(new EquivalentObjectPropertiesAlignment((ObjectPropertyFrame)specializedFrame, (ObjectPropertyFrame)ontologyFrame));
-					}
+					retVal.add(new EquivalenceAlignment(instantiationFrame, ontologyFrame));
 				}
-				if (specializationIsSubEntity) {
+				if (instantiationIsSubEntity) {
 					// Construct one-way subsumption
 					OntologyEntityFrame ontologyFrame = OntologyOperations.getFrame(ontologyEntity, ontology, false);
-					if (specializedFrame instanceof ClassFrame) {
-						retVal.add(new SubClassAlignment((ClassFrame)ontologyFrame, (ClassFrame)specializedFrame));
-					}
-					else if (specializedFrame instanceof DataPropertyFrame) {
-						retVal.add(new SubDataPropertyAlignment((DataPropertyFrame)ontologyFrame, (DataPropertyFrame)specializedFrame));
-					}
-					else if (specializedFrame instanceof ObjectPropertyFrame) {
-						retVal.add(new SubObjectPropertyAlignment((ObjectPropertyFrame)ontologyFrame, (ObjectPropertyFrame)specializedFrame));
-					}
+					retVal.add(new CodpAsSubEntityAlignment(instantiationFrame, ontologyFrame));
 				}
 				if (existingIsSubEntity) {
 					// Construct other way subsumption
 					OntologyEntityFrame ontologyFrame = OntologyOperations.getFrame(ontologyEntity, ontology, false);
-					if (specializedFrame instanceof ClassFrame) {
-						retVal.add(new SubClassAlignment((ClassFrame)specializedFrame, (ClassFrame)ontologyFrame));
-					}
-					else if (specializedFrame instanceof DataPropertyFrame) {
-						retVal.add(new SubDataPropertyAlignment((DataPropertyFrame)specializedFrame, (DataPropertyFrame)ontologyFrame));
-					}
-					else if (specializedFrame instanceof ObjectPropertyFrame) {
-						retVal.add(new SubObjectPropertyAlignment((ObjectPropertyFrame)specializedFrame, (ObjectPropertyFrame)ontologyFrame));
-					}
+					retVal.add(new CodpAsSuperEntityAlignment(instantiationFrame, ontologyFrame));
 				}
 			}
 		}
@@ -271,9 +232,9 @@ public class GetInstantiationAlignmentSuggestionsHandler extends AbstractHasProj
 			OWLAPIProject project, ExecutionContext executionContext) {
 		
 		OWLOntology ontology = project.getRootOntology();
-		Set<OntologyEntityFrame> instantiationClasses = flattenFrameTree(action.getClasses());
-		Set<OntologyEntityFrame> instantiationObjectProperties = flattenFrameTree(action.getObjectProperties());
-		Set<OntologyEntityFrame> instantiationDataProperties = flattenFrameTree(action.getDataProperties());
+		Set<OntologyEntityFrame> instantiationClasses = TreeMethods.flattenFrameTree(action.getClasses());
+		Set<OntologyEntityFrame> instantiationObjectProperties = TreeMethods.flattenFrameTree(action.getObjectProperties());
+		Set<OntologyEntityFrame> instantiationDataProperties = TreeMethods.flattenFrameTree(action.getDataProperties());
 		
 		// 0. If doing template-based instantiation, only generate alignment suggestions for the frames that have been cloned
 		if (action.getInstantiationMethod() == CodpInstantiationMethod.TEMPLATE_BASED) {

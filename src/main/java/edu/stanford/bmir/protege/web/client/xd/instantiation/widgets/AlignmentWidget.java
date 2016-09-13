@@ -20,7 +20,9 @@ public class AlignmentWidget extends HorizontalPanel {
 		
 		this.addStyleName("xdpAlignmentWidget");
 		
+		// Update the below line to actually render alignment in a more communicative manner 
 		this.checkBox = new CheckBox(alignment.toString());
+		
 		this.checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {

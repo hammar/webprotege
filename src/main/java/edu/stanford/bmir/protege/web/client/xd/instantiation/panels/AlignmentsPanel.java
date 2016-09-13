@@ -49,7 +49,7 @@ public class AlignmentsPanel extends VerticalPanel implements InstantiationWizar
 		// First put all the alignments into a map structure organised by their heading
 		Map<String,List<Alignment>> sortingMap = new HashMap<String,List<Alignment>>();
 		for (Alignment a: alignments) {
-			String sortableEntityLabel = a.getSortableEntityLabel();
+			String sortableEntityLabel = a.getInstantiationEntityFrame().getCurrentLabel();
 			if (sortingMap.containsKey(sortableEntityLabel)) {
 				sortingMap.get(sortableEntityLabel).add(a);
 			}

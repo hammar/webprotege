@@ -46,9 +46,10 @@ import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction;
 import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction.ValueConstraint;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.AbstractEquivalenceAlignment;
-import edu.stanford.bmir.protege.web.shared.xd.data.alignment.AbstractSubsumptionAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.CodpAsSuperEntityAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.EquivalenceAlignment;
+import edu.stanford.bmir.protege.web.shared.xd.data.alignment.SubsumptionAlignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
@@ -117,23 +118,9 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	 * @return
 	 */
 	private Set<FrameTreeNode<OntologyEntityFrame>> getClonedEntityTrees(FrameTreeNode<OntologyEntityFrame> inputFrameTreeRoot) {
-		
 		FrameTreeNode<OntologyEntityFrame> clonedTree = TreeMethods.filterTreeKeepingClonedEntities(inputFrameTreeRoot,null);
 		Set<FrameTreeNode<OntologyEntityFrame>> retVal = new HashSet<FrameTreeNode<OntologyEntityFrame>>(clonedTree.getChildren());
 		return retVal;
-		/*
-		Set<FrameTreeNode<OntologyEntityFrame>> clonedEntityRoots = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
-		// This node has no cloned label, e.g., is an ODP-level construct not to be included in target instantiation, e.g., recurse deeper into child nodes.
-		if (!inputFrameTreeRoot.getData().getClonedLabel().isPresent()) {
-			for (FrameTreeNode<OntologyEntityFrame> childNode: inputFrameTreeRoot.getChildren()) {
-				clonedEntityRoots.addAll(getSpecializedEntityTrees(childNode));
-			}
-		}
-		// This node has a cloned label so it is a cloned subtree. Add it to the set to be returned.
-		else {
-			clonedEntityRoots.add(inputFrameTreeRoot);
-		}
-		return clonedEntityRoots;*/
 	}
 	
 	
@@ -209,22 +196,28 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	 */
 	private void generateAndAddAlignmentAxioms(OWLAPIProject project, OntologyChangeList.Builder<OWLEntity> builder) {
 		for (Alignment alignment: instantiation.getAlignments()) {
-			if (alignment instanceof AbstractSubsumptionAlignment) {
-				OntologyEntityFrame superFrame = ((AbstractSubsumptionAlignment) alignment).getSuperEntity();
-				OntologyEntityFrame subFrame = ((AbstractSubsumptionAlignment) alignment).getSubEntity();
-				OWLEntity superEntity = getEntityFromFrame(superFrame);
-				OWLEntity subEntity = getEntityFromFrame(subFrame);
-				Optional<OWLAxiom> subsumptionAxiom = generateSubsumptionAxiom(project,superEntity,subEntity);
+			if (alignment instanceof SubsumptionAlignment) {
+				OntologyEntityFrame odpFrame = ((SubsumptionAlignment) alignment).getInstantiationEntityFrame();
+				OntologyEntityFrame ontologyFrame = ((SubsumptionAlignment) alignment).getOntologyEntityFrame();
+				OWLEntity odpEntity = getEntityFromFrame(odpFrame);
+				OWLEntity ontologyEntity = getEntityFromFrame(ontologyFrame);
+				Optional<OWLAxiom> subsumptionAxiom = Optional.absent();
+				if (alignment instanceof CodpAsSuperEntityAlignment) {
+					subsumptionAxiom = generateSubsumptionAxiom(project,odpEntity,ontologyEntity);
+				}
+				else {
+					subsumptionAxiom = generateSubsumptionAxiom(project,ontologyEntity,odpEntity);
+				}
 				if (subsumptionAxiom.isPresent()) {
 					builder.addAxiom(project.getRootOntology(), subsumptionAxiom.get());
 				}
 			}
-			else if (alignment instanceof AbstractEquivalenceAlignment) {
-				OntologyEntityFrame homeFrame = ((AbstractEquivalenceAlignment) alignment).getHomeEntity();
-				OntologyEntityFrame otherFrame = ((AbstractEquivalenceAlignment) alignment).getOtherEntity();
-				OWLEntity homeEntity = getEntityFromFrame(homeFrame);
-				OWLEntity otherEntity = getEntityFromFrame(otherFrame);
-				Optional<OWLAxiom> equivalenceAxiom = generateEquivalenceAxiom(project,homeEntity,otherEntity);
+			else if (alignment instanceof EquivalenceAlignment) {
+				OntologyEntityFrame odpFrame = ((EquivalenceAlignment) alignment).getInstantiationEntityFrame();
+				OntologyEntityFrame ontologyFrame = ((EquivalenceAlignment) alignment).getOntologyEntityFrame();
+				OWLEntity odpEntity = getEntityFromFrame(odpFrame);
+				OWLEntity ontologyEntity = getEntityFromFrame(ontologyFrame);
+				Optional<OWLAxiom> equivalenceAxiom = generateEquivalenceAxiom(project,odpEntity,ontologyEntity);
 				if (equivalenceAxiom.isPresent()) {
 					builder.addAxiom(project.getRootOntology(), equivalenceAxiom.get());
 				}

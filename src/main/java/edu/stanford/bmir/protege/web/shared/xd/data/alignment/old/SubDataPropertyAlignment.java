@@ -1,7 +1,9 @@
-package edu.stanford.bmir.protege.web.shared.xd.data.alignment;
+package edu.stanford.bmir.protege.web.shared.xd.data.alignment.old;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 
+@Deprecated
 public class SubDataPropertyAlignment extends AbstractSubsumptionAlignment {
 	
 	private static final long serialVersionUID = -2437051887984587228L;
@@ -31,5 +33,23 @@ public class SubDataPropertyAlignment extends AbstractSubsumptionAlignment {
 
 	public String toString() {
 		return (subProperty.getCurrentLabel() + " is a subdataproperty of " + superProperty.getCurrentLabel());
+	}
+
+	@Override
+	public OntologyEntityFrame getInstantiationEntityFrame() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OntologyEntityFrame getOntologyEntityFrame() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getAlignmentDescription() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
