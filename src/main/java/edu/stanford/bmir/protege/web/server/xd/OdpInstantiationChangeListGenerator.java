@@ -473,8 +473,11 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	}
 
 	public Map<String,String> getPrefixes() {
-		// TODO: Fix this to only include reasonable prefixes if template-based instantiation.
 		Map<String,String> prefixes = new HashMap<String,String>();
+		// If we are doing template-based instantiation, return an empty set of prefixes
+		if (instantiation.getInstantiationMethod() == CodpInstantiationMethod.TEMPLATE_BASED) {
+			return prefixes;
+		}
 		if (odpClosure == null) {
 			odpClosure = getOdpClosure(instantiation.getOdpIri());
 		}
