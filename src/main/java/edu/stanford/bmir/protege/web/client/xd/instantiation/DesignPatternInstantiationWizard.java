@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
 
+import com.google.common.base.Optional;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -40,6 +41,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyF
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 import edu.stanford.bmir.protege.web.shared.xd.results.PersistInstantiationResult;
+import edu.stanford.bmir.protege.web.shared.xd.util.TreeMethods;
 
 public class DesignPatternInstantiationWizard extends PopupPanel {
 
@@ -387,6 +389,45 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	
 	public ProjectId getProjectId() {
 		return projectId;
+	}
+	
+	public void addSpecializedFrame(OntologyEntityFrame parentFrame, OntologyEntityFrame newFrame) {
+		FrameTreeNode<OntologyEntityFrame> treeRoot;
+		if (parentFrame instanceof ClassFrame) {
+			treeRoot = this.classTree;
+		}
+		else if (parentFrame instanceof ObjectPropertyFrame) {
+			treeRoot = this.objectPropertyTree;
+		}
+		else {
+			treeRoot = this.dataPropertyTree;
+		}
+		Optional<FrameTreeNode<OntologyEntityFrame>> parentTreeOpt = TreeMethods.getFrameTreeForFrame(treeRoot, parentFrame);
+		if (parentTreeOpt.isPresent()) {
+			FrameTreeNode<OntologyEntityFrame> parentTree = parentTreeOpt.get();
+			parentTree.addChild(newFrame);
+			this.updateInstantiationModificationTimestamp();
+		}
+	}
+	
+	public void removeSpecializedFrame(OntologyEntityFrame frameToRemove) {
+		FrameTreeNode<OntologyEntityFrame> treeRoot;
+		if (frameToRemove instanceof ClassFrame) {
+			treeRoot = this.classTree;
+		}
+		else if (frameToRemove instanceof ObjectPropertyFrame) {
+			treeRoot = this.objectPropertyTree;
+		}
+		else {
+			treeRoot = this.dataPropertyTree;
+		}
+		Optional<FrameTreeNode<OntologyEntityFrame>> frameTreeOpt = TreeMethods.getFrameTreeForFrame(treeRoot, frameToRemove);
+		if (frameTreeOpt.isPresent()) {
+			FrameTreeNode<OntologyEntityFrame> treeToRemove = frameTreeOpt.get();
+			FrameTreeNode<OntologyEntityFrame> parentTree = treeToRemove.getParent();
+			parentTree.getChildren().remove(treeToRemove);
+		}
+		this.updateInstantiationModificationTimestamp();
 	}
 	
 	public void addAlignment(Alignment a) {

@@ -41,6 +41,7 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
                 			@Override
                 			public void handleSuccess(GetInstantiationPreviewResult result) {
                 				instantationAxiomsPreview.setText(result.getInstantiationPreview());
+
                 				// Kill the spinner
                 				parentWizard.hideSpinner();
                 			}

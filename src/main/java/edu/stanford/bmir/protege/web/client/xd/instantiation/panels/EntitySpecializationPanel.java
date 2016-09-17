@@ -23,6 +23,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityF
 
 public class EntitySpecializationPanel extends VerticalPanel implements InstantiationWizardPanel {
 	
+	private final DesignPatternInstantiationWizard parentWizard;
 	private Button specializeButton;
 	private Button modifyButton;
 	private Button deleteButton;
@@ -51,13 +52,14 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 			public void onClick(ClickEvent event) {
 				String newEntityLabel = Window.prompt("Please enter the specialised entity label.", "");
 				if (newEntityLabel != null && newEntityLabel != "") {
-					OntologyEntityFrame newFrame = createChildFrame(newEntityLabel, (OntologyEntityFrame)selectedTreeItem.getUserObject());
+					OntologyEntityFrame parentFrame = (OntologyEntityFrame)selectedTreeItem.getUserObject();
+					OntologyEntityFrame newFrame = createChildFrame(newEntityLabel, parentFrame);
 					TreeItem newTreeItem = new TreeItem(new EntityTreeNode(newFrame));
 					newTreeItem.setUserObject(newFrame);
 					selectedTreeItem.addItem(newTreeItem);
 					selectedTreeItem.setState(true);
 					deleteButton.setEnabled(false);
-					// TODO: create new item/node in the parentwizard data structure.
+					EntitySpecializationPanel.this.parentWizard.addSpecializedFrame(parentFrame, newFrame);
 				}
 			}
 
@@ -85,7 +87,7 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 				if (newEntityLabel != null && newEntityLabel != oldEntityLabel)  {
 					((EntityTreeNode)selectedTreeItem.getWidget()).setLabelText(newEntityLabel);
 					((OntologyEntityFrame)selectedTreeItem.getUserObject()).setLabel(newEntityLabel);
-					// TODO: Modify node in the parentwizard data structure
+					// TODO: Check if any calls to parent wizard are needed. Probably not, same object in memory, right?
 				}
 			}
 		});
@@ -96,13 +98,14 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 			public void onClick(ClickEvent event) {
 				Boolean confirmDelete = Window.confirm("Are you certain that you wish to delete \"" + selectedTreeItem.getText() + "\"?");
 				if (confirmDelete) {
+					OntologyEntityFrame frameToRemove = (OntologyEntityFrame)selectedTreeItem.getUserObject();
+					EntitySpecializationPanel.this.parentWizard.removeSpecializedFrame(frameToRemove);
 					entityTree.setSelectedItem(null);
 					specializeButton.setEnabled(false);
 					modifyButton.setEnabled(false);
 					deleteButton.setEnabled(false);
 					selectedTreeItem.remove();
 					selectedTreeItem = null;
-					// TODO: Remove tree node in parentwizard data structure
 				}
 			}
 		});
@@ -148,8 +151,6 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 	    sp.add(entityTree);
 		this.add(sp);
 	}
-
-	private DesignPatternInstantiationWizard parentWizard;
 
 	@Override
 	public void renderPanel() {

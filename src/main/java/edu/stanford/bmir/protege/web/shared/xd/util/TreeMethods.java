@@ -68,6 +68,22 @@ public class TreeMethods {
 		return retVal;
 	}
 	
+	
+	public static Optional<FrameTreeNode<OntologyEntityFrame>> getFrameTreeForFrame(FrameTreeNode<OntologyEntityFrame> treeToSearch, OntologyEntityFrame frameToSearchFor) {
+		if (treeToSearch.getData().equals(frameToSearchFor)) {
+			return Optional.of(treeToSearch);
+		}
+		else {
+			for (FrameTreeNode<OntologyEntityFrame> childTree: treeToSearch.getChildren()) {
+				Optional<FrameTreeNode<OntologyEntityFrame>> childOptional = getFrameTreeForFrame(childTree, frameToSearchFor);
+				if (childOptional.isPresent()) {
+					return childOptional;
+				}
+			}
+			return Optional.absent();
+		}
+	}
+	
 	/**
 	 * Recurse through a tree of ontology entity frames, building and returning a map of tree nodes (as keys)
 	 * and their depth in the tree (as values). 
