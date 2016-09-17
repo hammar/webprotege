@@ -39,8 +39,6 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
         		+ "below.");
 		this.add(instruction);
 		
-		
-		
 		// Toolbar by which we interact with tree
 		HorizontalPanel editingToolbar = new HorizontalPanel();
 		editingToolbar.addStyleName("entitySpecializationToolbar");
@@ -86,7 +84,7 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 				String newEntityLabel = Window.prompt("Please enter the label ", oldEntityLabel);
 				if (newEntityLabel != null && newEntityLabel != oldEntityLabel)  {
 					((EntityTreeNode)selectedTreeItem.getWidget()).setLabelText(newEntityLabel);
-					((OntologyEntityFrame)selectedTreeItem.getUserObject()).setLabel(newEntityLabel); 
+					((OntologyEntityFrame)selectedTreeItem.getUserObject()).setLabel(newEntityLabel);
 					// TODO: Modify node in the parentwizard data structure
 				}
 			}

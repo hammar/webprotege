@@ -67,6 +67,10 @@ public class AbstractOntologyEntityFrame implements OntologyEntityFrame {
 		this.clonedLabel = Optional.of(clonedLabel);
 	}
 	
+	public void removeClonedLabel() {
+		this.clonedLabel = Optional.absent();
+	}
+	
 	public void setComment(String comment) {
 		this.comment = Optional.of(comment);
 	}

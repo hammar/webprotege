@@ -72,36 +72,30 @@ public class AlignmentsPanel extends VerticalPanel implements InstantiationWizar
 	}
 
 	@Override
-	public void renderPanel() {
-		// Check if alignments are out of date (e.g., if instantiation has been modified after last time alignments were modified)
-		// If so, redraw the interface. Otherwise, keep the old interface as is.
+	public void renderPanel() {		
+		// Initiate spinner UI
+		parentWizard.showSpinner("Loading alignment suggestions...");
 		
-		if (!parentWizard.areAlignmentsUpToDate()) {
-			
-			// Initiate spinner UI
-			parentWizard.showSpinner("Loading alignment suggestions...");
-			
-			// Clear out the existing UI and widgets
-			this.alignmentsHolderPanel.clear();
-			
-			// Call server wait for results
-			GetInstantiationAlignmentSuggestionsAction action = new GetInstantiationAlignmentSuggestionsAction(parentWizard.getProjectId(), 
-					parentWizard.getClassTree(),
-					parentWizard.getObjectPropertyTree(),
-					parentWizard.getDataPropertyTree(), 
-					parentWizard.getInstantiationMethod());
-			DispatchServiceManager.get().execute(action, new DispatchServiceCallback<GetInstantiationAlignmentSuggestionsResult>() {
-	        	@Override
-	            public void handleSuccess(GetInstantiationAlignmentSuggestionsResult result) {
-	        		
-	        		// Render results
-	        		renderAlignmentWidgets(result.getAlignments());
-	        		
-	        		// Kill the spinner UI
-	        		parentWizard.hideSpinner();
+		// Clear out the existing UI and widgets
+		this.alignmentsHolderPanel.clear();
+		
+		// Call server wait for results
+		GetInstantiationAlignmentSuggestionsAction action = new GetInstantiationAlignmentSuggestionsAction(parentWizard.getProjectId(), 
+				parentWizard.getClassTree(),
+				parentWizard.getObjectPropertyTree(),
+				parentWizard.getDataPropertyTree(), 
+				parentWizard.getInstantiationMethod());
+		DispatchServiceManager.get().execute(action, new DispatchServiceCallback<GetInstantiationAlignmentSuggestionsResult>() {
+        	@Override
+            public void handleSuccess(GetInstantiationAlignmentSuggestionsResult result) {
+        		
+        		// Render results
+        		renderAlignmentWidgets(result.getAlignments());
+        		
+        		// Kill the spinner UI
+        		parentWizard.hideSpinner();
 
-	            }
-	        });
-		}
+            }
+        });
 	}
 }

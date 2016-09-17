@@ -71,5 +71,6 @@ public class InstantiationMethodSelectionPanel extends FlowPanel implements Inst
 	@Override
 	public void renderPanel() {
 		this.templateMethodButton.setValue(true);
+		this.parentWizard.updateInstantiationMethodSelectionTimestamp();
 	}
 }

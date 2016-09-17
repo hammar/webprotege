@@ -56,8 +56,9 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private PreviewPanel previewPanel;
 	private CodpInstantiationMethod instantiationMethod;
 	private ActiveWizardScreen activeWizardScreen;
-	private Date instantiationModificationTimestamp = new Date();
 	private Date alignmentsModificationTimestamp = new Date();
+	private Date instantiationModificationTimestamp = new Date();
+	private Date instantiationMethodSelectionTimestamp = new Date();	
 	private Spinner spinner = new Spinner();
 
 	private IRI odpIri;
@@ -305,11 +306,21 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// Figure out which method is being used and which panel should be displayed
 					switch (instantiationMethod) {
 					case TEMPLATE_BASED:
+						if (!isInstantiationUpToDateWithMethod()) {
+							resetInstantiation();
+							entityCloningPanel.renderPanel();
+						}
+						
 						// Show panel and set statekeeping enum
 						entityCloningPanel.setVisible(true);
 						activeWizardScreen = ActiveWizardScreen.ENTITY_CLONING;
 						break;
 					case IMPORT_BASED:
+						if (!isInstantiationUpToDateWithMethod()) {
+							resetInstantiation();
+							entitySpecializationPanel.renderPanel();
+						}
+						
 						// Show incoming panel and set statekeeping enum
 						entitySpecializationPanel.setVisible(true);
 						activeWizardScreen = ActiveWizardScreen.ENTITY_SPECIALIZATION;
@@ -321,6 +332,10 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// MOVING ENTITY_CLONING -> ALIGNMENTS
 					// Set outgoing panel visibility state
 					entityCloningPanel.setVisible(false);
+					if (!areAlignmentsUpToDate()) {
+						alignments.clear();
+						alignmentsPanel.renderPanel();
+					}
 					// Show incoming panel and set statekeeping enum
 					alignmentsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
@@ -340,6 +355,10 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// MOVING RESTRICTIONS -> ALIGNMENTS
 					// Set outgoing panel visibility state
 					restrictionsPanel.setVisible(false);
+					if (!areAlignmentsUpToDate()) {
+						alignments.clear();
+						alignmentsPanel.renderPanel();
+					}
 					// Show incoming panel and set statekeeping enum
 					alignmentsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
@@ -372,14 +391,20 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	
 	public void addAlignment(Alignment a) {
 		this.alignments.add(a);
+		this.updateAlignmentModificationTimestamp();
 	}
 	
 	public void removeAlignment(Alignment a) {
 		this.alignments.remove(a);
+		this.updateAlignmentModificationTimestamp();
 	}
 	
 	public CodpInstantiation getInstantiation() {
 		return new CodpInstantiation(this.projectId, this.odpIri, this.classTree, this.objectPropertyTree, this.dataPropertyTree, this.alignments, this.instantiationMethod, CodpSpecializationStrategy.PROPERTY_ORIENTED);
+	}
+	
+	public void updateInstantiationMethodSelectionTimestamp() {
+		this.instantiationMethodSelectionTimestamp = new Date();
 	}
 	
 	public void updateInstantiationModificationTimestamp() {
@@ -390,13 +415,40 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		this.alignmentsModificationTimestamp = new Date();
 	}
 	
-	public Boolean areAlignmentsUpToDate() {
+	private Boolean areAlignmentsUpToDate() {
 		if (this.alignmentsModificationTimestamp.after(this.instantiationModificationTimestamp)) {
 			return true;
 		}
 		else {
 			return false;
 		}
+	}
+	
+	private Boolean isInstantiationUpToDateWithMethod() {
+		if (this.instantiationModificationTimestamp.after(this.instantiationMethodSelectionTimestamp)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	private void resetFrameTreeNode(FrameTreeNode<OntologyEntityFrame> inputTree) {
+		for (FrameTreeNode<OntologyEntityFrame> childTree: inputTree.getChildren()) {
+			resetFrameTreeNode(childTree);
+		}
+		for (FrameTreeNode<OntologyEntityFrame> childTree: inputTree.getChildren()) {
+			if (!childTree.getData().getIri().isPresent()) {
+				inputTree.getChildren().remove(childTree);
+			}
+		}
+		inputTree.getData().removeClonedLabel();
+	}
+	
+	private void resetInstantiation() {
+		resetFrameTreeNode(this.classTree);
+		resetFrameTreeNode(this.objectPropertyTree);
+		resetFrameTreeNode(this.dataPropertyTree);
 	}
 
 	public void loadOdp(String uri) {
@@ -418,8 +470,9 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		this.wizardFinishButton.setEnabled(false);
         
 		// Reset initial timestamps that keep track of alignments being up to date or not 
+		this.updateAlignmentModificationTimestamp();
         this.updateInstantiationModificationTimestamp();
-        this.updateAlignmentModificationTimestamp();
+        this.updateInstantiationMethodSelectionTimestamp();
 		
 		// Initiate spinner UI
         this.showSpinner("Loading CODP...");
@@ -441,13 +494,10 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         		objectPropertyTree = result.getObjectProperties();
         		dataPropertyTree = result.getDataProperties();
         		
-        		// Render (or re-render) those panels for which all necessary data exists already at ODP load time 
-        		// (e.g., that do not depend on any data generated or selections made in previous steps of the wizard)
+        		// Render initial wizard panel.
         		instantiationMethodSelectionPanel.renderPanel();
-        		entityCloningPanel.renderPanel();
-        		entitySpecializationPanel.renderPanel();
         		
-        		// TODO: the below two should perhaps not be called until the user
+        		// TODO: the below two should probably not be called until the user
         		// steps into them, after previous panels have been used and stored data..
         		restrictionsPanel.renderPanel();
         		previewPanel.renderPanel();
@@ -464,6 +514,11 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	
 	public void setInstantiationMethod(CodpInstantiationMethod instantiationMethod) {
 		this.instantiationMethod = instantiationMethod;
+		this.updateInstantiationMethodSelectionTimestamp();
+	}
+	
+	public void addChildOntologyEntityFrame(OntologyEntityFrame parentFrame, OntologyEntityFrame childFrame) {
+		
 	}
 	
 	public FrameTreeNode<OntologyEntityFrame> getClassTree() {

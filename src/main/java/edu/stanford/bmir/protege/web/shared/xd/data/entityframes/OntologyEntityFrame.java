@@ -14,6 +14,7 @@ public interface OntologyEntityFrame extends Serializable {
 	
 	public Optional<String> getClonedLabel();
 	public void setClonedLabel(String clonedLabel);
+	public void removeClonedLabel();
 
 	public Optional<String> getComment();
 	public void setComment(String comment);
