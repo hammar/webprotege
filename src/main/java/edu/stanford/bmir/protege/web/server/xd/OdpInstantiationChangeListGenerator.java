@@ -235,7 +235,28 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	 */
 	private void generateAndAddFrameTreeCreationAxioms(OWLAPIProject project, OntologyChangeList.Builder<OWLEntity> builder, Set<FrameTreeNode<OntologyEntityFrame>> frameTrees) {
 		for (FrameTreeNode<OntologyEntityFrame> frameTree: frameTrees) {
-			Set<OWLAxiom> axioms = generateFrameTreeCreationAxioms(project, frameTree, Optional.<OWLEntity>absent());
+			Set<OWLAxiom> axioms;
+			
+			// If we are doing template based instantiation then no parent node linkage is needed
+			if (this.instantiation.getInstantiationMethod() == CodpInstantiationMethod.TEMPLATE_BASED) {
+				axioms = generateFrameTreeCreationAxioms(project, frameTree, Optional.<OWLEntity>absent());
+			}
+			// But if we are doing specialization-based we need to tell the generation function where to
+			// connect this subtree into the overall ODP instantiation, e.g., the parent entity from the ODP.
+			else {
+				OWLEntity parentEntity;
+				IRI parentIri = frameTree.getParent().getData().getIri().get();
+				if (frameTree.getData() instanceof ClassFrame) {
+					parentEntity = DataFactory.getOWLEntity(EntityType.CLASS, parentIri);
+				}
+				else if (frameTree.getData() instanceof ObjectPropertyFrame) {
+					parentEntity = DataFactory.getOWLEntity(EntityType.OBJECT_PROPERTY, parentIri);
+				}
+				else {
+					parentEntity = DataFactory.getOWLEntity(EntityType.DATA_PROPERTY, parentIri);
+				}
+				axioms = generateFrameTreeCreationAxioms(project, frameTree, Optional.of(parentEntity));
+			}
 			for (OWLAxiom axiom: axioms) {
 				builder.addAxiom(project.getRootOntology(), axiom);
 			}

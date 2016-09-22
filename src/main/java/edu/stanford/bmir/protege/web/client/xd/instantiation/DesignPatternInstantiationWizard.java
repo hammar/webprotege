@@ -341,7 +341,6 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// Show incoming panel and set statekeeping enum
 					alignmentsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
-					alignmentsPanel.renderPanel();
 					break;
 					
 				case ENTITY_SPECIALIZATION:
@@ -364,7 +363,6 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// Show incoming panel and set statekeeping enum
 					alignmentsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.ALIGNMENTS;
-					alignmentsPanel.renderPanel();
 					break;
 					
 				case ALIGNMENTS:
