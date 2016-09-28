@@ -1,6 +1,8 @@
-package edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction;
+package edu.stanford.bmir.protege.web.shared.xd.data.restrictions;
 
-public interface Restriction {
+import java.io.Serializable;
+
+public interface Restriction extends Serializable {
 	
 	/**
 	 * Returns a string representation of the entity that is restricted by this restriction.

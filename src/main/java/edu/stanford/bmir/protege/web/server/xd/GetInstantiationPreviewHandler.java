@@ -43,7 +43,7 @@ public class GetInstantiationPreviewHandler extends AbstractHasProjectActionHand
 	protected GetInstantiationPreviewResult execute(GetInstantiationPreviewAction action, OWLAPIProject project, ExecutionContext executionContext) {
 		try {
 			
-			OdpInstantiationChangeListGenerator generator = new OdpInstantiationChangeListGenerator(action.getOdpSpecialization());
+			OdpInstantiationChangeListGenerator generator = new OdpInstantiationChangeListGenerator(action.getOdpInstantiation());
 			OntologyChangeList<OWLEntity> changes = generator.generateChanges(project, new ChangeGenerationContext(executionContext.getUserId()));
 			
 			// Get out the axioms from the change generator

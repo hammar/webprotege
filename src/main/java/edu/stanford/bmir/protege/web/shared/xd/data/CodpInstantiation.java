@@ -8,6 +8,7 @@ import org.semanticweb.owlapi.model.IRI;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.restrictions.Restriction;
 
 public class CodpInstantiation implements Serializable {
 	private static final long serialVersionUID = 3079727766627945835L;
@@ -25,16 +26,16 @@ public class CodpInstantiation implements Serializable {
 			FrameTreeNode<OntologyEntityFrame> objectPropertyFrameTree,
 			FrameTreeNode<OntologyEntityFrame> dataPropertyFrameTree,
 			Set<Alignment> alignments, 
-			CodpInstantiationMethod instantiationMethod,
-			CodpSpecializationStrategy specializationStrategy) {
+			Set<Restriction> restrictions,
+			CodpInstantiationMethod instantiationMethod) {
 		this.projectId = projectId;
 		this.odpIri = odpIri;
 		this.classFrameTree = classFrameTree;
 		this.objectPropertyFrameTree = objectPropertyFrameTree;
 		this.dataPropertyFrameTree = dataPropertyFrameTree;
 		this.alignments = alignments;
+		this.restrictions = restrictions;
 		this.instantiationMethod = instantiationMethod;
-		this.specializationStrategy = specializationStrategy;
 	}
 	
 	// Private fields
@@ -44,8 +45,8 @@ public class CodpInstantiation implements Serializable {
 	private FrameTreeNode<OntologyEntityFrame> objectPropertyFrameTree;
 	private FrameTreeNode<OntologyEntityFrame> dataPropertyFrameTree;
 	private Set<Alignment> alignments;
+	private Set<Restriction> restrictions;
 	private CodpInstantiationMethod instantiationMethod;
-	private CodpSpecializationStrategy specializationStrategy;
 	
 	// Access methods
 	public ProjectId getProjectId() {
@@ -66,10 +67,10 @@ public class CodpInstantiation implements Serializable {
 	public Set<Alignment> getAlignments() {
 		return this.alignments;
 	}
+	public Set<Restriction> getRestrictions() {
+		return this.restrictions;
+	}
 	public CodpInstantiationMethod getInstantiationMethod() {
 		return this.instantiationMethod;
-	}
-	public CodpSpecializationStrategy getSpecializationStrategy() {
-		return this.specializationStrategy;
 	}
 }

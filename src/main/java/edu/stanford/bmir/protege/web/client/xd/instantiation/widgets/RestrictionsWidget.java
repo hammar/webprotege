@@ -6,7 +6,7 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
 import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
-import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.Restriction;
+import edu.stanford.bmir.protege.web.shared.xd.data.restrictions.Restriction;
 
 public class RestrictionsWidget extends HorizontalPanel {
 
@@ -20,7 +20,7 @@ public class RestrictionsWidget extends HorizontalPanel {
 		
 		this.addStyleName("xdpRestrictionsWidget");
 		
-		String checkBoxLabel = "<strong>heyhey</strong>" + this.restriction.toString();
+		String checkBoxLabel = this.restriction.toString();
 		this.checkBox = new CheckBox(checkBoxLabel,true);
 		
 		this.checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {

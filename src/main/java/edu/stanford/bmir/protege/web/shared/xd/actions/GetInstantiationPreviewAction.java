@@ -29,7 +29,7 @@ public class GetInstantiationPreviewAction implements Action<GetInstantiationPre
 	 * ODP Specialization wrapper.
 	 * @return
 	 */
-	public CodpInstantiation getOdpSpecialization() {
+	public CodpInstantiation getOdpInstantiation() {
 		return codpInstantiation;
 	}
 

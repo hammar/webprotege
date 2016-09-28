@@ -21,7 +21,6 @@ import com.google.gwt.user.client.ui.TabLayoutPanel;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
-import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.Restriction;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.AlignmentsPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.EntityCloningPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.EntitySpecializationPanel;
@@ -34,12 +33,12 @@ import edu.stanford.bmir.protege.web.shared.xd.actions.PersistInstantiationActio
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiationMethod;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
-import edu.stanford.bmir.protege.web.shared.xd.data.CodpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.restrictions.Restriction;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
 import edu.stanford.bmir.protege.web.shared.xd.results.PersistInstantiationResult;
 import edu.stanford.bmir.protege.web.shared.xd.util.TreeMethods;
@@ -457,9 +456,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	}
 	
 	public CodpInstantiation getInstantiation() {
-		// TODO: Update CodpInstantiation class to also carry restrictions
-		// TODO: Possibly remove strategy from CodpInstantiation class
-		return new CodpInstantiation(this.projectId, this.odpIri, this.classTree, this.objectPropertyTree, this.dataPropertyTree, this.alignments, this.instantiationMethod, CodpSpecializationStrategy.PROPERTY_ORIENTED);
+		return new CodpInstantiation(this.projectId, this.odpIri, this.classTree, this.objectPropertyTree, this.dataPropertyTree, this.alignments, this.restrictions, this.instantiationMethod);
 	}
 	
 	public void updateInstantiationMethodSelectionTimestamp() {

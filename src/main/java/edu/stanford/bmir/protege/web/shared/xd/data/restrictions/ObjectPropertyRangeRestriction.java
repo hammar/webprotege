@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction;
+package edu.stanford.bmir.protege.web.shared.xd.data.restrictions;
 
 import com.gwtext.client.util.Format;
 
@@ -6,7 +6,13 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 
 public class ObjectPropertyRangeRestriction implements Restriction {
+	
+	private static final long serialVersionUID = -3843719916794476020L;
 
+	// GWT-RPC empty constructor
+	protected ObjectPropertyRangeRestriction() {
+	}
+	
 	public ObjectPropertyRangeRestriction(ObjectPropertyFrame property, ClassFrame range) {
 		this.property = property;
 		this.range = range;

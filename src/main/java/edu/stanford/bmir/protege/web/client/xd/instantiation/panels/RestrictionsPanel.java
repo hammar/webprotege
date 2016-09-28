@@ -11,9 +11,6 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
-import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.DomainRestriction;
-import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.ObjectPropertyRangeRestriction;
-import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.Restriction;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.widgets.RestrictionsWidget;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
@@ -21,6 +18,9 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.PropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.restrictions.DomainRestriction;
+import edu.stanford.bmir.protege.web.shared.xd.data.restrictions.ObjectPropertyRangeRestriction;
+import edu.stanford.bmir.protege.web.shared.xd.data.restrictions.Restriction;
 import edu.stanford.bmir.protege.web.shared.xd.util.TreeMethods;
 
 public class RestrictionsPanel extends VerticalPanel implements InstantiationWizardPanel {
@@ -179,8 +179,6 @@ public class RestrictionsPanel extends VerticalPanel implements InstantiationWiz
 	
 	
 	private Set<Restriction> generateCandidateRestrictions() {
-		
-		// TODO: migrate restrictions definitions to shared package
 		// TODO: Test that all of this works
 		
 		Set<Restriction> retVal = new HashSet<Restriction>();

@@ -132,6 +132,9 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	 * @return
 	 */
 	private OntologyChangeList.Builder<OWLEntity> makeBuilderBySpecialization(OWLAPIProject project) {
+		
+		// TODO: Add axiom generation from restrictions set
+		
 		OntologyChangeList.Builder<OWLEntity> builder = new OntologyChangeList.Builder<OWLEntity>();
 		
 		// Load ODP closure

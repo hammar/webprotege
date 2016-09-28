@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction;
+package edu.stanford.bmir.protege.web.shared.xd.data.restrictions;
 
 import com.gwtext.client.util.Format;
 
@@ -7,6 +7,12 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.PropertyFrame;
 
 public class DomainRestriction implements Restriction {
 
+	private static final long serialVersionUID = -4110533737946747499L;
+
+	// GWT-RPC empty constructor
+	protected DomainRestriction() {
+	}
+	
 	public DomainRestriction(PropertyFrame property, ClassFrame domain) {
 		this.property = property;
 		this.domain = domain;
