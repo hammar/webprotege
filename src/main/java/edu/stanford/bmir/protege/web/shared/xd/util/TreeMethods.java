@@ -45,14 +45,42 @@ public class TreeMethods {
 		}
 	}
 	
-	public static Set<OntologyEntityFrame> flattenFrameTree(FrameTreeNode<OntologyEntityFrame> inputFrameTree) {
-		Set<OntologyEntityFrame> retVal = new HashSet<OntologyEntityFrame>();
-		retVal.add(inputFrameTree.getData());
-		for (FrameTreeNode<OntologyEntityFrame> childFrameTree: inputFrameTree.getChildren()) {
-			retVal.addAll(flattenFrameTree(childFrameTree));
+	/**
+	 * Gets a frame tree flattened to a set of tree nodes.
+	 * @param inputFrameTree Tree to flatten
+	 * @param onlySpecialised If true, only return those nodes that carry specialised ontology entity frames (i.e., that do not have IRIs)
+	 * @return Set of frame tree nodes
+	 */
+	public static Set<FrameTreeNode<OntologyEntityFrame>> flattenFrameTree(FrameTreeNode<OntologyEntityFrame> inputFrameTree, Boolean onlySpecialised) {
+		Set<FrameTreeNode<OntologyEntityFrame>> retVal = new HashSet<FrameTreeNode<OntologyEntityFrame>>();
+		
+		// Add the node itself unless we are only looking for specialized frames and this already has an IRI 
+		// (e.g., is not a specialized frame) 
+		if (!(onlySpecialised && inputFrameTree.getData().getIri().isPresent())) {
+			retVal.add(inputFrameTree);
+		}
+		// Recurse into child nodes
+		for (FrameTreeNode<OntologyEntityFrame> childTree: inputFrameTree.getChildren()) {
+			retVal.addAll(flattenFrameTree(childTree, onlySpecialised));
 		}
 		return retVal;
 	}
+	
+	/**
+	 * Get the entity frames of a given tree of ontology entities, flattened to a set.
+	 * @param inputFrameTree Tree to flatten
+	 * @return Set of ontology entity frames from the input tree
+	 */
+	public static Set<OntologyEntityFrame> flattenFrameTreeToSet(FrameTreeNode<OntologyEntityFrame> inputFrameTree) {
+		Set<OntologyEntityFrame> retVal = new HashSet<OntologyEntityFrame>();
+		retVal.add(inputFrameTree.getData());
+		// Recurse into child nodes
+		for (FrameTreeNode<OntologyEntityFrame> childTree: inputFrameTree.getChildren()) {
+			retVal.addAll(flattenFrameTreeToSet(childTree));
+		}
+		return retVal;
+	}
+	
 	
 	/**
 	 * Generate from a tree a map of nodes (as keys) and their depth in the tree (as values), excluding
@@ -69,6 +97,13 @@ public class TreeMethods {
 	}
 	
 	
+	/**
+	 * Given a frame tree and an ontology entity frame, return the node in the tree in which
+	 * said frame is wrapped.
+	 * @param treeToSearch Input tree to search over
+	 * @param frameToSearchFor The frame to find
+	 * @return An optional either containing a FrameTreeNode carrying the frame in question, or not having a value (if the frame was not found in the tree) 
+	 */
 	public static Optional<FrameTreeNode<OntologyEntityFrame>> getFrameTreeForFrame(FrameTreeNode<OntologyEntityFrame> treeToSearch, OntologyEntityFrame frameToSearchFor) {
 		if (treeToSearch.getData().equals(frameToSearchFor)) {
 			return Optional.of(treeToSearch);

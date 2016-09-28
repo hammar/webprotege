@@ -232,9 +232,9 @@ public class GetInstantiationAlignmentSuggestionsHandler extends AbstractHasProj
 			OWLAPIProject project, ExecutionContext executionContext) {
 		
 		OWLOntology ontology = project.getRootOntology();
-		Set<OntologyEntityFrame> instantiationClasses = TreeMethods.flattenFrameTree(action.getClasses());
-		Set<OntologyEntityFrame> instantiationObjectProperties = TreeMethods.flattenFrameTree(action.getObjectProperties());
-		Set<OntologyEntityFrame> instantiationDataProperties = TreeMethods.flattenFrameTree(action.getDataProperties());
+		Set<OntologyEntityFrame> instantiationClasses = TreeMethods.flattenFrameTreeToSet(action.getClasses());
+		Set<OntologyEntityFrame> instantiationObjectProperties = TreeMethods.flattenFrameTreeToSet(action.getObjectProperties());
+		Set<OntologyEntityFrame> instantiationDataProperties = TreeMethods.flattenFrameTreeToSet(action.getDataProperties());
 		
 		// 0. If doing template-based instantiation, only generate alignment suggestions for the frames that have been cloned
 		if (action.getInstantiationMethod() == CodpInstantiationMethod.TEMPLATE_BASED) {

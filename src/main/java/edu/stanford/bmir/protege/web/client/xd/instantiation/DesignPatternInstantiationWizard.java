@@ -347,6 +347,12 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					// MOVING ENTITY_SPECIALIZATION -> RESTRICTIONS
 					// Set outgoing panel visibility state
 					entitySpecializationPanel.setVisible(false);
+					
+					if (!areRestrictionsUpToDate()) {
+						resetRestrictions();
+						restrictionsPanel.renderPanel();
+					}
+					
 					// Show incoming panel and set statekeeping enum
 					restrictionsPanel.setVisible(true);
 					activeWizardScreen = ActiveWizardScreen.RESTRICTIONS;
@@ -383,6 +389,16 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 				}
 			}
 		};
+	}
+	
+	private void resetRestrictions() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private boolean areRestrictionsUpToDate() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	public ProjectId getProjectId() {
@@ -538,7 +554,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         		
         		// TODO: the below two should probably not be called until the user
         		// steps into them, after previous panels have been used and stored data..
-        		restrictionsPanel.renderPanel();
+        		//restrictionsPanel.renderPanel();
         		previewPanel.renderPanel();
         		
         		// Kill the spinner UI
@@ -570,5 +586,15 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 
 	public FrameTreeNode<OntologyEntityFrame> getDataPropertyTree() {
 		return dataPropertyTree;
+	}
+
+	/**
+	 * Gets the selected specialisation strategy chosen by the user (see EKAW 2014 paper 
+	 * by Hammar for details). At the time of writing the user cannot actually choose strategy; 
+	 * the hybrid strategy (most expressive) is always selected.
+	 * @return
+	 */
+	public CodpSpecializationStrategy getSpecializationStrategy() {
+		return CodpSpecializationStrategy.HYBRID;
 	}
 }

@@ -118,7 +118,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	}
 	
 	private void addRestrictionsToClassFrames(OWLOntology odp, FrameTreeNode<OntologyEntityFrame> classes, FrameTreeNode<OntologyEntityFrame> objectProperties) {
-		Set<OntologyEntityFrame> flattenedClasses = TreeMethods.flattenFrameTree(classes);
+		Set<OntologyEntityFrame> flattenedClasses = TreeMethods.flattenFrameTreeToSet(classes);
 		Map<IRI,ClassFrame> iriToClassFrameMap = new HashMap<IRI,ClassFrame>();
 		for (OntologyEntityFrame frame: flattenedClasses) {
 			if (frame instanceof ClassFrame && frame.getIri().isPresent()) {
@@ -126,7 +126,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 				iriToClassFrameMap.put(frame.getIri().get(), classFrame);
 			}
 		}
-		Set<OntologyEntityFrame> flattenedObjectProperties = TreeMethods.flattenFrameTree(objectProperties);
+		Set<OntologyEntityFrame> flattenedObjectProperties = TreeMethods.flattenFrameTreeToSet(objectProperties);
 		Map<IRI,ObjectPropertyFrame> iriToObjectPropertyFrameMap = new HashMap<IRI,ObjectPropertyFrame>();
 		for (OntologyEntityFrame frame: flattenedObjectProperties) {
 			if (frame instanceof ObjectPropertyFrame && frame.getIri().isPresent()) {
