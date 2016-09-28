@@ -5,17 +5,17 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
+import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.Restriction;
-import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.RestrictionsPanel;
 
 public class RestrictionsWidget extends HorizontalPanel {
 
-	private final RestrictionsPanel parentRestrictionsPanel;
+	private final DesignPatternInstantiationWizard parentWizard;
 	private final CheckBox checkBox;
 	private final Restriction restriction;
 	
-	public RestrictionsWidget(RestrictionsPanel parentRestrictionsPanel, Restriction restriction) {
-		this.parentRestrictionsPanel = parentRestrictionsPanel;
+	public RestrictionsWidget(DesignPatternInstantiationWizard parentWizard, Restriction restriction) {
+		this.parentWizard = parentWizard;
 		this.restriction = restriction;
 		
 		this.addStyleName("xdpRestrictionsWidget");
@@ -26,7 +26,13 @@ public class RestrictionsWidget extends HorizontalPanel {
 		this.checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				RestrictionsWidget.this.parentRestrictionsPanel.setRestrictionSelectedStatus(RestrictionsWidget.this.restriction, event.getValue());
+				if (event.getValue()==true) {
+					RestrictionsWidget.this.parentWizard.addRestriction(RestrictionsWidget.this.restriction);
+				}
+				else {
+					RestrictionsWidget.this.parentWizard.removeRestriction(RestrictionsWidget.this.restriction);
+				}
+				
 			}
 		});
 		

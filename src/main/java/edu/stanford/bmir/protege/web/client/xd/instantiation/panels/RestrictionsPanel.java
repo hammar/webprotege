@@ -1,6 +1,5 @@
 package edu.stanford.bmir.protege.web.client.xd.instantiation.panels;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,7 +15,6 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.Dom
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.ObjectPropertyRangeRestriction;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.Restriction;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.widgets.RestrictionsWidget;
-import edu.stanford.bmir.protege.web.shared.xd.data.CodpSpecializationStrategy;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
@@ -78,17 +76,12 @@ public class RestrictionsPanel extends VerticalPanel implements InstantiationWiz
 		// Render the generated restrictions
 		for (Restriction r: candidateRestrictions) {
 			this.restrictionsMap.put(r, false);
-			this.restrictionsHolderPanel.add(new RestrictionsWidget(this, r));
+			this.restrictionsHolderPanel.add(new RestrictionsWidget(this.parentWizard, r));
 		}
 	}
 	
 	public void setRestrictionSelectedStatus(Restriction restriction, Boolean status) {
 		this.restrictionsMap.put(restriction, status);
-	}
-	
-	public void persistRestrictions() {
-		// TODO: store everything in parent wizard trees (or other structure?)
-		// TODO: also update the modification timestamps accordingly
 	}
 	
 	private Set<Restriction> generatePropertyDomainRestrictions(FrameTreeNode<OntologyEntityFrame> propertyTree) {
@@ -188,32 +181,18 @@ public class RestrictionsPanel extends VerticalPanel implements InstantiationWiz
 	private Set<Restriction> generateCandidateRestrictions() {
 		
 		// TODO: migrate restrictions definitions to shared package
+		// TODO: Test that all of this works
 		
 		Set<Restriction> retVal = new HashSet<Restriction>();
 		
 		FrameTreeNode<OntologyEntityFrame> objectPropertyTree = this.parentWizard.getObjectPropertyTree();
 		FrameTreeNode<OntologyEntityFrame> dataPropertyTree = this.parentWizard.getDataPropertyTree();
-		
-		if (parentWizard.getSpecializationStrategy() == CodpSpecializationStrategy.PROPERTY_ORIENTED ||
-				parentWizard.getSpecializationStrategy() == CodpSpecializationStrategy.HYBRID) {
-			
-			retVal.addAll(generatePropertyDomainRestrictions(objectPropertyTree));
-			retVal.addAll(generateObjectPropertyRangeRestrictions(objectPropertyTree));
-			retVal.addAll(generatePropertyDomainRestrictions(dataPropertyTree));
-		}
-		
-		// Render class-oriented restrictions
-		if (parentWizard.getSpecializationStrategy() == CodpSpecializationStrategy.CLASS_ORIENTED ||
-				parentWizard.getSpecializationStrategy() == CodpSpecializationStrategy.HYBRID) {
-			retVal.addAll(generateComplexObjectPropertyRestrictions());
-		}
+
+		retVal.addAll(generatePropertyDomainRestrictions(objectPropertyTree));
+		retVal.addAll(generateObjectPropertyRangeRestrictions(objectPropertyTree));
+		retVal.addAll(generatePropertyDomainRestrictions(dataPropertyTree));
 		
 		return retVal;
-	}
-
-	private Set<Restriction> generateComplexObjectPropertyRestrictions() {
-		// TODO Auto-generated method stub
-		return Collections.emptySet();
 	}
 
 	private Set<Restriction> generateObjectPropertyRangeRestrictions(FrameTreeNode<OntologyEntityFrame> objectPropertyTree) {

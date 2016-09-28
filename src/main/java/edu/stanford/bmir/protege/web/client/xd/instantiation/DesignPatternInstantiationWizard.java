@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.TabLayoutPanel;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
+import edu.stanford.bmir.protege.web.client.xd.instantiation.old.restriction.Restriction;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.AlignmentsPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.EntityCloningPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.EntitySpecializationPanel;
@@ -59,6 +60,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private CodpInstantiationMethod instantiationMethod;
 	private ActiveWizardScreen activeWizardScreen;
 	private Date alignmentsModificationTimestamp = new Date();
+	private Date restrictionsModificationTimestamp = new Date();
 	private Date instantiationModificationTimestamp = new Date();
 	private Date instantiationMethodSelectionTimestamp = new Date();	
 	private Spinner spinner = new Spinner();
@@ -68,6 +70,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private FrameTreeNode<OntologyEntityFrame> objectPropertyTree;
 	private FrameTreeNode<OntologyEntityFrame> dataPropertyTree;
 
+	private Set<Restriction> restrictions = new HashSet<Restriction>();
 	private Set<Alignment> alignments = new HashSet<Alignment>();
 	private ProjectId projectId;
 
@@ -349,7 +352,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 					entitySpecializationPanel.setVisible(false);
 					
 					if (!areRestrictionsUpToDate()) {
-						resetRestrictions();
+						restrictions.clear();
 						restrictionsPanel.renderPanel();
 					}
 					
@@ -390,15 +393,14 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 			}
 		};
 	}
-	
-	private void resetRestrictions() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	private boolean areRestrictionsUpToDate() {
-		// TODO Auto-generated method stub
-		return false;
+		if (this.restrictionsModificationTimestamp.after(this.instantiationModificationTimestamp)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	public ProjectId getProjectId() {
@@ -455,6 +457,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	}
 	
 	public CodpInstantiation getInstantiation() {
+		// TODO: Update CodpInstantiation class to also carry restrictions
+		// TODO: Possibly remove strategy from CodpInstantiation class
 		return new CodpInstantiation(this.projectId, this.odpIri, this.classTree, this.objectPropertyTree, this.dataPropertyTree, this.alignments, this.instantiationMethod, CodpSpecializationStrategy.PROPERTY_ORIENTED);
 	}
 	
@@ -468,6 +472,10 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	
 	private void updateAlignmentModificationTimestamp() {
 		this.alignmentsModificationTimestamp = new Date();
+	}
+	
+	private void updateRestrictionsModificationTimestamp() {
+		this.restrictionsModificationTimestamp = new Date();
 	}
 	
 	private Boolean areAlignmentsUpToDate() {
@@ -526,6 +534,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         
 		// Reset initial timestamps that keep track of alignments being up to date or not 
 		this.updateAlignmentModificationTimestamp();
+		this.updateRestrictionsModificationTimestamp();
         this.updateInstantiationModificationTimestamp();
         this.updateInstantiationMethodSelectionTimestamp();
 		
@@ -549,12 +558,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         		objectPropertyTree = result.getObjectProperties();
         		dataPropertyTree = result.getDataProperties();
         		
-        		// Render initial wizard panel.
+        		// Render initial wizard and preview panel.
         		instantiationMethodSelectionPanel.renderPanel();
-        		
-        		// TODO: the below two should probably not be called until the user
-        		// steps into them, after previous panels have been used and stored data..
-        		//restrictionsPanel.renderPanel();
         		previewPanel.renderPanel();
         		
         		// Kill the spinner UI
@@ -588,13 +593,13 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		return dataPropertyTree;
 	}
 
-	/**
-	 * Gets the selected specialisation strategy chosen by the user (see EKAW 2014 paper 
-	 * by Hammar for details). At the time of writing the user cannot actually choose strategy; 
-	 * the hybrid strategy (most expressive) is always selected.
-	 * @return
-	 */
-	public CodpSpecializationStrategy getSpecializationStrategy() {
-		return CodpSpecializationStrategy.HYBRID;
+	public void addRestriction(Restriction restriction) {
+		this.restrictions.add(restriction);
+		this.updateRestrictionsModificationTimestamp();
+	}
+
+	public void removeRestriction(Restriction restriction) {
+		this.restrictions.remove(restriction);
+		this.updateRestrictionsModificationTimestamp();
 	}
 }
