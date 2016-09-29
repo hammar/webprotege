@@ -24,20 +24,20 @@ import edu.stanford.bmir.protege.web.client.ui.ontology.properties.PropertiesTab
 import edu.stanford.bmir.protege.web.client.ui.ontology.properties.PropertiesTreePortlet;
 import edu.stanford.bmir.protege.web.client.ui.ontology.revisions.RevisionsPortlet;
 import edu.stanford.bmir.protege.web.client.ui.ontology.search.BioPortalSearchPortlet;
-import edu.stanford.bmir.protege.web.client.ui.ontology.visualization.VisualizationTab;
 import edu.stanford.bmir.protege.web.client.ui.portlet.EntityPortlet;
 import edu.stanford.bmir.protege.web.client.ui.portlet.propertyForm.PropertyFieldPortlet;
 import edu.stanford.bmir.protege.web.client.ui.projectfeed.ProjectFeedPortlet;
 import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
 import edu.stanford.bmir.protege.web.client.ui.tab.UserDefinedTab;
-import edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLControlPortlet;
-import edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLDetailsPortlet;
-import edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLSelectionDetailsPortlet;
-import edu.stanford.bmir.protege.web.client.ui.visualization.vowl.VOWLVisualizationPortlet;
 import edu.stanford.bmir.protege.web.client.usage.UsagePortlet;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternSelectorPortlet;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternsTab;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VOWLControlPortlet;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VOWLDetailsPortlet;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VOWLSelectionDetailsPortlet;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VOWLVisualizationPortlet;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VisualizationTab;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 
 import java.util.*;
