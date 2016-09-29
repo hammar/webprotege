@@ -11,8 +11,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
-
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
 import edu.stanford.bmir.protege.web.client.xd.selection.Selectable;
@@ -320,11 +318,12 @@ public class VOWLControlPortlet extends AbstractOWLEntityPortlet implements Sele
 		return selection;
 	}
 
+	/*
 	@Override
 	public VerticalPanel getPanel() {
 		// TODO Auto-generated method stub
 		return null;
-	}
+	}*/
 
 	@Override
 	public void setSelection(Collection<? extends Object> selection) {

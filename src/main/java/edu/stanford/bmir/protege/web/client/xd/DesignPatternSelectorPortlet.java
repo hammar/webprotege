@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.SortDir;
 import com.gwtext.client.data.ArrayReader;
@@ -535,11 +534,5 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 	@Override
 	public void setSelection(Collection<? extends Object> selection) {
 		// We don't allow external sources to modify the selection of this portlet.
-	}
-
-	@Override
-	public VerticalPanel getPanel() {
-		// TODO: Remove this once it is removed from the stupid interface
-		return null;
 	}
 }

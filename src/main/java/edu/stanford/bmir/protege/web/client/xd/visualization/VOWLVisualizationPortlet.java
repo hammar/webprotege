@@ -303,8 +303,7 @@ public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implement
 		}
 	}
 
-	@Override
-	public VerticalPanel getPanel() {
+	public VerticalPanel getDynamicDetailsPanel() {
 		return detailsDynamicPanel;
 	}
 
