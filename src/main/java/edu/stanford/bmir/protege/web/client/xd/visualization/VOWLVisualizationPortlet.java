@@ -12,14 +12,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.gwtext.client.widgets.Panel;
-import com.gwtext.client.widgets.TabPanel;
-
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.project.Project;
@@ -35,6 +31,7 @@ import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLLabelJso;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLNodeJso;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLVisualizationJso;
+import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 import edu.stanford.bmir.protege.web.shared.visualization.vowl.ConvertOntologyAction;
 import edu.stanford.bmir.protege.web.shared.visualization.vowl.ConvertOntologyResult;
@@ -47,6 +44,8 @@ import edu.stanford.bmir.protege.web.shared.visualization.vowl.ConvertOntologyRe
  */
 public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implements Selectable, Loadable, ChangeListener, SelectionListener {
 
+	private ProjectId projectId;
+	
 	private static final String VOWL_TITLE = "WebVOWL 0.4.0";
 	private VOWLVisualizationJso visualizationJso;
 	public static String ontologyAsJSONStr;
@@ -70,27 +69,25 @@ public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implement
 		this.graphListeners = new ArrayList<GraphListener>();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override 
 	public void initialize() {
+		this.projectId = super.getProjectId();
 		setTitle(VOWL_TITLE);
-		//Widget graphContainer = new HTML();
 		graphContainer = new HTML();
-
 		graphContainer.getElement().setId(getContainerId());
-
 		add(graphContainer);
 	}
 
 	@Override
 	public void handleActivated() {
-		super.handleActivated();
 		GWT.log("[VOWL] Visualization portlet status: Activated.");
 		if(!initialized)
 			convertOntology();
 	}
 
 	public void convertOntology() {
-		DispatchServiceManager.get().execute(new ConvertOntologyAction(getProjectId()), new DispatchServiceCallback<ConvertOntologyResult>() {
+		DispatchServiceManager.get().execute(new ConvertOntologyAction(this.projectId), new DispatchServiceCallback<ConvertOntologyResult>() {
 			@Override
 			public void handleSuccess(ConvertOntologyResult result) {
 				ontologyAsJSONStr = result.getOntologyasJSONStr();
@@ -125,7 +122,7 @@ public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implement
 	@Override
 	protected void onRefresh() {
 
-		DispatchServiceManager.get().execute(new ConvertOntologyAction(getProjectId()), new DispatchServiceCallback<ConvertOntologyResult>() {
+		DispatchServiceManager.get().execute(new ConvertOntologyAction(this.projectId), new DispatchServiceCallback<ConvertOntologyResult>() {
 			@Override
 			public void handleSuccess(ConvertOntologyResult result) {
 				ontologyAsJSONStr = result.getOntologyasJSONStr();
@@ -142,29 +139,7 @@ public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implement
 		 * It is also important to use not only the project id, because this class is instantiated
 		 * sometimes multiple times for the same project.
 		 */
-		return "project-id-" + getProjectId().getId() + "-hash-code-" + hashCode();
-	}
-
-	@Override
-	protected TabPanel getConfigurationPanel() {
-		TabPanel configurationPanel = super.getConfigurationPanel();
-		// Add new tab to gear window.
-		configurationPanel.add(createVOWLPanel());
-		return configurationPanel;
-	}
-
-	/**
-	 * @return New panel for the information tab in the gear window.
-	 */
-	protected Panel createVOWLPanel() {
-		Panel infoPanel = new Panel();
-		//infoPanel.setTitle("Info");
-		infoPanel.setPaddings(10);
-		infoPanel.add(new Label("Visualized with WebVOWL 0.4.0 ("));
-		infoPanel.add(new Anchor("VOWL homepage", "http://vowl.visualdataweb.org/", "_blank"));
-		infoPanel.add(new Label(")"));
-
-		return infoPanel;
+		return "project-id-" + this.projectId.getId() + "-hash-code-" + hashCode();
 	}
 
 	/* ---- Selectable implementation methods by Karl Hammar ----*/
@@ -314,10 +289,10 @@ public class VOWLVisualizationPortlet extends AbstractOWLEntityPortlet implement
 			{
 				Element element=  event.getNativeEvent().getEventTarget().cast();
 				if(element.getTagName().equals("circle") || element.getTagName().equals("rect")) {
-					com.google.gwt.user.client.Element gElement = (com.google.gwt.user.client.Element)element.cast();
-					selectedElement = Optional.of(gElement.getParentElement().getId());
+					//com.google.gwt.user.client.Element gElement = (com.google.gwt.user.client.Element)element.cast();
+					selectedElement = Optional.of(element.getParentElement().getId());
 					// classes have value 'node', while properties have value 'property' 
-					elementType = Optional.of(gElement.getParentElement().getAttribute("class"));
+					elementType = Optional.of(element.getParentElement().getAttribute("class"));
 
 					if(elementType.get().equals("node")) {
 						if(visualizationJso.getSelectedNode()!=null) {
