@@ -20,7 +20,7 @@ public class RestrictionsWidget extends HorizontalPanel {
 		
 		this.addStyleName("xdpRestrictionsWidget");
 		
-		String checkBoxLabel = this.restriction.toString();
+		String checkBoxLabel = this.restriction.toHtmlString();
 		this.checkBox = new CheckBox(checkBoxLabel,true);
 		
 		this.checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {

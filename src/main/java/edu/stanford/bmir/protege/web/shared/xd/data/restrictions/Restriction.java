@@ -9,4 +9,5 @@ public interface Restriction extends Serializable {
 	 * @return
 	 */
 	public String getEntityLabel();
+	public String toHtmlString();
 }

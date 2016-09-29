@@ -97,11 +97,11 @@ table.entitySpecializationToolbar button {
 	height: 2em;
 }
 
-.xdpAlignmentPanelAlignmentHolder {
+.xdpAlignmentPanelAlignmentHolder, .xdpRestrictionsPanelRestrictionsHolder {
 	width: 600px;
 }
 
-div.xdpAlignmentPanelAlignmentGroupHeading {
+div.xdpAlignmentPanelAlignmentGroupHeading, div.xdpRestrictionsPanelRestrictionsGroupHeading {
 	border-bottom: 1px solid #DFE8F6;
 	font-weight: bold;
 	text-transform: capitalize;
@@ -123,11 +123,11 @@ div.entityTree .gwt-TreeItem-selected {
 	padding: 2px;
 }
 
-table.xdpAlignmentWidget input {
+table.xdpAlignmentWidget input, table.xdpRestrictionsWidget input {
 	margin-right: 5px;
 }
 
-table.xdpAlignmentWidget label em {
+table.xdpAlignmentWidget label em, table.xdpRestrictionsWidget label em {
 	font-style: italic;
 }
  

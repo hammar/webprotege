@@ -1,9 +1,14 @@
 package edu.stanford.bmir.protege.web.client.xd.instantiation.panels;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import com.google.common.base.Optional;
 import com.google.gwt.user.client.ui.Label;
@@ -73,10 +78,28 @@ public class RestrictionsPanel extends VerticalPanel implements InstantiationWiz
 		// Generate the set of candidate restrictions
 		Set<Restriction> candidateRestrictions = generateCandidateRestrictions();
 		
-		// Render the generated restrictions
+		// First put all the restrictions into a map structure organised by their heading
+		Map<String,List<Restriction>> sortingMap = new HashMap<String,List<Restriction>>();
 		for (Restriction r: candidateRestrictions) {
-			this.restrictionsMap.put(r, false);
-			this.restrictionsHolderPanel.add(new RestrictionsWidget(this.parentWizard, r));
+			String sortableEntityLabel = r.getEntityLabel();
+			if (sortingMap.containsKey(sortableEntityLabel)) {
+				sortingMap.get(sortableEntityLabel).add(r);
+			}
+			else {
+				sortingMap.put(sortableEntityLabel, new ArrayList<Restriction>(Arrays.asList(r)));
+			}
+		}
+		
+		// Then iterate through said map, constructing suitable headings and alignment widgets on the page as needed
+		Iterator<Entry<String, List<Restriction>>> it = sortingMap.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String,List<Restriction>> pair = (Map.Entry<String,List<Restriction>>)it.next();
+			Label restrictionGroupHeading = new Label(pair.getKey());
+			restrictionGroupHeading.addStyleName("xdpRestrictionsPanelRestrictionsGroupHeading");
+			this.restrictionsHolderPanel.add(restrictionGroupHeading);
+			for (Restriction r: pair.getValue()) {
+				this.restrictionsHolderPanel.add(new RestrictionsWidget(this.parentWizard, r));
+			}
 		}
 	}
 	

@@ -38,4 +38,9 @@ public class DomainRestriction implements Restriction {
 	public ClassFrame getDomain() {
 		return domain;
 	}
+
+	@Override
+	public String toHtmlString() {
+		return Format.format("The property <em>{0}</em> is only applicable to members of <em>{1}</em>", property.toString(), domain.toString());
+	}
 }

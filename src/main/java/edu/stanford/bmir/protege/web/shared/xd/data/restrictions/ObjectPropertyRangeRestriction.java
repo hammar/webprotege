@@ -38,4 +38,9 @@ public class ObjectPropertyRangeRestriction implements Restriction {
 	public ClassFrame getRange() {
 		return range;
 	}
+
+	@Override
+	public String toHtmlString() {
+		return Format.format("The property <em>{0}</em> can only have members of <em>{1}</em> as values", property.toString(), range.toString());
+	}
 }
