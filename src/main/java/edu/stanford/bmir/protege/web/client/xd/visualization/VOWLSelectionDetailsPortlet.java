@@ -73,11 +73,4 @@ public class VOWLSelectionDetailsPortlet extends AbstractOWLEntityPortlet implem
 		}
 		 
 	}
-	
-	@Override
-	public void handleActivated() {
-		super.handleActivated();
-		GWT.log("[VOWL] Selection Details portlet status: Activated.");
-	}
-	
 }

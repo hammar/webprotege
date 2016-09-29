@@ -84,15 +84,6 @@ public class VOWLDetailsPortlet extends AbstractOWLEntityPortlet implements Grap
 		}
 	}
 
-
-	@Override
-	public void handleActivated() {
-		super.handleActivated();
-		GWT.log("[VOWL] Ontology Details portlet status: Activated.");
-		
-		
-	}
-
 	@Override
 	protected void onRefresh() {
 
