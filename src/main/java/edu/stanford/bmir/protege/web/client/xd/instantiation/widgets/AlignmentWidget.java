@@ -21,7 +21,7 @@ public class AlignmentWidget extends HorizontalPanel {
 		
 		String instantiationEntityLabel = "CODP entity <em>" + alignment.getInstantiationEntityFrame().getCurrentLabel() + "</em>";
 		String alignmentDescriptionLabel = " "  + alignment.getAlignmentDescription() + " ";
-		String ontologyEntityLabel = "Ontology entity <em>" + alignment.getOntologyEntityFrame().getCurrentLabel() + "</em>";
+		String ontologyEntityLabel = "existing ontology entity <em>" + alignment.getOntologyEntityFrame().getCurrentLabel() + "</em>";
 		String checkBoxLabel = instantiationEntityLabel + alignmentDescriptionLabel + ontologyEntityLabel;
 		this.checkBox = new CheckBox(checkBoxLabel,true);
 		
