@@ -21,10 +21,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
+import edu.stanford.bmir.protege.web.client.xd.selection.Selectable;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.visualization.composites.ExtendedMenuItem;
-import edu.stanford.bmir.protege.web.client.xd.visualization.selection.Selectable;
-import edu.stanford.bmir.protege.web.client.xd.visualization.selection.SelectionEvent;
-import edu.stanford.bmir.protege.web.client.xd.visualization.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 
 @SuppressWarnings("unchecked")

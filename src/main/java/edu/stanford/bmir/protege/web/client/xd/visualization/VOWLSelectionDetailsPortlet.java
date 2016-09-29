@@ -7,8 +7,8 @@ import com.gwtext.client.widgets.layout.FitLayout;
 
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.ui.portlet.AbstractOWLEntityPortlet;
-import edu.stanford.bmir.protege.web.client.xd.visualization.selection.SelectionEvent;
-import edu.stanford.bmir.protege.web.client.xd.visualization.selection.SelectionListener;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLSelectionDetailsView;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLSelectionDetailsViewImpl;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;

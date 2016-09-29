@@ -2,6 +2,8 @@ package edu.stanford.bmir.protege.web.client.xd.selection;
 
 import java.util.Collection;
 
+import com.google.gwt.user.client.ui.VerticalPanel;
+
 /**
  * Re-implementation of the {@link edu.stanford.bmir.protege.web.client.ui.selection.Selectable} interface
  * supporting more general selections (essentially any Collection of Objects).<br><br>
@@ -24,4 +26,6 @@ public interface Selectable {
     void removeSelectionListener(SelectionListener listener);
     Collection<? extends Object> getSelection();
     void setSelection(Collection<? extends Object> selection);
+    // TODO: Check what the hell below does (it's from the visualization stuff)
+    VerticalPanel getPanel();
 }

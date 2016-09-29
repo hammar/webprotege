@@ -36,9 +36,9 @@ import edu.stanford.bmir.protege.web.client.xd.visualization.change.ChangedEvent
 import edu.stanford.bmir.protege.web.client.xd.visualization.loading.GraphListener;
 import edu.stanford.bmir.protege.web.client.xd.visualization.loading.GraphLoadedEvent;
 import edu.stanford.bmir.protege.web.client.xd.visualization.loading.Loadable;
-import edu.stanford.bmir.protege.web.client.xd.visualization.selection.Selectable;
-import edu.stanford.bmir.protege.web.client.xd.visualization.selection.SelectionEvent;
-import edu.stanford.bmir.protege.web.client.xd.visualization.selection.SelectionListener;
+import edu.stanford.bmir.protege.web.client.xd.selection.Selectable;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLLabelJso;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLNodeJso;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLVisualizationJso;

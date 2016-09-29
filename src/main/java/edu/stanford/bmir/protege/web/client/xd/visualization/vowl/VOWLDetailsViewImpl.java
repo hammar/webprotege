@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import edu.stanford.bmir.protege.web.client.xd.visualization.change.ChangeListener;
 import edu.stanford.bmir.protege.web.client.xd.visualization.change.Changeable;
 import edu.stanford.bmir.protege.web.client.xd.visualization.change.ChangedEvent;
-import edu.stanford.bmir.protege.web.client.xd.visualization.selection.SelectionEvent;
+import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
 
 
 public class VOWLDetailsViewImpl extends Composite implements VOWLDetailsView {
