@@ -21,9 +21,12 @@ import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
+import org.semanticweb.owlapi.model.OWLObjectPropertyDomainAxiom;
+import org.semanticweb.owlapi.model.OWLObjectPropertyRangeAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
@@ -55,6 +58,9 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFra
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.PropertyFrame;
+import edu.stanford.bmir.protege.web.shared.xd.data.restrictions.DomainRestriction;
+import edu.stanford.bmir.protege.web.shared.xd.data.restrictions.ObjectPropertyRangeRestriction;
+import edu.stanford.bmir.protege.web.shared.xd.data.restrictions.Restriction;
 import edu.stanford.bmir.protege.web.shared.xd.util.TreeMethods;
 
 public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<OWLEntity> {
@@ -133,8 +139,6 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 	 */
 	private OntologyChangeList.Builder<OWLEntity> makeBuilderBySpecialization(OWLAPIProject project) {
 		
-		// TODO: Add axiom generation from restrictions set
-		
 		OntologyChangeList.Builder<OWLEntity> builder = new OntologyChangeList.Builder<OWLEntity>();
 		
 		// Load ODP closure
@@ -185,6 +189,30 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		
 		// 3. Create alignment axioms
 		generateAndAddAlignmentAxioms(project, builder);
+		
+		// 4. Create restriction axioms
+		for (Restriction restriction: instantiation.getRestrictions()) {
+			if (restriction instanceof DomainRestriction) {
+				OWLEntity owlProperty = getEntityFromFrame(((DomainRestriction) restriction).getProperty());
+				OWLEntity owlDomainClass = getEntityFromFrame(((DomainRestriction) restriction).getDomain());
+				if (owlProperty instanceof OWLObjectProperty && owlDomainClass instanceof OWLClass) {
+					OWLObjectPropertyDomainAxiom domainAxiom = project.getDataFactory().getOWLObjectPropertyDomainAxiom((OWLObjectProperty)owlProperty, (OWLClass)owlDomainClass);
+					builder.addAxiom(project.getRootOntology(), domainAxiom);
+				}
+				if (owlProperty instanceof OWLDataProperty && owlDomainClass instanceof OWLClass) {
+					OWLDataPropertyDomainAxiom domainAxiom = project.getDataFactory().getOWLDataPropertyDomainAxiom((OWLDataProperty)owlProperty, (OWLClass)owlDomainClass);
+					builder.addAxiom(project.getRootOntology(), domainAxiom);
+				}
+			}
+			if (restriction instanceof ObjectPropertyRangeRestriction) {
+				OWLEntity owlProperty = getEntityFromFrame(((ObjectPropertyRangeRestriction) restriction).getProperty());
+				OWLEntity owlRangeClass = getEntityFromFrame(((ObjectPropertyRangeRestriction) restriction).getRange());
+				if (owlProperty instanceof OWLObjectProperty && owlRangeClass instanceof OWLClass) {
+					OWLObjectPropertyRangeAxiom rangeAxiom = project.getDataFactory().getOWLObjectPropertyRangeAxiom((OWLObjectProperty)owlProperty, (OWLClass)owlRangeClass);
+					builder.addAxiom(project.getRootOntology(), rangeAxiom);
+				}
+			}
+		}
 		
 		return builder;
 	}
