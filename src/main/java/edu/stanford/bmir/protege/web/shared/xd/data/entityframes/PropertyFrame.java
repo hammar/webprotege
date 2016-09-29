@@ -44,4 +44,8 @@ public abstract class PropertyFrame extends AbstractOntologyEntityFrame {
 	public Set<LabelOrIri> getDomains() {
 		return this.domains;
 	}
+	
+	public void setDomains(Set<LabelOrIri> domains) {
+		this.domains = domains;
+	}
 }

@@ -1,13 +1,17 @@
 package edu.stanford.bmir.protege.web.server.xd;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.StreamDocumentSource;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataProperty;
@@ -38,6 +42,7 @@ import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFra
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ObjectPropertyFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpContentsResult;
+import edu.stanford.bmir.protege.web.shared.xd.util.TreeMethods;
 
 public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction,GetOdpContentsResult> {
 
@@ -98,15 +103,43 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	        FrameTreeNode<OntologyEntityFrame> objectProperties = getObjectPropertyFrames(odp, reasoner);
 	        FrameTreeNode<OntologyEntityFrame> datatypeProperties = getDatatypeFrames(odp, reasoner);
 	        
+	        // Enrich class tree with restrictions from the ontology 
+	        addRestrictionsToClassFrames(odp, classes, objectProperties);
+	        
 	        // Log request and user ID for later analysis
 	        xdpLog.logOdpContentsRetrieved(executionContext.getUserId(), action.getOdpUri());
 	        
-	        return new GetOdpContentsResult(classes,objectProperties,datatypeProperties);
+	        return new GetOdpContentsResult(IRI.create(action.getOdpUri()), classes,objectProperties,datatypeProperties);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	private void addRestrictionsToClassFrames(OWLOntology odp, FrameTreeNode<OntologyEntityFrame> classes, FrameTreeNode<OntologyEntityFrame> objectProperties) {
+		Set<OntologyEntityFrame> flattenedClasses = TreeMethods.flattenFrameTreeToSet(classes);
+		Map<IRI,ClassFrame> iriToClassFrameMap = new HashMap<IRI,ClassFrame>();
+		for (OntologyEntityFrame frame: flattenedClasses) {
+			if (frame instanceof ClassFrame && frame.getIri().isPresent()) {
+				ClassFrame classFrame = (ClassFrame)frame;
+				iriToClassFrameMap.put(frame.getIri().get(), classFrame);
+			}
+		}
+		Set<OntologyEntityFrame> flattenedObjectProperties = TreeMethods.flattenFrameTreeToSet(objectProperties);
+		Map<IRI,ObjectPropertyFrame> iriToObjectPropertyFrameMap = new HashMap<IRI,ObjectPropertyFrame>();
+		for (OntologyEntityFrame frame: flattenedObjectProperties) {
+			if (frame instanceof ObjectPropertyFrame && frame.getIri().isPresent()) {
+				ObjectPropertyFrame opFrame = (ObjectPropertyFrame)frame;
+				iriToObjectPropertyFrameMap.put(frame.getIri().get(), opFrame);
+			}
+		}
+		for (OntologyEntityFrame frame: flattenedClasses) {
+			if (frame instanceof ClassFrame) {
+				ClassFrame classFrame = (ClassFrame)frame;
+				OntologyOperations.addRestrictionsToFrame(classFrame, odp, iriToClassFrameMap, iriToObjectPropertyFrameMap);
+			}
+		}
 	}
 	
 	private FrameTreeNode<OntologyEntityFrame> getObjectPropertyFrames(OWLOntology ont, OWLReasoner reasoner) {

@@ -42,9 +42,21 @@ public class LabelOrIri implements Serializable {
 	public Optional<String> getLabel() {
 		return label;
 	}
+	
+	public void setLabel(String label) {
+		this.label = Optional.of(label);
+	}
 
 	public Optional<IRI> getIri() {
 		return iri;
+	}
+	
+	public void setIri(IRI iri) {
+		this.iri = Optional.of(iri);
+	}
+	
+	public void removeIri() {
+		this.iri = Optional.absent();
 	}
 
 	@Override

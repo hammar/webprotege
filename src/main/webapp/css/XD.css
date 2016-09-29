@@ -1,33 +1,39 @@
-.owlClassTreeNode {
-	background-image: url("/images/xd/owlClassIcon.png");
-	background-size: 18px 16px;
-    background-repeat: no-repeat;
+div.xdWizardNavBar {
+	border-top: 1px solid darkblue;
+	background-color: silver;
 }
 
-.owlObjectPropertyTreeNode {
-	background-image: url("/images/xd/owlObjectPropertyIcon.png");
-	background-size: 18px 16px;
-    background-repeat: no-repeat;
+div.xdWizardNavBar Button {
+	height: 2em;
+	margin: 5px;
 }
 
-.owlDataPropertyTreeNode {
-	background-image: url("/images/xd/owlDataPropertyIcon.png");
-	background-size: 18px 16px;
-    background-repeat: no-repeat;
+div.xdWizardContentPanel {
+	background-color: white;
 }
 
-div.specializedNode a.x-tree-node-anchor span {
-	color: green;
-}  
-
-div.specializationStrategySelectionPanel div.gwt-Label, 
-div.specializationStrategySelectionPanel div.gwt-HTML {
-	font-size: 11px;
+div.xdInstantiationWizard div.gwt-TabLayoutPanelTabs {
+	border-bottom: 1px solid darkblue;
+	border-left: 1px solid darkblue;
 }
 
-div.specializationStrategySelectionPanel span.gwt-RadioButton label {
+div.xdInstantiationWizard div.gwt-TabLayoutPanelTab {
+	padding: 5px;
+	border-top: 1px solid darkblue;
+	border-right: 1px solid darkblue;
+}
+
+div.xdInstantiationWizard div.xdWizardHeader {
 	font-weight: bold;
-	font-size: 11px;
+	text-align: center;
+}
+
+div.xdInstantiationWizard div.xdWizardHeader div.gwt-Label {
+	margin: 5px;
+}
+
+div.xdInstantiationWizard div.gwt-TabLayoutPanelTab-selected {
+	background-color: white;
 }
 
 div.odpDetailsPortlet div.odpTitleLabel {
@@ -55,4 +61,112 @@ div.odpDetailsPortlet div.odpDetailLabel {
 div.odpDetailsPortlet div.odpDetail ul {
 	list-style-type: disc;
 	list-style-position: inside;
+}
+
+div.entityCloningPanelSubheader {
+	border-bottom: 1px solid #DFE8F6;
+	font-weight: bold;
+}
+
+div.xdWizardContentPanel div.prefixLabel {
+	width: 2em;
+}
+
+div.xdWizardContentPanel div.originalLabelLabel {
+	width: 15em;
+}
+
+div.xdWizardContentPanel div.arrowLabel {
+	margin-right: 3em;
+}
+
+div.xdWizardContentPanel input.targetLabelTextBox {
+	width: 20em;
+}
+
+div.xdpSpecializationPaneSpecializedEntity {
+	color: Green;
+}
+
+table.entitySpecializationToolbar {
+	border-top: 1px solid DarkBlue;
+	border-bottom: 1px solid DarkBlue;
+	background-color: Silver;
+	height: 3em;
+	vertical-align: middle;
+	width: 100%;
+}
+
+table.entitySpecializationToolbar button {
+	height: 2em;
+}
+
+.xdpAlignmentPanelAlignmentHolder, .xdpRestrictionsPanelRestrictionsHolder {
+	width: 600px;
+}
+
+div.xdpAlignmentPanelAlignmentGroupHeading, div.xdpRestrictionsPanelRestrictionsGroupHeading {
+	border-bottom: 1px solid #DFE8F6;
+	font-weight: bold;
+	text-transform: capitalize;
+}
+
+div.entityTreeScrollWrapper {
+	height: 270px;
+	border: 1px solid Black;
+}
+
+div.entityCloningFieldsScrollWrapper {
+	border: 1px solid Black;
+}
+
+div.entityTree .gwt-TreeItem-selected {
+	background-color: #DFE8F6;
+	border: 1px solid DarkBlue;
+	display: inline-block !important;
+	padding: 2px;
+}
+
+table.xdpAlignmentWidget input, table.xdpRestrictionsWidget input {
+	margin-right: 5px;
+}
+
+table.xdpAlignmentWidget label em, table.xdpRestrictionsWidget label em {
+	font-style: italic;
+}
+ 
+table.xdpPreviewPanel {
+	width: 100%;
+}
+ 
+table.xdpPreviewPanelNavBar {
+    height: 33px;
+    vertical-align: middle;
+    border-bottom: 1px solid darkblue;
+    width: 100%;
+    background-color: #DBEBF0;
+}
+
+ table.xdpPreviewPanelNavBar button {
+    height: 2em;
+    margin: 5px;
+}
+
+table.xdpPreviewPanel textarea {
+	width: 610px;
+	height: 318px;
+	border: 1px solid black;
+	padding: 5px;
+}
+
+div.xdpInstantiationWizardSpinner table {
+	background-color: white;
+}
+
+div.xdpInstantiationMethodSelectionPanel {
+	line-height: 1.5;
+}
+
+div.xdpInstantiationMethodSelectionPanel span.gwt-RadioButton {
+	font-weight: bold;
 }
