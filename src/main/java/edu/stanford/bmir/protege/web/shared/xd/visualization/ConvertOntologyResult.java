@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.shared.visualization.vowl;
+package edu.stanford.bmir.protege.web.shared.xd.visualization;
 
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
 

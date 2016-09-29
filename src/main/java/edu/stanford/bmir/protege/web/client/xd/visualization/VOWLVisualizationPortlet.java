@@ -33,8 +33,8 @@ import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLNodeJso;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLVisualizationJso;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
-import edu.stanford.bmir.protege.web.shared.visualization.vowl.ConvertOntologyAction;
-import edu.stanford.bmir.protege.web.shared.visualization.vowl.ConvertOntologyResult;
+import edu.stanford.bmir.protege.web.shared.xd.visualization.ConvertOntologyAction;
+import edu.stanford.bmir.protege.web.shared.xd.visualization.ConvertOntologyResult;
 
 
 /**

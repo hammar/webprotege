@@ -1,4 +1,4 @@
-package edu.stanford.bmir.protege.web.server.visualization.vowl;
+package edu.stanford.bmir.protege.web.server.xd.visualization;
 
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyID;
@@ -11,7 +11,7 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.owlapi.*;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
-import edu.stanford.bmir.protege.web.shared.visualization.vowl.*;
+import edu.stanford.bmir.protege.web.shared.xd.visualization.*;
 
 public class ConvertOntologyHandler implements ActionHandler<ConvertOntologyAction, ConvertOntologyResult> {
 
