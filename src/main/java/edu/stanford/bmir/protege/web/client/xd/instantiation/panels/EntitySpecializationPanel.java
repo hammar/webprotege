@@ -55,6 +55,7 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 					OntologyEntityFrame parentFrame = (OntologyEntityFrame)selectedTreeItem.getUserObject();
 					OntologyEntityFrame newFrame = createChildFrame(newEntityLabel, parentFrame);
 					TreeItem newTreeItem = new TreeItem(new EntityTreeNode(newFrame));
+					newTreeItem.addStyleName("xdpSpecializationPaneSpecializedEntity");
 					newTreeItem.setUserObject(newFrame);
 					selectedTreeItem.addItem(newTreeItem);
 					selectedTreeItem.setState(true);
@@ -164,7 +165,9 @@ public class EntitySpecializationPanel extends VerticalPanel implements Instanti
 	}
 	
 	private void renderEntityTree(FrameTreeNode<OntologyEntityFrame> inputFrameTree) {
-		TreeItem rootItem = new TreeItem(new EntityTreeNode(inputFrameTree.getData()));
+		OntologyEntityFrame rootFrame = inputFrameTree.getData();
+		TreeItem rootItem = new TreeItem(new EntityTreeNode(rootFrame));
+		rootItem.setUserObject(rootFrame);
 		for (FrameTreeNode<OntologyEntityFrame> childFrame: inputFrameTree.getChildren()) {
 			recursivelyAddEntityNode(childFrame, rootItem);
 		}

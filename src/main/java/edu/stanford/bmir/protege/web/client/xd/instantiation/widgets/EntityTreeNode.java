@@ -35,7 +35,7 @@ public class EntityTreeNode extends Composite {
 		panel.add(labelWidget);
 		
 		initWidget(panel);
-		setStyleName("xdp-EntityTreeNode");
+		setStyleName("xdpSpecializationPaneEntityTreeNode");
 	}
 	
 	public void setLabelText(String newLabel) {

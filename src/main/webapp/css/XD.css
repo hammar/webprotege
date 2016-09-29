@@ -84,6 +84,10 @@ div.xdWizardContentPanel input.targetLabelTextBox {
 	width: 20em;
 }
 
+div.xdpSpecializationPaneSpecializedEntity {
+	color: Green;
+}
+
 table.entitySpecializationToolbar {
 	border-top: 1px solid DarkBlue;
 	border-bottom: 1px solid DarkBlue;
