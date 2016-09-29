@@ -22,7 +22,6 @@ import edu.stanford.bmir.protege.web.client.xd.visualization.loading.GraphListen
 import edu.stanford.bmir.protege.web.client.xd.visualization.loading.GraphLoadedEvent;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLDetailsView;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLDetailsViewImpl;
-import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLDetailsViewPresenter;
 import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLVisualizationJso;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 
@@ -35,7 +34,6 @@ public class VOWLDetailsPortlet extends AbstractOWLEntityPortlet implements Grap
 
 	private static final String DETAILS_TITLE = " Ontology Details";
 	
-	private VOWLDetailsViewPresenter presenter;
 	private VOWLDetailsView view;
 	private boolean loaded = false;
 	// Listeners to selection events in this portlet

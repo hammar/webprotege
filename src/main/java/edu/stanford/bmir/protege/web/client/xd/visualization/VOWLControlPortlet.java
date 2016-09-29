@@ -3,16 +3,10 @@ package edu.stanford.bmir.protege.web.client.xd.visualization;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -27,7 +21,6 @@ import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.client.xd.visualization.composites.ExtendedMenuItem;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 
-@SuppressWarnings("unchecked")
 public class VOWLControlPortlet extends AbstractOWLEntityPortlet implements Selectable, KeyPressHandler {
 
 	private static final String CONTROL_TITLE = "Control Bar";
@@ -35,13 +28,11 @@ public class VOWLControlPortlet extends AbstractOWLEntityPortlet implements Sele
 	// Listeners to selection events in this portlet
 	private Collection<SelectionListener> listeners;
 	private boolean paused = false;
-	private String option = null;
 	private Collection<? extends Object> selection;
 	private FlowPanel panel;
-	private ExtendedMenuItem cmi, dataProp, solSub, disjInfo, setOp, pickPin, nodeScale, 
+	private ExtendedMenuItem dataProp, solSub, disjInfo, setOp, pickPin, nodeScale, 
 	compNotation, classDistance, datatypeDistance, collapseDegree;
 	private Command cmd;
-	private Map<String, Object> map = new HashMap<String,Object>();
 	private TextBox textBox;
 	private MyPopup mp;
 

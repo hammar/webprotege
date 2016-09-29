@@ -2,10 +2,6 @@ package edu.stanford.bmir.protege.web.client.xd.visualization.change;
 
 import java.util.Collection;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-
-
-
 public interface Changeable {
     void addChangeListener(ChangeListener listener);
     void notifyChangeListeners(ChangedEvent changeEvent);

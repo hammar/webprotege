@@ -1,7 +1,6 @@
 package edu.stanford.bmir.protege.web.client.xd.visualization.vowl;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 
 public class VOWLMetadataJso extends JavaScriptObject {

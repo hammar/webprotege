@@ -7,13 +7,11 @@ package edu.stanford.bmir.protege.web.client.xd.visualization;
 
 import edu.stanford.bmir.protege.web.client.project.Project;
 import edu.stanford.bmir.protege.web.client.ui.tab.AbstractTab;
-import edu.stanford.bmir.protege.web.client.xd.visualization.vowl.VOWLDetailsViewImpl;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 
 /**
  * Visualization tab usable for displaying visualization portlets.
  */
-@SuppressWarnings("unchecked")
 public class VisualizationTab extends AbstractTab {
 
 	private VOWLVisualizationPortlet vowlVisualizationPortlet;

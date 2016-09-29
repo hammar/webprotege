@@ -1,15 +1,7 @@
 package edu.stanford.bmir.protege.web.client.xd.visualization.vowl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
-import com.google.common.base.Optional;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.OptionElement;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratedStackPanel;
@@ -23,10 +15,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import edu.stanford.bmir.protege.web.client.xd.visualization.change.ChangeListener;
-import edu.stanford.bmir.protege.web.client.xd.visualization.change.Changeable;
-import edu.stanford.bmir.protege.web.client.xd.visualization.change.ChangedEvent;
-import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
-
 
 public class VOWLDetailsViewImpl extends Composite implements VOWLDetailsView {
 
@@ -47,10 +35,6 @@ public class VOWLDetailsViewImpl extends Composite implements VOWLDetailsView {
 
 	protected VerticalPanel statisticsPanel;
 	
-	// Listeners to selection events in this portlet
-	private Collection<ChangeListener> changeListeners;
-	private Optional<String> selectedValue = Optional.absent();
-
 	private ListBox lang;
 	
 	interface VOWLDetailsViewImplUiBinder extends UiBinder<HTMLPanel, VOWLDetailsViewImpl> {
@@ -61,7 +45,7 @@ public class VOWLDetailsViewImpl extends Composite implements VOWLDetailsView {
 		rootElement = uiBinder.createAndBindUi(this);
 		initWidget(rootElement);
 		
-		this.changeListeners = new ArrayList<ChangeListener>();
+		new ArrayList<ChangeListener>();
 
 		// Set up static info panel (contains name, IRI, version, author(s) and language)
 		staticInfoPanel = new Grid(5, 1);
