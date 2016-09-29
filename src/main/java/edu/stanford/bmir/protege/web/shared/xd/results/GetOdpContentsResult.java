@@ -2,6 +2,8 @@ package edu.stanford.bmir.protege.web.shared.xd.results;
 
 import java.io.Serializable;
 
+import org.semanticweb.owlapi.model.IRI;
+
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
 import edu.stanford.bmir.protege.web.shared.xd.data.FrameTreeNode;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.OntologyEntityFrame;
@@ -27,20 +29,27 @@ public class GetOdpContentsResult implements Result, Serializable {
 	 * @param objectPropertyFrames
 	 * @param dataPropertyFrames
 	 */
-	public GetOdpContentsResult(FrameTreeNode<OntologyEntityFrame> classes,
+	public GetOdpContentsResult(IRI odpIri,
+			FrameTreeNode<OntologyEntityFrame> classes,
 			FrameTreeNode<OntologyEntityFrame> objectProperties,
 			FrameTreeNode<OntologyEntityFrame> dataProperties) {
+		this.odpIri = odpIri;
 		this.classes = classes;
 		this.objectProperties = objectProperties;
 		this.dataProperties = dataProperties;
 	}
 	
 	// Data fields
+	private IRI odpIri;
 	private FrameTreeNode<OntologyEntityFrame> classes;
 	private FrameTreeNode<OntologyEntityFrame> objectProperties;
 	private FrameTreeNode<OntologyEntityFrame> dataProperties;
 	
 	// Access methods
+	public IRI getOdpIri() {
+		return this.odpIri;
+	}
+	
 	public FrameTreeNode<OntologyEntityFrame> getClasses() {
 		return classes;
 	}

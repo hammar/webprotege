@@ -68,7 +68,6 @@ import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpsByCategoryResult;
  * @author Karl Hammar <karl@karlhammar.com>
  *
  */
-@SuppressWarnings("unchecked")
 public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet implements Selectable {
 	
 	public DesignPatternSelectorPortlet(SelectionModel selectionModel, Project project) {

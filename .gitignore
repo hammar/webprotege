@@ -11,3 +11,5 @@ out/
 
 logs/
 
+# Mac files
+.DS_Store

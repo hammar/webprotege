@@ -1,5 +1,7 @@
 package edu.stanford.bmir.protege.web.server.xd.util;
 
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.IRI;
@@ -11,12 +13,17 @@ import org.semanticweb.owlapi.model.OWLDataRange;
 import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.model.OWLObjectAllValuesFrom;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
+import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLQuantifiedObjectRestriction;
 
 import com.google.common.base.Optional;
 
 import edu.stanford.bmir.protege.web.shared.xd.data.LabelOrIri;
+import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction;
+import edu.stanford.bmir.protege.web.shared.xd.data.PropertyRestriction.ValueConstraint;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.AbstractOntologyEntityFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.ClassFrame;
 import edu.stanford.bmir.protege.web.shared.xd.data.entityframes.DataPropertyFrame;
@@ -52,6 +59,71 @@ public class OntologyOperations {
 			ontologyPrefix = ontology.getOWLOntologyManager().getOntologyDocumentIRI(ontology).getFragment();
 		}
 		return ontologyPrefix;
+	}
+	
+	// TODO: DOCUMENT THIS
+	private static Optional<PropertyRestriction> restrictionFromOwlExpression(OWLClassExpression expression, OWLOntology ont, Map<IRI,ClassFrame> iriToClassFrameMap,  Map<IRI,ObjectPropertyFrame> iriToObjectPropertyFrameMap) {
+		if (expression instanceof OWLQuantifiedObjectRestriction) {
+			OWLQuantifiedObjectRestriction quantRestriction = (OWLQuantifiedObjectRestriction)expression;
+			OWLObjectPropertyExpression propertyExpression = quantRestriction.getProperty();
+			OWLClassExpression targetClassExpression = quantRestriction.getFiller();
+			if (!propertyExpression.isAnonymous() && !targetClassExpression.isAnonymous()) {
+				OWLObjectProperty objectProperty = propertyExpression.asOWLObjectProperty();
+				ObjectPropertyFrame propertyFrame;
+				if (iriToObjectPropertyFrameMap.containsKey(objectProperty.getIRI())) {
+					propertyFrame = iriToObjectPropertyFrameMap.get(objectProperty.getIRI());
+				}
+				else {
+					propertyFrame = (ObjectPropertyFrame)getFrame(objectProperty, ont);
+				}
+				OWLClass targetClass = targetClassExpression.asOWLClass();
+				ClassFrame targetClassFrame;
+				if (iriToClassFrameMap.containsKey(targetClass.getIRI())) {
+					targetClassFrame = iriToClassFrameMap.get(targetClass.getIRI());
+				}
+				else {
+					targetClassFrame = (ClassFrame)getFrame(targetClass, ont);
+				}
+				PropertyRestriction restriction;
+				if (quantRestriction instanceof OWLObjectAllValuesFrom) {
+					restriction = new PropertyRestriction(propertyFrame, targetClassFrame, ValueConstraint.ONLY);
+				}
+				else {
+					restriction = new PropertyRestriction(propertyFrame, targetClassFrame, ValueConstraint.SOME);
+				}
+				return Optional.of(restriction);
+			}
+		}
+		return Optional.absent();
+	}
+	
+	// TODO: DOCUMENT THIS
+	public static Set<PropertyRestriction> addRestrictionsToFrame(ClassFrame classFrame, OWLOntology ont, Map<IRI,ClassFrame> iriToClassFrameMap, Map<IRI,ObjectPropertyFrame> iriToObjectPropertyFrameMap) {
+		Set<PropertyRestriction> restrictions = new HashSet<PropertyRestriction>();
+		if (classFrame.getIri().isPresent()) {
+			IRI classIri = classFrame.getIri().get();
+			Set<OWLEntity> entities = ont.getEntitiesInSignature(classIri);
+			for (OWLEntity entity: entities) {
+				if (entity instanceof OWLClass) {
+					OWLClass owlClass = entity.asOWLClass();
+					Set<OWLClassExpression> equivalentClassExpressions = owlClass.getEquivalentClasses(ont);
+					for (OWLClassExpression expression: equivalentClassExpressions) {
+						Optional<PropertyRestriction> restriction = restrictionFromOwlExpression(expression, ont, iriToClassFrameMap, iriToObjectPropertyFrameMap);
+						if (restriction.isPresent()) {
+							classFrame.getEquivalentToRestrictions().add(restriction.get());
+						}
+					}
+					Set<OWLClassExpression> superClassExpressions = owlClass.getSuperClasses(ont);
+					for (OWLClassExpression expression: superClassExpressions) {
+						Optional<PropertyRestriction> restriction = restrictionFromOwlExpression(expression, ont, iriToClassFrameMap, iriToObjectPropertyFrameMap);
+						if (restriction.isPresent()) {
+							classFrame.getSubClassOfRestrictions().add(restriction.get());
+						}
+					}
+				}
+			}
+		}
+		return restrictions;
 	}
 	
 	/**
