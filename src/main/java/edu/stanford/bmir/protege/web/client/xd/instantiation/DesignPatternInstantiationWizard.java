@@ -90,8 +90,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		
 		DockLayoutPanel wizardFramePanel = new DockLayoutPanel(Unit.EM);
 		// Size of popup widget (i.e., framing panel) governs size of popup, so is set here.
-		wizardFramePanel.setHeight("480px");
-		wizardFramePanel.setWidth("640px");
+		wizardFramePanel.setHeight("600px");
+		wizardFramePanel.setWidth("800px");
 		
 		// Header holding wizard title and close button
 		DockLayoutPanel wizardHeaderPanel = new DockLayoutPanel(Unit.EM);
@@ -555,7 +555,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         		dataPropertyTree = result.getDataProperties();
         		
         		// Render visualiation
-        		visualisationPanel.renderPanel();
+        		visualisationPanel.renderPanel(odpAsJsonString);
         		
         		// Render initial wizard and preview panel.
         		instantiationMethodSelectionPanel.renderPanel();

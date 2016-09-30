@@ -135,6 +135,14 @@ table.xdpAlignmentWidget label em, table.xdpRestrictionsWidget label em {
 	font-style: italic;
 }
  
+div.xdpPreviewPanelTabPanel {
+	height: 471px;
+}
+
+div.xdpPreviewPanelTabPanel div.gwt-TabLayoutPanelTab-selected {
+	text-decoration: underline;
+}
+ 
 table.xdpPreviewPanel {
 	width: 100%;
 }
@@ -153,8 +161,8 @@ table.xdpPreviewPanelNavBar {
 }
 
 table.xdpPreviewPanel textarea {
-	width: 610px;
-	height: 318px;
+	width: 768px;
+	height: 400px;
 	border: 1px solid black;
 	padding: 5px;
 }
