@@ -49,7 +49,7 @@ public class RestrictionsPanel extends VerticalPanel implements InstantiationWiz
 		this.restrictionsHolderPanel.setSpacing(10);
 		this.restrictionsHolderPanel.addStyleName("xdpRestrictionsPanelRestrictionsHolder");
 		ScrollPanel sp = new ScrollPanel(restrictionsHolderPanel);
-		sp.setHeight("315px");
+		sp.setHeight("442px");
 		sp.addStyleName("xdpRestrictionsPanelScrollWrapper");
 		this.add(sp);
 	}

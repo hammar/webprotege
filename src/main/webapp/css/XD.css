@@ -23,6 +23,10 @@ div.xdInstantiationWizard div.gwt-TabLayoutPanelTab {
 	border-right: 1px solid darkblue;
 }
 
+div.xdpInstantiationWizardTabPanel div.gwt-TabLayoutPanelContentContainer {
+	background-color: white;
+}
+
 div.xdInstantiationWizard div.xdWizardHeader {
 	font-weight: bold;
 	text-align: center;
@@ -102,7 +106,7 @@ table.entitySpecializationToolbar button {
 }
 
 .xdpAlignmentPanelAlignmentHolder, .xdpRestrictionsPanelRestrictionsHolder {
-	width: 600px;
+	width: 780px;
 }
 
 div.xdpAlignmentPanelAlignmentGroupHeading, div.xdpRestrictionsPanelRestrictionsGroupHeading {
@@ -112,7 +116,7 @@ div.xdpAlignmentPanelAlignmentGroupHeading, div.xdpRestrictionsPanelRestrictions
 }
 
 div.entityTreeScrollWrapper {
-	height: 270px;
+	height: 394px;
 	border: 1px solid Black;
 }
 
@@ -179,8 +183,8 @@ div.xdpInstantiationMethodSelectionPanel span.gwt-RadioButton {
 	font-weight: bold;
 }
 
-div.xdpVisualisationPanel {
-	width: 100%;
-	height: 100%;
+div.xdpVisualisationWidget {
 	background-color: White;
+	border: 1px solid Black;
+	margin: 7px;
 }

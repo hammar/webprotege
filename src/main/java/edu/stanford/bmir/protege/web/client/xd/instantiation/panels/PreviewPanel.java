@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
+import edu.stanford.bmir.protege.web.client.xd.instantiation.widgets.VisualisationWidget;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationPreviewAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationPreviewResult;
@@ -22,7 +23,7 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
 	private TextArea instantationAxiomsPreview;
 	private final DesignPatternInstantiationWizard parentWizard;
 	private VerticalPanel axiomPreviewPanel;
-	private VisualisationPanel vowlPreviewPanel;
+	private VisualisationWidget vowlPreviewPanel;
 	
 	public PreviewPanel(DesignPatternInstantiationWizard parent) {
 		super();
@@ -46,7 +47,7 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
                 			@Override
                 			public void handleSuccess(GetInstantiationPreviewResult result) {
                 				instantationAxiomsPreview.setText(result.getInstantiationAxioms());
-                				vowlPreviewPanel.renderPanel(result.getInstantiationAsJson());
+                				vowlPreviewPanel.renderJson(result.getInstantiationAsJson());
                 				// Kill the spinner
                 				parentWizard.hideSpinner();
                 			}
@@ -58,7 +59,7 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
         
         tabPanel = new TabLayoutPanel(3, Unit.EM);
         tabPanel.addStyleName("xdpPreviewPanelTabPanel");
-        tabPanel.setHeight("400px");
+        tabPanel.setHeight("471px");
         
         axiomPreviewPanel = new VerticalPanel();
         axiomPreviewPanel.setSpacing(10);
@@ -67,7 +68,9 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
         axiomPreviewPanel.add(instantationAxiomsPreview);
         tabPanel.add(axiomPreviewPanel, "Axiom Preview");
         
-        vowlPreviewPanel = new VisualisationPanel(parentWizard);
+        vowlPreviewPanel = new VisualisationWidget();
+        vowlPreviewPanel.setWidth("787px");
+        vowlPreviewPanel.setHeight("418px");
         tabPanel.add(vowlPreviewPanel, "VOWL Preview");
         
         tabPanel.selectTab(axiomPreviewPanel);

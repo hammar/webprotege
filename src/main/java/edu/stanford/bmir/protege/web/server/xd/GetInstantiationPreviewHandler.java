@@ -9,11 +9,11 @@ import javax.inject.Inject;
 
 import org.coode.owlapi.manchesterowlsyntax.ManchesterOWLSyntaxOntologyFormat;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChange;
-import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import de.uni_stuttgart.vis.vowl.owl2vowl.Owl2Vowl;
@@ -58,7 +58,7 @@ public class GetInstantiationPreviewHandler extends AbstractHasProjectActionHand
 			
 			// Set up a temporary demo ontology including those axioms
 			OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-			OWLOntology demoOntology = manager.createOntology(newAxioms);
+			OWLOntology demoOntology = manager.createOntology(newAxioms, IRI.create("wptmp:entity"));
 			
 			// Configure the format and prefixes of the         
 	        ManchesterOWLSyntaxOntologyFormat manchesterSyntax = new ManchesterOWLSyntaxOntologyFormat();
@@ -72,15 +72,7 @@ public class GetInstantiationPreviewHandler extends AbstractHasProjectActionHand
 	        String instantiationAxioms = baos.toString();
 	        
 	        // Get VOWL representation for visualisation purposes
-	        OWLOntologyID ontologyId = demoOntology.getOntologyID();
-	        String ontologyIdString;
-	        if (ontologyId.isAnonymous()) {
-	        	ontologyIdString = ontologyId.toString();
-			}
-			else {
-				ontologyIdString = ontologyId.getOntologyIRI().toString();
-			}
-	        Owl2Vowl owl2Vowl = new Owl2Vowl(demoOntology, ontologyIdString);
+	        Owl2Vowl owl2Vowl = new Owl2Vowl(demoOntology, "wptmp:entity");
 	        String instantiationAsJsonString = owl2Vowl.getJsonAsString();
 	        
 	        // Package result, send to client

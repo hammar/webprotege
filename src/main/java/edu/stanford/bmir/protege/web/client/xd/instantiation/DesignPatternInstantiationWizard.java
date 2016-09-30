@@ -27,7 +27,7 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.EntitySpecia
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.InstantiationMethodSelectionPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.PreviewPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.RestrictionsPanel;
-import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.VisualisationPanel;
+import edu.stanford.bmir.protege.web.client.xd.instantiation.widgets.VisualisationWidget;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.PersistInstantiationAction;
@@ -51,7 +51,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private Button wizardFinishButton;
 	private Panel wizardPanel;
 	private TabLayoutPanel tabPanel;
-	private VisualisationPanel visualisationPanel;
+	private VisualisationWidget visualisationWidget;
 	private InstantiationMethodSelectionPanel instantiationMethodSelectionPanel;
 	private EntityCloningPanel entityCloningPanel;
 	private EntitySpecializationPanel entitySpecializationPanel;
@@ -115,12 +115,15 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		
 		// Outer tab panel containing ODP visualization and instantiation wizard
 		tabPanel = new TabLayoutPanel(3, Unit.EM);
+		tabPanel.addStyleName("xdpInstantiationWizardTabPanel");
 		
 		// Add tabs
 		this.wizardPanel = makeWizardPanel();
-		this.visualisationPanel = new VisualisationPanel(this);
+		this.visualisationWidget = new VisualisationWidget();
+		this.visualisationWidget.setWidth("784px");
+		this.visualisationWidget.setHeight("524px");
 		tabPanel.add(wizardPanel, "CODP Instantiation");
-		tabPanel.add(visualisationPanel, "CODP Visualisation");
+		tabPanel.add(visualisationWidget, "CODP Visualisation");
 		tabPanel.selectTab(wizardPanel);
 		
 		// Add tab panel to main body of outer frame panel
@@ -555,7 +558,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         		dataPropertyTree = result.getDataProperties();
         		
         		// Render visualiation
-        		visualisationPanel.renderPanel(odpAsJsonString);
+        		visualisationWidget.renderJson(odpAsJsonString);
         		
         		// Render initial wizard and preview panel.
         		instantiationMethodSelectionPanel.renderPanel();
