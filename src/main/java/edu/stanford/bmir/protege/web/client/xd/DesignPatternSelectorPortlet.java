@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.ui.Label;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.SortDir;
 import com.gwtext.client.data.ArrayReader;
@@ -27,7 +26,6 @@ import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.Checkbox;
 import com.gwtext.client.widgets.form.ComboBox;
 import com.gwtext.client.widgets.form.Field;
-import com.gwtext.client.widgets.form.FieldSet;
 import com.gwtext.client.widgets.form.FormPanel;
 import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.event.CheckboxListener;
@@ -139,13 +137,14 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
  		});
         formPanel.add(queryField);
         
+        // TODO: Commented out due to lacking server-side implementation
         // Create filters FieldSet and child tab panel
-        FieldSet filtersFS = new FieldSet("Filters");
+        /*FieldSet filtersFS = new FieldSet("Filters");
         filtersFS.setLayout(new FitLayout());
         filtersFS.setCollapsible(true);  
         filtersFS.setCollapsed(true);
         filtersFS.setMargins(0);
-        filtersFS.setStyle("margin-bottom: 0");
+        filtersFS.setStyle("margin-bottom: 0");*/
         TabPanel filterTabs = new TabPanel(); 
         filterTabs.setPlain(true);  
         filterTabs.setActiveTab(0);
@@ -279,10 +278,10 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
         // not supported on the back-end service yet.
         coreTab.setDisabled(true);
         mappingsTab.setDisabled(true);
-        filtersFS.add(new Label("Filter backend support is temporarily disabled. We apologise for the inconvenience."));
+        //filtersFS.add(new Label("Filter backend support is temporarily disabled. We apologise for the inconvenience."));
         
-        filtersFS.add(filterTabs);
-        formPanel.add(filtersFS);
+        //filtersFS.add(filterTabs);
+        //formPanel.add(filtersFS);
   
         // Finally, add the search button.
         searchButton = new Button("Search");
