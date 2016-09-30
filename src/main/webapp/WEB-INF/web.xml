@@ -54,6 +54,11 @@
 		<servlet-name>ProjectUploadServlet</servlet-name>
 		<servlet-class>edu.stanford.bmir.protege.web.server.filesubmission.FileUploadServlet</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>jUnitHostImpl</servlet-name>
+		<servlet-class>com.google.gwt.junit.server.JUnitHostImpl</servlet-class>
+	</servlet>
 
 	<!-- Servlet mappings -->
 
@@ -85,6 +90,16 @@
 	<servlet-mapping>
 		<servlet-name>BioPortalAPIService</servlet-name>
 		<url-pattern>/webprotege/bioportalapi</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>jUnitHostImpl</servlet-name>
+		<url-pattern>/webprotege/junithost/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>jUnitHostImpl</servlet-name>
+		<url-pattern>/webprotege/remote_logging</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->

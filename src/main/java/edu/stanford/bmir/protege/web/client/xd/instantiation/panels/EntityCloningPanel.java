@@ -52,7 +52,8 @@ public class EntityCloningPanel extends VerticalPanel implements InstantiationWi
 		VerticalPanel innerVp = new VerticalPanel();
 		innerVp.setSpacing(10);
 		ScrollPanel sp = new ScrollPanel(innerVp);
-		sp.setHeight("315px");
+		sp.setHeight("454px");
+		sp.setWidth("776px");
 		sp.addStyleName("entityCloningFieldsScrollWrapper");
 		
 		classesHeader = new Label("Classes");

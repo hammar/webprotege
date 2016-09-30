@@ -33,6 +33,11 @@ import edu.stanford.bmir.protege.web.client.usage.UsagePortlet;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternDetailsPortlet;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternSelectorPortlet;
 import edu.stanford.bmir.protege.web.client.xd.DesignPatternsTab;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VOWLControlPortlet;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VOWLDetailsPortlet;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VOWLSelectionDetailsPortlet;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VOWLVisualizationPortlet;
+import edu.stanford.bmir.protege.web.client.xd.visualization.VisualizationTab;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
 
 import java.util.*;
@@ -81,6 +86,9 @@ public class UIFactory {
         }
         else if (tabJavaClassName.equals(DesignPatternsTab.class.getName())) {
         	return new DesignPatternsTab(selectionModel, project);
+        }
+        else if (tabJavaClassName.equals(VisualizationTab.class.getName())) {
+            return new VisualizationTab(selectionModel, project);
         }
         return null;
     }
@@ -179,6 +187,18 @@ public class UIFactory {
             else if(portletJavaClassName.endsWith(DesignPatternDetailsPortlet.class.getName())) {
                 return new DesignPatternDetailsPortlet(selectionModel, project);
             }
+            else if (portletJavaClassName.endsWith(VOWLVisualizationPortlet.class.getName())) {
+                return new VOWLVisualizationPortlet(selectionModel, project);
+            }
+            else if (portletJavaClassName.endsWith(VOWLDetailsPortlet.class.getName())) {
+                return new VOWLDetailsPortlet(selectionModel, project);
+            }
+            else if(portletJavaClassName.endsWith(VOWLSelectionDetailsPortlet.class.getName())) {
+            	return new VOWLSelectionDetailsPortlet(selectionModel, project);
+            }
+            else if(portletJavaClassName.endsWith(VOWLControlPortlet.class.getName())) {
+            	return new VOWLControlPortlet(selectionModel, project);
+            }
             else {
                 GWT.log("Portlet not found: " + portletJavaClassName);
             }
@@ -195,7 +215,7 @@ public class UIFactory {
          * OtherTerminologiesTab.class.getName(),
          *
          */
-        String[] tabs = {ClassesTab.class.getName(), PropertiesTab.class.getName(), IndividualsTab.class.getName(), MetadataTab.class.getName(), DesignPatternsTab.class.getName()};
+        String[] tabs = {ClassesTab.class.getName(), PropertiesTab.class.getName(), IndividualsTab.class.getName(), MetadataTab.class.getName(), DesignPatternsTab.class.getName(), VisualizationTab.class.getName()};
         return Arrays.asList(tabs);
     }
 
@@ -221,7 +241,9 @@ public class UIFactory {
                 OBOTermIdEditorPortlet.class.getName(),
                 OBOTermDefinitionPortlet.class.getName(), OBOTermXRefsEditorPortlet.class.getName(),
                 RevisionsPortlet.class.getName(), DesignPatternSelectorPortlet.class.getName(),
-                DesignPatternDetailsPortlet.class.getName()};
+                DesignPatternDetailsPortlet.class.getName(),
+                VOWLVisualizationPortlet.class.getName(), VOWLDetailsPortlet.class.getName(), 
+                VOWLSelectionDetailsPortlet.class.getName(), VOWLControlPortlet.class.getName()};
 
         List<String> portletsList = Arrays.asList(portlets);
         Collections.sort(portletsList, new Comparator<String>() {

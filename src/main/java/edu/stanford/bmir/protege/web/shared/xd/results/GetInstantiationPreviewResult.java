@@ -21,17 +21,23 @@ public class GetInstantiationPreviewResult implements Result {
 	
 	/**
 	 * Constructor
-	 * @param instantiationPreview
+	 * @param instantiationAxioms
 	 */
-	public GetInstantiationPreviewResult(String instantiationPreview) {
-		this.instantiationPreview = instantiationPreview;
+	public GetInstantiationPreviewResult(String instantiationAxioms, String instantiationAsJson) {
+		this.instantiationAxioms = instantiationAxioms;
+		this.instantiationAsJson = instantiationAsJson;
 	}
 	
 	// Data fields
-	private String instantiationPreview;
+	private String instantiationAxioms;
+	private String instantiationAsJson;
 	
 	// Access methods
-	public String getInstantiationPreview() {
-		return instantiationPreview;
+	public String getInstantiationAxioms() {
+		return instantiationAxioms;
+	}
+	
+	public String getInstantiationAsJson() {
+		return this.instantiationAsJson;
 	}
 }

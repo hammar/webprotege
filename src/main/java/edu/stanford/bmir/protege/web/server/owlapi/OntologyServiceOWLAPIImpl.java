@@ -181,6 +181,12 @@ public class OntologyServiceOWLAPIImpl extends WebProtegeRemoteServiceServlet im
         return true;
     }
 
+    public String getOntologyURI(String projectName) {
+        OWLOntology ontology = getOntology(projectName);
+        OWLOntologyID id = ontology.getOntologyID();
+        return toName(id);
+    }
+
     /**
      * Gets the imports of the root ontology for the specified project.
      * @param projectName The name of the project for which the imports will be retrieved.

@@ -39,7 +39,7 @@ public class AlignmentsPanel extends VerticalPanel implements InstantiationWizar
 		this.alignmentsHolderPanel.setSpacing(10);
 		this.alignmentsHolderPanel.addStyleName("xdpAlignmentPanelAlignmentHolder");
 		ScrollPanel sp = new ScrollPanel(alignmentsHolderPanel);
-		sp.setHeight("315px");
+		sp.setHeight("442px");
 		sp.addStyleName("xdpAlignmentPanelScrollWrapper");
 		this.add(sp);
 	}

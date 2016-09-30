@@ -27,6 +27,7 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.EntitySpecia
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.InstantiationMethodSelectionPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.PreviewPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.RestrictionsPanel;
+import edu.stanford.bmir.protege.web.client.xd.instantiation.widgets.VisualisationWidget;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.PersistInstantiationAction;
@@ -49,7 +50,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private Button wizardNextButton;
 	private Button wizardFinishButton;
 	private Panel wizardPanel;
-	private Panel visualizationPanel;
+	private TabLayoutPanel tabPanel;
+	private VisualisationWidget visualisationWidget;
 	private InstantiationMethodSelectionPanel instantiationMethodSelectionPanel;
 	private EntityCloningPanel entityCloningPanel;
 	private EntitySpecializationPanel entitySpecializationPanel;
@@ -65,6 +67,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	private Spinner spinner = new Spinner();
 
 	private IRI odpIri;
+	private String odpAsJsonString = "";
 	private FrameTreeNode<OntologyEntityFrame> classTree;
 	private FrameTreeNode<OntologyEntityFrame> objectPropertyTree;
 	private FrameTreeNode<OntologyEntityFrame> dataPropertyTree;
@@ -87,8 +90,8 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		
 		DockLayoutPanel wizardFramePanel = new DockLayoutPanel(Unit.EM);
 		// Size of popup widget (i.e., framing panel) governs size of popup, so is set here.
-		wizardFramePanel.setHeight("480px");
-		wizardFramePanel.setWidth("640px");
+		wizardFramePanel.setHeight("600px");
+		wizardFramePanel.setWidth("800px");
 		
 		// Header holding wizard title and close button
 		DockLayoutPanel wizardHeaderPanel = new DockLayoutPanel(Unit.EM);
@@ -111,13 +114,16 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		this.dataPropertyTree = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
 		
 		// Outer tab panel containing ODP visualization and instantiation wizard
-		TabLayoutPanel tabPanel = new TabLayoutPanel(3, Unit.EM);
+		tabPanel = new TabLayoutPanel(3, Unit.EM);
+		tabPanel.addStyleName("xdpInstantiationWizardTabPanel");
 		
 		// Add tabs
 		this.wizardPanel = makeWizardPanel();
-		this.visualizationPanel = makeVisualizationPanel();
+		this.visualisationWidget = new VisualisationWidget();
+		this.visualisationWidget.setWidth("784px");
+		this.visualisationWidget.setHeight("524px");
 		tabPanel.add(wizardPanel, "CODP Instantiation");
-		tabPanel.add(visualizationPanel, "CODP Visualisation");
+		tabPanel.add(visualisationWidget, "CODP Visualisation");
 		tabPanel.selectTab(wizardPanel);
 		
 		// Add tab panel to main body of outer frame panel
@@ -196,12 +202,6 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         
         wp.add(wpContentPanel);
 		return wp;
-	}
-	
-	private Panel makeVisualizationPanel() {
-		FlowPanel p = new FlowPanel();
-		p.add(new Label("Visualisation goes here"));
-		return p;
 	}
 	
 	protected void saveAndClose() {
@@ -513,9 +513,11 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 
 	public void loadOdp(String uri) {
 		
+		// Initiate spinner UI
+        this.showSpinner("Loading CODP...");
+		
 		// Set default visibility of child panels and reset statekeeping enum
-		// This is prior to spinner UI activating as it is instantaneous, and we
-		// don't want to show old data to user
+		this.tabPanel.selectTab(wizardPanel);
 		this.instantiationMethodSelectionPanel.setVisible(true);
         this.entityCloningPanel.setVisible(false);
         this.entitySpecializationPanel.setVisible(false);
@@ -535,11 +537,9 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         this.updateInstantiationModificationTimestamp();
         this.updateInstantiationMethodSelectionTimestamp();
 		
-		// Initiate spinner UI
-        this.showSpinner("Loading CODP...");
-		
 		// Clear wizard-level data structures
         this.instantiationMethod = CodpInstantiationMethod.TEMPLATE_BASED;
+        this.odpAsJsonString = "";
 		this.classTree = new FrameTreeNode<OntologyEntityFrame>(new ClassFrame("nil"));
 		this.objectPropertyTree = new FrameTreeNode<OntologyEntityFrame>(new ObjectPropertyFrame("nil"));
 		this.dataPropertyTree = new FrameTreeNode<OntologyEntityFrame>(new DataPropertyFrame("nil"));
@@ -550,10 +550,15 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         	@Override
             public void handleSuccess(GetOdpContentsResult result) {
         		
+        		// Read in data from returned object
         		odpIri = result.getOdpIri();
+        		odpAsJsonString = result.getOdpAsJsonString();
         		classTree = result.getClasses();
         		objectPropertyTree = result.getObjectProperties();
         		dataPropertyTree = result.getDataProperties();
+        		
+        		// Render visualiation
+        		visualisationWidget.renderJson(odpAsJsonString);
         		
         		// Render initial wizard and preview panel.
         		instantiationMethodSelectionPanel.renderPanel();
@@ -576,6 +581,10 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 	
 	public void addChildOntologyEntityFrame(OntologyEntityFrame parentFrame, OntologyEntityFrame childFrame) {
 		
+	}
+	
+	public String getOdpAsJsonString() {
+		return this.odpAsJsonString;
 	}
 	
 	public FrameTreeNode<OntologyEntityFrame> getClassTree() {

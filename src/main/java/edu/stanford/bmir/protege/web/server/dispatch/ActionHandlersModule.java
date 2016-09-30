@@ -57,6 +57,7 @@ import edu.stanford.bmir.protege.web.server.xd.GetOdpsByCategoryHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetInstantiationAlignmentSuggestionsHandler;
 import edu.stanford.bmir.protege.web.server.xd.GetInstantiationPreviewHandler;
 import edu.stanford.bmir.protege.web.server.xd.PersistInstantiationHandler;
+import edu.stanford.bmir.protege.web.server.xd.visualization.ConvertOntologyHandler;
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdCompletionsAction;
 import edu.stanford.bmir.protege.web.shared.itemlist.GetPersonIdItemsAction;
 import edu.stanford.bmir.protege.web.server.project.SetUIConfigurationActionHandler;
@@ -201,5 +202,8 @@ public class ActionHandlersModule extends AbstractModule {
         multibinder.addBinding().to(GetInstantiationAlignmentSuggestionsHandler.class);
         multibinder.addBinding().to(GetInstantiationPreviewHandler.class);
         multibinder.addBinding().to(PersistInstantiationHandler.class);
+        
+        // VOWL extension handlers below
+        multibinder.addBinding().to(ConvertOntologyHandler.class);
     }
 }

@@ -1,23 +1,29 @@
 package edu.stanford.bmir.protege.web.client.xd.instantiation.panels;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstantiationWizard;
+import edu.stanford.bmir.protege.web.client.xd.instantiation.widgets.VisualisationWidget;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetInstantiationPreviewAction;
 import edu.stanford.bmir.protege.web.shared.xd.data.CodpInstantiation;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetInstantiationPreviewResult;
 
 public class PreviewPanel extends VerticalPanel implements InstantiationWizardPanel {
 	
+	private TabLayoutPanel tabPanel;
 	private TextArea instantationAxiomsPreview;
 	private final DesignPatternInstantiationWizard parentWizard;
+	private VerticalPanel axiomPreviewPanel;
+	private VisualisationWidget vowlPreviewPanel;
 	
 	public PreviewPanel(DesignPatternInstantiationWizard parent) {
 		super();
@@ -40,8 +46,8 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
                 		new DispatchServiceCallback<GetInstantiationPreviewResult>() {
                 			@Override
                 			public void handleSuccess(GetInstantiationPreviewResult result) {
-                				instantationAxiomsPreview.setText(result.getInstantiationPreview());
-
+                				instantationAxiomsPreview.setText(result.getInstantiationAxioms());
+                				vowlPreviewPanel.renderJson(result.getInstantiationAsJson());
                 				// Kill the spinner
                 				parentWizard.hideSpinner();
                 			}
@@ -49,20 +55,31 @@ public class PreviewPanel extends VerticalPanel implements InstantiationWizardPa
 			}
         });
         navBar.add(buildPreviewButton);    
-        
         this.add(navBar);
         
-        VerticalPanel innerVp = new VerticalPanel();
-		innerVp.setSpacing(10);
+        tabPanel = new TabLayoutPanel(3, Unit.EM);
+        tabPanel.addStyleName("xdpPreviewPanelTabPanel");
+        tabPanel.setHeight("471px");
+        
+        axiomPreviewPanel = new VerticalPanel();
+        axiomPreviewPanel.setSpacing(10);
         instantationAxiomsPreview = new TextArea();
         instantationAxiomsPreview.setEnabled(false);
-        innerVp.add(instantationAxiomsPreview);
+        axiomPreviewPanel.add(instantationAxiomsPreview);
+        tabPanel.add(axiomPreviewPanel, "Axiom Preview");
         
-        this.add(innerVp);
+        vowlPreviewPanel = new VisualisationWidget();
+        vowlPreviewPanel.setWidth("787px");
+        vowlPreviewPanel.setHeight("418px");
+        tabPanel.add(vowlPreviewPanel, "VOWL Preview");
+        
+        tabPanel.selectTab(axiomPreviewPanel);
+        this.add(tabPanel);
 	}
 
 	@Override
 	public void renderPanel() {
+		this.tabPanel.selectTab(this.axiomPreviewPanel);
 		this.instantationAxiomsPreview.setText("");
 	}
 }
