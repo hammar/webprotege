@@ -14,6 +14,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -27,6 +28,7 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.EntitySpecia
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.InstantiationMethodSelectionPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.PreviewPanel;
 import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.RestrictionsPanel;
+import edu.stanford.bmir.protege.web.client.xd.instantiation.panels.VisualisationPanel;
 import edu.stanford.bmir.protege.web.shared.project.ProjectId;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpContentsAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.PersistInstantiationAction;
@@ -115,7 +117,7 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
 		
 		// Add tabs
 		this.wizardPanel = makeWizardPanel();
-		this.visualizationPanel = makeVisualizationPanel();
+		this.visualizationPanel = new VisualisationPanel(this.projectId);
 		tabPanel.add(wizardPanel, "CODP Instantiation");
 		tabPanel.add(visualizationPanel, "CODP Visualisation");
 		tabPanel.selectTab(wizardPanel);
@@ -196,12 +198,6 @@ public class DesignPatternInstantiationWizard extends PopupPanel {
         
         wp.add(wpContentPanel);
 		return wp;
-	}
-	
-	private Panel makeVisualizationPanel() {
-		FlowPanel p = new FlowPanel();
-		p.add(new Label("Visualisation goes here"));
-		return p;
 	}
 	
 	protected void saveAndClose() {

@@ -170,3 +170,9 @@ div.xdpInstantiationMethodSelectionPanel {
 div.xdpInstantiationMethodSelectionPanel span.gwt-RadioButton {
 	font-weight: bold;
 }
+
+div.xdpVisualisationPanel {
+	width: 100%;
+	height: 100%;
+	background-color: White;
+}
