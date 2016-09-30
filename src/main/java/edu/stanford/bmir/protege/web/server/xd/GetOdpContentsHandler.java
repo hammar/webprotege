@@ -18,6 +18,7 @@ import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.InferenceType;
@@ -27,6 +28,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 import org.springframework.web.client.RestTemplate;
 
+import de.uni_stuttgart.vis.vowl.owl2vowl.Owl2Vowl;
 import edu.stanford.bmir.protege.web.server.dispatch.ActionHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
@@ -106,10 +108,22 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 	        // Enrich class tree with restrictions from the ontology 
 	        addRestrictionsToClassFrames(odp, classes, objectProperties);
 	        
+	        // Get VOWL representation for visualisation purposes
+	        OWLOntologyID ontologyId = odp.getOntologyID();
+	        String ontologyIdString;
+	        if (ontologyId.isAnonymous()) {
+	        	ontologyIdString = ontologyId.toString();
+			}
+			else {
+				ontologyIdString = ontologyId.getOntologyIRI().toString();
+			}
+	        Owl2Vowl owl2Vowl = new Owl2Vowl(odp, ontologyIdString);
+	        String odpAsJsonString = owl2Vowl.getJsonAsString();
+	        
 	        // Log request and user ID for later analysis
 	        xdpLog.logOdpContentsRetrieved(executionContext.getUserId(), action.getOdpUri());
 	        
-	        return new GetOdpContentsResult(IRI.create(action.getOdpUri()), classes,objectProperties,datatypeProperties);
+	        return new GetOdpContentsResult(IRI.create(action.getOdpUri()), odpAsJsonString, classes,objectProperties,datatypeProperties);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

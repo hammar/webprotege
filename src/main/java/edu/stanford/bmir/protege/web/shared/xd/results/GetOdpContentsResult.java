@@ -30,10 +30,12 @@ public class GetOdpContentsResult implements Result, Serializable {
 	 * @param dataPropertyFrames
 	 */
 	public GetOdpContentsResult(IRI odpIri,
+			String odpAsJsonString,
 			FrameTreeNode<OntologyEntityFrame> classes,
 			FrameTreeNode<OntologyEntityFrame> objectProperties,
 			FrameTreeNode<OntologyEntityFrame> dataProperties) {
 		this.odpIri = odpIri;
+		this.odpAsJsonString = odpAsJsonString;
 		this.classes = classes;
 		this.objectProperties = objectProperties;
 		this.dataProperties = dataProperties;
@@ -41,6 +43,7 @@ public class GetOdpContentsResult implements Result, Serializable {
 	
 	// Data fields
 	private IRI odpIri;
+	private String odpAsJsonString;
 	private FrameTreeNode<OntologyEntityFrame> classes;
 	private FrameTreeNode<OntologyEntityFrame> objectProperties;
 	private FrameTreeNode<OntologyEntityFrame> dataProperties;
@@ -60,5 +63,9 @@ public class GetOdpContentsResult implements Result, Serializable {
 
 	public FrameTreeNode<OntologyEntityFrame> getDataProperties() {
 		return dataProperties;
+	}
+	
+	public String getOdpAsJsonString() {
+		return odpAsJsonString;
 	}
 }
