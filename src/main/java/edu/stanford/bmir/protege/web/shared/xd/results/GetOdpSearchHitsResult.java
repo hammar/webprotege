@@ -3,8 +3,9 @@ package edu.stanford.bmir.protege.web.shared.xd.results;
 import java.io.Serializable;
 import java.util.List;
 
+import com.karlhammar.xdpservices.data.OdpSearchResult;
+
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
-import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 
 /**
  * 

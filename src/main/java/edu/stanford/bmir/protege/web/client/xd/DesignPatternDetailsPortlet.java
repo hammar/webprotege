@@ -22,6 +22,7 @@ import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.TableLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
+import com.karlhammar.xdpservices.data.CodpDetails;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
@@ -31,7 +32,6 @@ import edu.stanford.bmir.protege.web.client.xd.instantiation.DesignPatternInstan
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
-import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpDetailsAction;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpDetailsResult;
 
@@ -46,7 +46,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 	// Core stuff
 	private ToolbarButton useOdpButton;
 	private Panel mainPanel;
-	private OdpDetails odp;
+	private CodpDetails odp;
 	
 	// ODP description widgets
 	private Image odpIllustration;
@@ -99,32 +99,27 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 		}
 	}
 	
-	public void renderOdpDetails(OdpDetails odp) {
+	public void renderOdpDetails(CodpDetails odp) {
 		
-		if (odp.getName()!=null) {
-			odpTitleLabel.setVisible(true);
-			odpTitleLabel.setText(odp.getName());
-		}
-		else {
-			odpTitleLabel.setVisible(false);
-		}
+		odpTitleLabel.setVisible(true);
+		odpTitleLabel.setText(odp.getName());
 		
-		if (odp.getDescription() != null) {
-			odpDescription.setHTML(new SafeHtmlBuilder().appendEscapedLines(odp.getDescription()).toSafeHtml());
+		if (odp.getDescription().isPresent()) {
+			odpDescription.setHTML(new SafeHtmlBuilder().appendEscapedLines(odp.getDescription().get()).toSafeHtml());
 		}
 		else {
 			odpDescription.setText("");
 		}
 		
-		if (odp.getImage() != null) {
-			odpIllustration.setUrl(odp.getImage());
+		if (odp.getImageIri().isPresent()) {
+			odpIllustration.setUrl(odp.getImageIri().get());
 			odpIllustration.setVisible(true);
 		}
 		else {
 			odpIllustration.setVisible(false);
 		}
 		
-		if (odp.getDomains() == null) {
+		if (odp.getDomains().isEmpty()) {
 			odpDomainsLabel.setVisible(false);
 			odpDomainsList.setVisible(false);
 		}
@@ -138,7 +133,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 			odpDomainsList.setHTML("<ul>" + domains + "</ul>");
 		}
 		
-		if (odp.getCqs() == null || odp.getCqs().length < 1) {
+		if (odp.getCqs().size() < 1) {
 			odpCqsLabel.setVisible(false);
 			odpCqsList.setVisible(false);
 		}
@@ -152,7 +147,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 			odpCqsList.setHTML("<ul>" + cqs + "</ul>");
 		}
 		
-		if (odp.getScenarios() == null || odp.getScenarios().length < 1) {
+		if (odp.getScenarios().size() < 1) {
 			odpScenariosLabel.setVisible(false);
 			odpScenariosList.setVisible(false);
 		}
@@ -166,8 +161,8 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 			odpScenariosList.setHTML("<ul>" + scenarios + "</ul>");
 		}
 		
-		odpIriLink.setHref(odp.getUri());
-		odpIriLink.setText(odp.getUri());
+		odpIriLink.setHref(odp.getUri().toString());
+		odpIriLink.setText(odp.getUri().toString());
 		
 		// Enable visualisation
 		visualisationFrame.setUrl(WEBVOWL_URI + odp.getUri());
@@ -278,7 +273,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
                       wizard.setPopupPosition(left, top);
                     }
                   });
-            	wizard.loadOdp(odp.getUri());
+            	wizard.loadOdp(odp.getUri().toString());
             }
         });
         

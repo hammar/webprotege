@@ -1,7 +1,8 @@
 package edu.stanford.bmir.protege.web.shared.xd.actions;
 
+import com.karlhammar.xdpservices.data.OdpSearchFilterConfiguration;
+
 import edu.stanford.bmir.protege.web.shared.dispatch.Action;
-import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpSearchHitsResult;
 
 public class GetOdpSearchHitsAction implements Action<GetOdpSearchHitsResult> {

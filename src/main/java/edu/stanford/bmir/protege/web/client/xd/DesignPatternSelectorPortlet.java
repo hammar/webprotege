@@ -42,6 +42,9 @@ import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.FormLayout;
 import com.gwtext.client.widgets.layout.RowLayout;
 import com.gwtext.client.widgets.layout.RowLayoutData;
+import com.karlhammar.xdpservices.data.CodpDetails;
+import com.karlhammar.xdpservices.data.OdpSearchFilterConfiguration;
+import com.karlhammar.xdpservices.data.OdpSearchResult;
 
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceCallback;
 import edu.stanford.bmir.protege.web.client.dispatch.DispatchServiceManager;
@@ -51,9 +54,6 @@ import edu.stanford.bmir.protege.web.client.xd.selection.Selectable;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionEvent;
 import edu.stanford.bmir.protege.web.client.xd.selection.SelectionListener;
 import edu.stanford.bmir.protege.web.shared.selection.SelectionModel;
-import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
-import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
-import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpCategoriesAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpSearchHitsAction;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpsByCategoryAction;
@@ -354,10 +354,10 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 				resultsGrid.hideColumn("confidence");
 				
 				// Populate results list.
-				List<OdpDetails> odps = result.getOdps();
+				List<CodpDetails> odps = result.getOdps();
 				resultsStore.removeAll();
-				for (OdpDetails odp: odps) {
-					Record record = recordDef.createRecord(new Object[]{odp.getName(), odp.getUri(), 1.0});
+				for (CodpDetails odp: odps) {
+					Record record = recordDef.createRecord(new Object[]{odp.getName(), odp.getUri().toString(), 1.0});
 					resultsStore.add(record);
 				}
 				resultsStore.sort("name", SortDir.ASC);

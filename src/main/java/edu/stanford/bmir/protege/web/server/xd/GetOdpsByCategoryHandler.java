@@ -8,13 +8,14 @@ import javax.inject.Inject;
 
 import org.springframework.web.client.RestTemplate;
 
+import com.karlhammar.xdpservices.data.CodpDetails;
+
 import edu.stanford.bmir.protege.web.server.dispatch.ActionHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
-import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpsByCategoryAction;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpsByCategoryResult;
 
@@ -53,7 +54,7 @@ public class GetOdpsByCategoryHandler implements ActionHandler<GetOdpsByCategory
 		String category = action.getCategory();
 		RestTemplate restTemplate = new RestTemplate();
 		String queryUri = String.format("%s/retrieve/odpMetadataByCategory?category=%s", XdpServiceUriBase, category);
-		OdpDetails[] results = restTemplate.getForObject(queryUri, OdpDetails[].class); 
+		CodpDetails[] results = restTemplate.getForObject(queryUri, CodpDetails[].class); 
 		return new GetOdpsByCategoryResult(Arrays.asList(results));
 	}
 }
