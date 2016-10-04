@@ -161,11 +161,11 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
 			odpScenariosList.setHTML("<ul>" + scenarios + "</ul>");
 		}
 		
-		odpIriLink.setHref(odp.getUri().toString());
-		odpIriLink.setText(odp.getUri().toString());
+		odpIriLink.setHref(odp.getIri());
+		odpIriLink.setText(odp.getIri());
 		
 		// Enable visualisation
-		visualisationFrame.setUrl(WEBVOWL_URI + odp.getUri());
+		visualisationFrame.setUrl(WEBVOWL_URI + odp.getIri());
 		
 		useOdpButton.enable();
 		mainPanel.show();
@@ -273,7 +273,7 @@ public class DesignPatternDetailsPortlet extends AbstractOWLEntityPortlet implem
                       wizard.setPopupPosition(left, top);
                     }
                   });
-            	wizard.loadOdp(odp.getUri().toString());
+            	wizard.loadOdp(odp.getIri());
             }
         });
         

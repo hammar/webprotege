@@ -357,7 +357,7 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 				List<CodpDetails> odps = result.getOdps();
 				resultsStore.removeAll();
 				for (CodpDetails odp: odps) {
-					Record record = recordDef.createRecord(new Object[]{odp.getName(), odp.getUri().toString(), 1.0});
+					Record record = recordDef.createRecord(new Object[]{odp.getName(), odp.getIri(), 1.0});
 					resultsStore.add(record);
 				}
 				resultsStore.sort("name", SortDir.ASC);
@@ -503,7 +503,7 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 				resultsStore.removeAll();
 				for (OdpSearchResult hit: searchHits) {
 					double confidenceRounded = Math.round( hit.getConfidence() * 100.0 ) / 100.0;
-					Record record = recordDef.createRecord(new Object[]{hit.getOdp().getName(), hit.getOdp().getUri(), confidenceRounded});
+					Record record = recordDef.createRecord(new Object[]{hit.getOdp().getName(), hit.getOdp().getIri(), confidenceRounded});
 					resultsStore.add(record);
 				}
 				resultsStore.sort("confidence", SortDir.DESC);
