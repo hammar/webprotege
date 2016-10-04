@@ -56,7 +56,7 @@ public class GetOdpDetailsHandler implements ActionHandler<GetOdpDetailsAction,G
 		// TODO: Handle what to do if the given URI is not actually a found ODP. Return null or throw exception?
 		String odpUri = action.getOdpUri();
 		RestTemplate restTemplate = new RestTemplate();
-		String queryUri = String.format("%s/retrieve/odpMetadata?uri=%s", XdpServiceUriBase, odpUri);
+		String queryUri = String.format("%s/retrieve/odpMetadata?iri=%s", XdpServiceUriBase, odpUri);
 		CodpDetails odp = restTemplate.getForObject(queryUri, CodpDetails.class);
 		
 		// Log details request for later analysis
