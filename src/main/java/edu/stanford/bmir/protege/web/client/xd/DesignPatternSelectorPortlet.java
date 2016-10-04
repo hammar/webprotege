@@ -474,7 +474,8 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 		
 		// Set up filter object
 		OdpSearchFilterConfiguration filterConfiguration = new OdpSearchFilterConfiguration();
-		if (searchCategoryCb.getValue() != null) {
+		// TODO: Reimplement the below once server-side functionality and front-end UI is in place
+		/*if (searchCategoryCb.getValue() != null) {
 			filterConfiguration.setCategory(searchCategoryCb.getValue());
 		}
 		if (searchSizeCb.getValue() != null) {
@@ -488,7 +489,7 @@ public class DesignPatternSelectorPortlet extends AbstractOWLEntityPortlet imple
 		}
 		filterConfiguration.setDolceMappingRequired(dolceMappingCheck.getValue());
 		filterConfiguration.setSchemaOrgMappingRequired(schemaOrgMappingCheck.getValue());
-		filterConfiguration.setDbPediaMappingRequired(dbpediaMappingCheck.getValue());
+		filterConfiguration.setDbPediaMappingRequired(dbpediaMappingCheck.getValue());*/
 		
 		// Execute remote query method
 		DispatchServiceManager.get().execute(new GetOdpSearchHitsAction(queryField.getText(), filterConfiguration), 
