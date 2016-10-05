@@ -188,3 +188,21 @@ div.xdpVisualisationWidget {
 	border: 1px solid Black;
 	margin: 7px;
 }
+
+div.xdpDetailsPortletHeaderLabel {
+	font-size: 22px;
+	border-bottom: 1px solid #99bbe8;
+}
+
+table.xdpDetailsPortletTable {
+	border-spacing: 10px;
+}
+
+table.xdpDetailsPortletTable div.xdpDetailsPortletTableHeaderLabel {
+	font-weight: bold;
+}
+
+table.xdpDetailsPortletTable li {
+	list-style-type: disc;
+	list-style-position: inside;
+}
