@@ -10,10 +10,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 
+import com.karlhammar.xdpservices.data.OdpSearchFilterConfiguration;
+import com.karlhammar.xdpservices.data.OdpSearchResult;
+
 import edu.stanford.bmir.protege.web.server.owlapi.OWLAPIProject;
 import edu.stanford.bmir.protege.web.shared.user.UserId;
-import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
-import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 import edu.stanford.bmir.protege.web.shared.xd.data.alignment.Alignment;
 
 public class XdpLogger {

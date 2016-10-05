@@ -3,8 +3,9 @@ package edu.stanford.bmir.protege.web.shared.xd.results;
 import java.io.Serializable;
 import java.util.List;
 
+import com.karlhammar.xdpservices.data.CodpDetails;
+
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
-import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 
 /**
  * 
@@ -25,15 +26,15 @@ public class GetOdpsByCategoryResult implements Result, Serializable {
 	 * Constructor
 	 * @param searchResults
 	 */
-	public GetOdpsByCategoryResult(List<OdpDetails> odps) {
+	public GetOdpsByCategoryResult(List<CodpDetails> odps) {
 		this.odps = odps;
 	}
 	
 	// Data fields
-	private List<OdpDetails> odps;
+	private List<CodpDetails> odps;
 	
 	// Access methods
-	public List<OdpDetails> getOdps() {
+	public List<CodpDetails> getOdps() {
 		return odps;
 	}
 }

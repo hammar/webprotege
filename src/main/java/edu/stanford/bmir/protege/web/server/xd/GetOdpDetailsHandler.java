@@ -7,6 +7,8 @@ import javax.inject.Inject;
 
 import org.springframework.web.client.RestTemplate;
 
+import com.karlhammar.xdpservices.data.CodpDetails;
+
 import edu.stanford.bmir.protege.web.server.dispatch.ActionHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
 import edu.stanford.bmir.protege.web.server.dispatch.RequestContext;
@@ -14,7 +16,6 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
 import edu.stanford.bmir.protege.web.server.xd.log.XdpLogger;
-import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpDetailsAction;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpDetailsResult;
 
@@ -55,8 +56,8 @@ public class GetOdpDetailsHandler implements ActionHandler<GetOdpDetailsAction,G
 		// TODO: Handle what to do if the given URI is not actually a found ODP. Return null or throw exception?
 		String odpUri = action.getOdpUri();
 		RestTemplate restTemplate = new RestTemplate();
-		String queryUri = String.format("%s/retrieve/odpMetadata?uri=%s", XdpServiceUriBase, odpUri);
-		OdpDetails odp = restTemplate.getForObject(queryUri, OdpDetails.class);
+		String queryUri = String.format("%s/retrieve/odpMetadata?iri=%s", XdpServiceUriBase, odpUri);
+		CodpDetails odp = restTemplate.getForObject(queryUri, CodpDetails.class);
 		
 		// Log details request for later analysis
 		xdpLog.logOdpMetadataRetrieved(executionContext.getUserId(), action.getOdpUri());

@@ -9,6 +9,9 @@ import javax.inject.Inject;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.karlhammar.xdpservices.data.OdpSearchFilterConfiguration;
+import com.karlhammar.xdpservices.data.OdpSearchResult;
+
 import edu.stanford.bmir.protege.web.client.dispatch.ActionExecutionException;
 import edu.stanford.bmir.protege.web.server.dispatch.ActionHandler;
 import edu.stanford.bmir.protege.web.server.dispatch.ExecutionContext;
@@ -17,8 +20,6 @@ import edu.stanford.bmir.protege.web.server.dispatch.RequestValidator;
 import edu.stanford.bmir.protege.web.server.dispatch.validators.NullValidator;
 import edu.stanford.bmir.protege.web.server.logging.WebProtegeLogger;
 import edu.stanford.bmir.protege.web.server.xd.log.XdpLogger;
-import edu.stanford.bmir.protege.web.shared.xd.OdpSearchFilterConfiguration;
-import edu.stanford.bmir.protege.web.shared.xd.OdpSearchResult;
 import edu.stanford.bmir.protege.web.shared.xd.actions.GetOdpSearchHitsAction;
 import edu.stanford.bmir.protege.web.shared.xd.results.GetOdpSearchHitsResult;
 

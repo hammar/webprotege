@@ -2,8 +2,9 @@ package edu.stanford.bmir.protege.web.shared.xd.results;
 
 import java.io.Serializable;
 
+import com.karlhammar.xdpservices.data.CodpDetails;
+
 import edu.stanford.bmir.protege.web.shared.dispatch.Result;
-import edu.stanford.bmir.protege.web.shared.xd.OdpDetails;
 
 /**
  * 
@@ -24,15 +25,15 @@ public class GetOdpDetailsResult implements Result, Serializable {
 	 * Constructor
 	 * @param details
 	 */
-	public GetOdpDetailsResult(OdpDetails details) {
+	public GetOdpDetailsResult(CodpDetails details) {
 		this.details = details;
 	}
 	
 	// Data fields
-	private OdpDetails details;
+	private CodpDetails details;
 	
 	// Access methods
-	public OdpDetails getDetails() {
+	public CodpDetails getDetails() {
 		return details;
 	}
 }

@@ -85,7 +85,7 @@ public class GetOdpContentsHandler implements ActionHandler<GetOdpContentsAction
 		try {
 			// Fetch ODP as Turtle-formatted string from XdpService via REST
 			RestTemplate restTemplate = new RestTemplate();
-			String queryUri = String.format("%s/retrieve/odpBuildingBlockTurtle?uri=%s", XdpServiceUriBase, action.getOdpUri());
+			String queryUri = String.format("%s/retrieve/odpBuildingBlockTurtle?iri=%s", XdpServiceUriBase, action.getOdpUri());
 			String turtleRepresentation = restTemplate.getForObject(queryUri, String.class);
 			
 			// Load ODP as in-memory OWLOntology representation
