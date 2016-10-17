@@ -1,5 +1,105 @@
 <project>
     <tabs>
+    	<!-- ********************************** -->
+        <!--      Simplified Editor Tab         -->
+        <!-- ********************************** -->
+        <tab>
+            <name>edu.stanford.bmir.protege.web.client.ui.tab.UserDefinedTab</name>
+            <label>Simplified editor</label>
+            <columns>
+
+                <!-- Column 1 -->
+                <column>
+                    <width>0.25</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.ontology.classes.ClassTreePortlet</name>
+                            <height>570</height>
+                            <width>200</width>
+                        </portlet>
+                    </portlets>
+                </column>
+
+                <!-- Column 2 -->
+                <column>
+                    <width>0.50</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.editor.EditorPortlet</name>
+                            <height>570</height>
+                            <width>0</width>
+                        </portlet>
+                    </portlets>
+                </column>
+
+                <!-- Column 3 -->
+                <column>
+                    <width>0.25</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.ontology.properties.PropertiesTreePortlet</name>
+                            <height>570</height>
+                            <width>200</width>
+                        </portlet>
+                    </portlets>
+                </column>
+
+            </columns>
+        </tab>
+    
+    
+		<!-- ********************************** -->
+        <!--      Advanced Editor Tab           -->
+        <!-- ********************************** -->
+        <tab>
+            <name>edu.stanford.bmir.protege.web.client.ui.tab.UserDefinedTab</name>
+            <label>Advanced editor</label>
+            <columns>
+
+                <!-- Column 1 -->
+                <column>
+                    <width>0.25</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.ontology.classes.ClassTreePortlet</name>
+                            <height>570</height>
+                            <width>200</width>
+                        </portlet>
+                    </portlets>
+                </column>
+
+                <!-- Column 2 -->
+                <column>
+                    <width>0.50</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.frame.OWLEntityDescriptionEditorPortlet</name>
+                            <height>320</height>
+                            <width>0</width>
+                        </portlet>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.editor.EditorPortlet</name>
+                            <height>400</height>
+                            <width>0</width>
+                        </portlet>
+                    </portlets>
+                </column>
+
+                <!-- Column 3 -->
+                <column>
+                    <width>0.25</width>
+                    <portlets>
+                        <portlet>
+                            <name>edu.stanford.bmir.protege.web.client.ui.ontology.properties.PropertiesTreePortlet</name>
+                            <height>570</height>
+                            <width>200</width>
+                        </portlet>
+                    </portlets>
+                </column>
+
+            </columns>
+        </tab>
+
 
         <!-- ********************************** -->
         <!--          Classes Tab               -->
