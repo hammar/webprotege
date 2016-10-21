@@ -53,6 +53,7 @@ Building and running WebProtégé with the XDP plugin is a four step process, ea
 4. OPTIONALLY, build a redistributable JAR archive that can be installed into some init script or maintenance daemon system:
 
     ```gradle jar```
+    
     ```gradle bootRepackage```
 
 ## Perform initial indexing
