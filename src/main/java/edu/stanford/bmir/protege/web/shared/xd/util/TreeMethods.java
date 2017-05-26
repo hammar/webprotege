@@ -84,14 +84,19 @@ public class TreeMethods {
 	
 	/**
 	 * Generate from a tree a map of nodes (as keys) and their depth in the tree (as values), excluding
-	 * the top-level node.
+	 * the top-level node iff it has children, including it (and only it) otherwise.
 	 * @param topNode
 	 * @return
 	 */
 	public static Map<OntologyEntityFrame,Integer> getFrameTreeAsIndentMap(FrameTreeNode<OntologyEntityFrame> topNode) {
 		Map<OntologyEntityFrame,Integer> retVal = new HashMap<OntologyEntityFrame, Integer>();
-		for (FrameTreeNode<OntologyEntityFrame> childNode: topNode.getChildren()) {
-			retVal.putAll(getFrameTreeAsIndentMap(childNode, 0));
+		if (topNode.getChildren().isEmpty()) {
+			retVal.put(topNode.getData(), 0);
+		}
+		else {
+			for (FrameTreeNode<OntologyEntityFrame> childNode: topNode.getChildren()) {
+				retVal.putAll(getFrameTreeAsIndentMap(childNode, 0));
+			}
 		}
 		return retVal;
 	}
