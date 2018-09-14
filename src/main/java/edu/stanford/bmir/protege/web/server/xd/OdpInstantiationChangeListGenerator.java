@@ -740,7 +740,7 @@ public class OdpInstantiationChangeListGenerator implements ChangeListGenerator<
 		try {
 			// Fetch ODP as Turtle-formatted string from XdpService via REST
 			RestTemplate restTemplate = new RestTemplate();
-			String queryUri = String.format("%s/retrieve/odpBuildingBlockTurtle?uri=%s", XdpServiceUriBase, odpIri.toString());
+			String queryUri = String.format("%s/retrieve/odpBuildingBlockTurtle?iri=%s", XdpServiceUriBase, odpIri.toString());
 			String turtleRepresentation = restTemplate.getForObject(queryUri, String.class);
 			
 			// Load ODP as in-memory OWLOntology representation
